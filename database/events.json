@@ -1,0 +1,58 @@
+[
+  {
+    "id": "f8176ce1-2089-402e-862d-187790f521af",
+    "date": "2024-01-23",
+    "time": "6:20 PM",
+    "title": "Sunday Soccer Game",
+    "description": "60 acres park",
+    "email": "bjilly@eastsideprep.org"
+  },
+  {
+    "id": "bbb67da7-3402-492b-a23e-a6a1e7cc7c76",
+    "date": "2024-01-26",
+    "time": "04:20 AM",
+    "title": "School Start",
+    "description": "EPS",
+    "email": "ajosan@eastsideprep.org"
+  },
+  {
+    "id": "953715da-6229-4bbd-aa1b-ef98068aca29",
+    "date": "2024-02-21",
+    "time": "08:20 AM",
+    "title": "Debate Tournament",
+    "description": "Billington highschool",
+    "email": "bjilly@eastsideprep.org"
+  },
+  {
+    "id": "7bafe5d1-b529-44fd-ad8c-fd0656a09ab2",
+    "date": "2024-02-17",
+    "time": "09:30 AM",
+    "title": "Winter Social",
+    "description": "Medina",
+    "email": "pjain@eastsideprep.org"
+  },
+  {
+    "id": "3b66bd2d-5fe1-4971-905a-11844403d163",
+    "date": "2024-01-18",
+    "time": "6:30 PM",
+    "title": "Debate Tournament",
+    "description": "Gig harbor high school",
+    "email": "ajosan@eastsideprep.org"
+  },
+  {
+    "id": "f7edfe39-fb0c-4fee-8146-54db0344d560",
+    "date": "2024-01-25",
+    "time": "8:00 PM",
+    "title": "Debate Tournament",
+    "description": "Auburn (need ride for 2 people)",
+    "email": "anmoljosan@outlook.com"
+  },
+  {
+    "id": "04890efa-5a2f-4c32-b34b-9327c389c022",
+    "date": "2024-01-23",
+    "time": "08:00 AM",
+    "title": "Drive to EPS from Seattle",
+    "description": "Seattle-EPS",
+    "email": "ajosan@eastsideprep.org"
+  }
+]

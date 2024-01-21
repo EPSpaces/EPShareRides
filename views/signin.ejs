@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>EPShare Rides | Login</title>
+    <link href="./bulma.min.css" rel="stylesheet" type="text/css" />
+    <script src="https://kit.fontawesome.com/16ae8e710d.js" crossorigin="anonymous"></script>
+    
+    <link href="./style.css" rel="stylesheet" type="text/css" />
+    <!--Get your code at fontawesome.com-->
+    <link rel="icon" href="./favicon.ico" type="image/x-icon">
+  </head>
+  <body>
+    
+    <main>
+      <% if (error) { %>
+      <article class="message is-danger">
+        <div class="message-header">
+          <p>Warning</p>
+          <button class="delete" aria-label="delete"></button>
+        </div>
+        <div class="message-body">
+          <%= error %>
+        </div>
+      </article>
+      <% } %>
+      
+      <article class="panel is-link" style="margin: 170px; margin-top:130px;  ">
+        <p class="panel-heading">
+          Log in to EPShare Ride
+          <span style="font-size: 1em; color: #30B700; float: right">
+            <i class="fa-solid fa-leaf"></i>
+          </span>
+        </p>
+        
+        <div class="panel-block">
+          
+        </div>
+       
+        <a class="">
+           <div class="field">
+             <p class="control has-icons-left has-icons-right">
+               <input class="input is-link" type="email" placeholder="Email" id="email"; style="margin:10px;margin-bottom:0px;padding-righ;margin-right:10px;width: 97%">
+               <span class="icon is-small is-left" style="margin:10px">
+                 <i class="fas fa-envelope"></i>
+               </span>
+               <span class="icon is-small is-right" style="margin:10px">
+                 <i class="fas fa-check"></i>
+               </span>
+             </p>
+           </div>
+        </a>
+          <a class="" style="">
+           <div class="field">
+             <p class="control has-icons-left">
+               <input class="input is-link" type="password" placeholder="Password" style="margin:10px; width: 97%" id="password">
+               <span class="icon is-small is-left" style="margin:10px">
+                 <i class="fas fa-lock"></i>
+               </span>
+             </p>
+           </div>
+        </a>
+        <button class="button is-fullwidth is-link is-outlined" style="margin-top: 10px;" onclick="signin()">
+          Log in
+        </button>
+     
+      </article>
+         <p class="has-text-centered" style="margin-top: 20px;">Don't have an account? <a href="/signup">Sign up here</a></p>
+        
+    </main>
+  <script src="./index_signup.js"></script>
+  <script>
+    function signin() {
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+
+      const data = {
+        email,
+        password,
+      };
+
+      const jsonData = JSON.stringify(data);;
+
+      const url = "/auth/signin";
+      let accessToken;
+
+      fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: jsonData,
+      })
+        .then((response) => {
+          if (response.redirected) {
+            window.location.href = response.url;
+          }
+        })
+        .catch(error => console.error('Error:', error));
+
+      localStorage.setItem('accessToken', accessToken);
+
+    }
+  </script>
+    
+  </body>
+</html>

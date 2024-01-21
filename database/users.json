@@ -1,0 +1,65 @@
+[
+  {
+    "firstName": "Ari",
+    "lastName": "Yamashita",
+    "email": "bjilly@eastsideprep.org",
+    "password": "$2b$10$2oc6dtAPKolyEg6pTfMoiezs6jHNh..blfQd4rpzCdb1y1iTQPmuW",
+    "id": "06da2e12-a07e-4bfd-95d5-77863f05dc51"
+  },
+  {
+    "firstName": "Anmol",
+    "lastName": "Josan",
+    "email": "ajosan@eastsideprep.org",
+    "password": "$2b$10$LNEor2uKdZJx2kqkuTESyu9k.Mbq2JaKaZdXyiOpGbdC01kZOS1L6",
+    "id": "3ca209c7-54c9-4501-943c-48fa6d5c95e4"
+  },
+  {
+    "firstName": "Nikhil",
+    "lastName": "Mahesh",
+    "email": "nmahesh@eastsideprep.org",
+    "password": "$2b$10$BYnyK/et8PaEe.Nw.hrhK.UDJEmnQqzFLNIiuAB4t1/sQ0jM6Np7a",
+    "id": "cd043d15-ab46-4e82-b463-047ed045171e"
+  },
+  {
+    "firstName": "Praneel",
+    "lastName": "Jain",
+    "email": "pjain@eastsideprep.org",
+    "password": "$2b$10$3KEMbiNPT4sm6odw2n.CC.F9JxNW4Q4CSncnRia/CGQhLRhr.iOpW",
+    "id": "8be874c4-0aca-4c3d-a0a5-cc425185908f"
+  },
+  {
+    "firstName": "Singh",
+    "lastName": "Anmol",
+    "email": "anmoljosan@outlook.com",
+    "password": "$2b$10$Ff6RXOKpg55f5LvIoQqIpuCbv75Gcq9Z92J9C8vixwQkyFLPVLdAy",
+    "id": "36671415-0f89-475e-b915-a6f1bf9cfc16"
+  },
+  {
+    "firstName": "John",
+    "lastName": "Doe",
+    "email": "jdoe@eastsideprep.org",
+    "password": "$2b$10$cIR8BWnjbs2RgKmqS9ZCJejs8gQWDiTjTRqz/hi77dn4LshR8d9qe",
+    "id": "72a72031-5c00-403d-a809-461e850bcdae"
+  },
+  {
+    "firstName": "Hannah",
+    "lastName": "Yamashita",
+    "email": "hyamashita@eastsideprep.org",
+    "password": "$2b$10$Jt6Ki0Fo0MqDZW8huRetauo6/L8HT5FDIVBSq8u2Kc5zCf652n9d6",
+    "id": "d16b1ce8-1a1a-4e73-9629-4d61bae8ef5f"
+  },
+  {
+    "firstName": "Test",
+    "lastName": "Account",
+    "email": "Test@test.com",
+    "password": "$2b$10$/trhwzkCa9esh.Gtq2YYBuMLcHlgmwm/iAAz7haQL4aIjKVlYUyZW",
+    "id": "a29a21e8-4f5b-42dd-a4cd-f5da40a12e67"
+  },
+  {
+    "firstName": "test",
+    "lastName": "test",
+    "email": "test@outlook.com",
+    "password": "$2b$10$A7eCDgeH.fPBFjamqTlDt.tC7wqsNypyZyOVorYcjWFn41a5ab.xq",
+    "id": "3acf1373-8608-4014-88df-114d7ccec136"
+  }
+]
