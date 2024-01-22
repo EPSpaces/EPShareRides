@@ -9,11 +9,7 @@ const cookieParser = require("cookie-parser");
 let users = require("./database/users.json");
 let events = require("./database/events.json");
 
-const token_secret =
-  "09e7831ca421c8ee7ae8769154b4f67ea0245b23f2f2093475a38b1705bfadfeb600fb3242fd2f64d15170876320ef9c97dc720b065c5251ef08b087969a20b5";
-
-const refresh_token_secret =
-  "d4d9cac1665adc89d091b2dbb9799c8e38f6b20cc3b33155b045b3d04512341b256efcc234be2403fdaca5f7c1b62c1127b293d0870910041a66ad96eb2bf2f2";
+const token_secret = process.env['TOKEN_SECRET'];
 
 const app = express();
 
@@ -114,10 +110,11 @@ app.get("/signin", (req, res) => {
 });
 
 app.get("/logout", (req, res) => {
-  res.render("logout");
+  res.clearCookie('authToken');
+  res.redirect("/signin");
 });
 
-app.get("/upcomingcarpools", getToken, authenticateToken, (req, res) => {
+app.get("/upcomingevents", getToken, authenticateToken, (req, res) => {
   const email = req.email;
   let firstName;
   let lastName;
@@ -126,7 +123,7 @@ app.get("/upcomingcarpools", getToken, authenticateToken, (req, res) => {
 
   firstName = userInData.firstName;
   lastName = userInData.lastName;
-  res.render("upcomingcarpools", { email, firstName, lastName, events });
+  res.render("upcomingevents", { email, firstName, lastName, events });
 });
 
 app.get("/friends", getToken, authenticateToken, (req, res) => {

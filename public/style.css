@@ -11,6 +11,15 @@ body {
     margin: 15px auto;
 }
 
+.hero-foot {
+  padding-top: 16px;
+  background-color: white;
+  position: fixed; bottom: 0; width: 100%; 
+
+  
+  /* background: linear-gradient(0deg, rgba(255,255,255,1) 0%, rgba(255,255,255,1) 80%, rgba(255,255,255,0) 100%); */
+}
+
 /* Calendar container */
 .container-calendar {
     background: #ffffff;
