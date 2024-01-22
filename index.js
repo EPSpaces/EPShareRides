@@ -38,12 +38,10 @@ function getToken(req, res, next) {
 }
 
 function ensureNoToken(req, res, next) {
-  const authHeader = req.headers && req.headers["authorization"];
-  const token = authHeader && authHeader.split(" ")[1];
+  const token = req.cookies && req.cookies["authToken"];
   if (token != null) {
     return res.redirect("/");
   }
-
   next();
 }
 
@@ -101,11 +99,11 @@ app.get("/", getToken, authenticateToken, (req, res) => {
   res.render("index", { email, firstName, lastName, eventsP });
 });
 
-app.get("/signup", (req, res) => {
+app.get("/signup", ensureNoToken, (req, res) => {
   res.render("signup", { error: req.query.err });
 });
 
-app.get("/signin", (req, res) => {
+app.get("/signin", ensureNoToken, (req, res) => {
   res.render("signin", { error: req.query.err });
 });
 
