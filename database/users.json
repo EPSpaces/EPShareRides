@@ -68,5 +68,26 @@
     "email": "aerf@eastsideprep.org",
     "password": "$2b$10$BND5LekjFZtH9BoD.Kgw9.sKOinuc.wHLEpLbYZUvfAKLZByABVyq",
     "id": "9628d395-58d0-4787-b687-b08026f47e54"
+  },
+  {
+    "firstName": "Joseph",
+    "lastName": "Mother",
+    "email": "jmother@eastsideprep.org",
+    "password": "$2b$10$Pqg.4GjX1Ffb2MnKbXvvTOwu2clXO/WZJt.NJC6JLYdBFKV0.cxW2",
+    "id": "561bcae3-ebaa-4ed1-97ab-1212a66a6212"
+  },
+  {
+    "firstName": "aerf",
+    "lastName": "aerf",
+    "email": "aerf@aerf.com",
+    "password": "$2b$10$EhLHxi0/oM43N0Dh2jtjEe2BKZ7uix4D2dpH3VowkmhqPsbs9ot8.",
+    "id": "f269bfec-52e7-4825-8598-dc1b88c224cb"
+  },
+  {
+    "firstName": "Soren",
+    "lastName": "Anderson",
+    "email": "sanderson@linclon.com",
+    "password": "$2b$10$uEuOpej3TJyOJYoosF86auX8k6SCrClXKBZFmG8qaXbjjFwbHAtTS",
+    "id": "3a1b5479-49e7-44b0-9eb9-400213ff27bf"
   }
 ]

@@ -24,13 +24,13 @@
                   <h1 class="title is-3" style="margin-left: 10px" >EPShare Rides
                   </h1>
                 </a>
-                <span class="navbar-burger" data-target="navbarMenuHeroC">
+                <span class="navbar-burger " data-target="navbarMenuHeroC" id="nav-toggle">
                   <span></span>
                   <span></span>
                   <span></span>
                 </span>
               </div>
-              <div id="navbarMenuHeroC" class="navbar-menu">
+              <div id="navbarMenuHeroC" class="navbar-menu ">
                 <div class="navbar-end">
                  
                   <div class="is-button is-link">
@@ -45,10 +45,31 @@
                          Log out
                         </a>
 
-                      
+                         <div class="navbar-item has-dropdown is-hoverable ">
                         <a class="button is-link" id="name_button">
                        <%= firstName %> <%= lastName %>
                         </a>
+                        
+                          
+                         
+
+                             <div class="navbar-dropdown" >
+                               <a class="navbar-item">
+                                Update settings
+                               </a>
+                               <a class="navbar-item" href="mailto:nmahesh@eastsideprep.org; ayamashita@eastsideprep.org; pjain27@eastsideprep.org; ajosan@eastsideprep.org">
+                                 Report a bug
+                               </a>
+                               <a class="navbar-item">
+                                 Delete account
+                               </a>
+                               <hr class="navbar-divider">
+                               <div class="navbar-item">
+                                 Version Beta 0.1.0
+                               </div>
+                             </div>
+                           </div>
+                         </nav>
                        
                       </div>
                     </div>
@@ -91,7 +112,12 @@
                   <div id="reminder-section">
                       <h3>Reminders</h3>
                       <!-- List to display reminders -->
+                    <div  type="button" style="font-size: 15px; margin-top: 10px; background-color: #eee; border-radius: 0px; padding-top: 5px; padding-bottom: 5px;" class="collapsible" id="collapsible1">My carpools<i style="margin-left: 5px;" class="fa-solid fa-angle-right" id="carpools-caret"></i></div>
+                    <div class="content" style="display: none;">
+                     
+                 
                       <ul id="reminderList">
+                        
                           <li data-event-id="1">
                               <strong>Event Title</strong>
                               - Event Description on Event Date
@@ -101,6 +127,7 @@
                               </button>
                           </li>
                       </ul>
+                       </div>
                   </div>
               </div>
               <div id="right">
@@ -198,6 +225,9 @@
   // Counter to generate unique event IDs
   let eventIdCounter = 1;
 
+
+
+  
   // Function to add events
   function addEvent() {
     let date = eventDateInput.value;
@@ -478,6 +508,37 @@
   // Call the showCalendar function initially to display the calendar
   showCalendar(currentMonth, currentYear);
 
+ 
+
 
   
+</script>
+<script defer>
+  function navBurger() {
+      var burger = document.getElementById('nav-toggle');
+      var menu = document.getElementById('navbarMenuHeroC');
+      burger.addEventListener('click', function() {
+          burger.classList.toggle('is-active');
+          menu.classList.toggle('is-active');
+      });
+  }
+  navBurger()
+
+
+  var coll = document.getElementsByClassName("collapsible");
+  var i;
+
+  for (i = 0; i < coll.length; i++) {
+    coll[i].addEventListener("click", function() {
+      this.classList.toggle("active");
+      var content = this.nextElementSibling;
+      if (content.style.display === "block") {
+        content.style.display = "none";
+        document.getElementById("carpools-caret").classList="fa-solid fa-angle-right";
+      } else {
+        content.style.display = "block";
+        document.getElementById("carpools-caret").classList="fa-solid fa-angle-down";
+      }
+    });
+  }
 </script>

@@ -9,7 +9,7 @@ const cookieParser = require("cookie-parser");
 let users = require("./database/users.json");
 let events = require("./database/events.json");
 
-const token_secret = process.env['TOKEN_SECRET'];
+const token_secret = process.env["TOKEN_SECRET"];
 
 const app = express();
 
@@ -80,9 +80,8 @@ app.set("view engine", "ejs");
 app.use(express.json());
 app.use(express.static(__dirname + "/public"));
 app.use(cookieParser());
-app.use(express.json({limit: '10mb'}));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
-
+app.use(express.json({ limit: "10mb" }));
+app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
 app.get("/", getToken, authenticateToken, (req, res) => {
   const email = req.email;
@@ -94,8 +93,8 @@ app.get("/", getToken, authenticateToken, (req, res) => {
   firstName = userInData.firstName;
   lastName = userInData.lastName;
 
-  let eventsP = events.filter(event => event.email === email);
-  
+  let eventsP = events.filter((event) => event.email === email);
+
   res.render("index", { email, firstName, lastName, eventsP });
 });
 
@@ -108,7 +107,7 @@ app.get("/signin", ensureNoToken, (req, res) => {
 });
 
 app.get("/logout", (req, res) => {
-  res.clearCookie('authToken');
+  res.clearCookie("authToken");
   res.redirect("/signin");
 });
 
@@ -128,7 +127,7 @@ app.get("/friends", getToken, authenticateToken, (req, res) => {
   let people = [];
   let i = 0;
   users.forEach((u) => {
-    let newPerson = {}
+    let newPerson = {};
     newPerson.firstName = u.firstName;
     newPerson.lastName = u.lastName;
     newPerson.email = u.email;
@@ -145,7 +144,6 @@ app.get("/friends", getToken, authenticateToken, (req, res) => {
   firstName = userInData.firstName;
   lastName = userInData.lastName;
 
-  
   res.render("friends", { people, email, firstName, lastName });
 });
 

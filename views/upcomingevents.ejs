@@ -17,50 +17,72 @@
      
       <section class="hero is-fullheight">
         <!-- Hero head: will stick at the top -->
-        <div class="hero-head">
-          <header class="navbar">
-            <div class="container">
-              <div class="navbar-brand">
-                <a class="navbar-item">
-                  <img src="EPS Logo - Transparent-4.png" alt="Logo">
-                  <h1 class="title is-3" style="margin-left: 10px" >EPShare Rides
-                  </h1>
-                </a>
-                <span class="navbar-burger" data-target="navbarMenuHeroC">
-                  <span></span>
-                  <span></span>
-                  <span></span>
-                </span>
-              </div>
-              <div id="navbarMenuHeroC" class="navbar-menu">
-                <div class="navbar-end">
-                 
-                  <div class="is-button is-link">
-                  
-                    <div class="navbar-item">
-                      <span style="font-size: 1em; color: #30B700; float: right">
-                        <i class="fa-solid fa-leaf"></i>
-                      </span>
-                      <div class="buttons" style="margin: 10px;margin-right: 0px;">
-                        
-                        <a class="button is-link is-outlined " href="/logout">
-                         Log out
-                        </a>
+                         <div class="hero-head">
+                           <header class="navbar">
+                             <div class="container">
+                               <div class="navbar-brand">
+                                 <a class="navbar-item">
+                                   <img src="EPS Logo - Transparent-4.png" alt="Logo">
+                                   <h1 class="title is-3" style="margin-left: 10px" >EPShare Rides
+                                   </h1>
+                                 </a>
+                                 <span class="navbar-burger " data-target="navbarMenuHeroC" id="nav-toggle">
+                                   <span></span>
+                                   <span></span>
+                                   <span></span>
+                                 </span>
+                               </div>
+                               <div id="navbarMenuHeroC" class="navbar-menu ">
+                                 <div class="navbar-end">
 
-                      
-                        <a class="button is-link">
-                       <%= firstName %> <%= lastName %>
-                        </a>
-                       
-                      </div>
-                    </div>
-                    
-                    </div>
-                </div>
-              </div>
-            </div>
-          </header>
-        </div>
+                                   <div class="is-button is-link">
+
+                                     <div class="navbar-item">
+                                       <span style="font-size: 1em; color: #30B700; float: right">
+                                         <i class="fa-solid fa-leaf"></i>
+                                       </span>
+                                       <div class="buttons" style="margin: 10px;margin-right: 0px;">
+
+                                         <a class="button is-link is-outlined " href="/logout">
+                                          Log out
+                                         </a>
+
+                                          <div class="navbar-item has-dropdown is-hoverable ">
+                                         <a class="button is-link" id="name_button">
+                                        <%= firstName %> <%= lastName %>
+                                         </a>
+
+
+
+
+                                              <div class="navbar-dropdown" >
+                                                <a class="navbar-item">
+                                                 Update settings
+                                                </a>
+                                                <a class="navbar-item" href="mailto:nmahesh@eastsideprep.org, ayamashita@eastsideprep.org, pjain27@eastsideprep.org, ajosan@eastsideprep.org">
+                                                  Report a bug
+                                                </a>
+                                                <a class="navbar-item">
+                                                  Delete account
+                                                </a>
+                                                <hr class="navbar-divider">
+                                                <div class="navbar-item">
+                                                  Version Beta 0.1.0
+                                                </div>
+                                              </div>
+                                            </div>
+                                          </nav>
+
+                                       </div>
+                                     </div>
+
+                                     </div>
+                                 </div>
+                               </div>
+                             </div>
+                           </header>
+                         </div>
+
 
         <!-- Hero content: will be in the middle -->
         <div class="hero-body">
@@ -85,13 +107,19 @@
                   
                  Registered Carpoolers: Nikhil Mahesh, Anmol Josan
                 </p>
-                <div class="button">Register for this event</div>
+                <div class="buttons" style="display: inline">
+               
+                <div class="button" style="margin-right: 10px;">Offer to carpool</div>
+         
+                <div class="button" >Register for this event</div>
+                 </div>
+                 </div>
               </div>
               <a class="panel-block is-active">
                 <span class="panel-icon">
                   <i class="fas fa-book" aria-hidden="true"></i>
                 </span>
-               Booked by Ari Yamashita
+               Booked by Karla Harris
               </a>
               
             </article>
