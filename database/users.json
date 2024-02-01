@@ -89,5 +89,12 @@
     "email": "sanderson@linclon.com",
     "password": "$2b$10$uEuOpej3TJyOJYoosF86auX8k6SCrClXKBZFmG8qaXbjjFwbHAtTS",
     "id": "3a1b5479-49e7-44b0-9eb9-400213ff27bf"
+  },
+  {
+    "firstName": "Angad",
+    "lastName": "Josan",
+    "email": "ajosan25@eastsideprep.org",
+    "password": "$2b$10$qtqKxUOardoz4xaqTp4m3OnBTK6bgPIzGVqTDIkOWXCZut17vaWh6",
+    "id": "357e3733-9e0a-4b79-a6c7-a70beebe7453"
   }
 ]
