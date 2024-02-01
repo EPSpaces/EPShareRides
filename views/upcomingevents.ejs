@@ -1,163 +1,164 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>EPShare Rides</title>
-    <link href="./bulma.min.css" rel="stylesheet" type="text/css" />
-    <link href="./style.css" rel="stylesheet" type="text/css" />
-    <script src="https://kit.fontawesome.com/16ae8e710d.js" crossorigin="anonymous"></script>
-    <link rel="icon" href="./favicon.ico" type="image/x-icon">
-    <link rel="stylesheet" href="./style.css">
-    <script src="./script.js"></script>
-  </head>
-  <body>
-    <main>
-     
-      <section class="hero is-fullheight">
-        <!-- Hero head: will stick at the top -->
-                         <div class="hero-head">
-                           <header class="navbar">
-                             <div class="container">
-                               <div class="navbar-brand">
-                                 <a class="navbar-item">
-                                   <img src="EPS Logo - Transparent-4.png" alt="Logo">
-                                   <h1 class="title is-3" style="margin-left: 10px" >EPShare Rides
-                                   </h1>
-                                 </a>
-                                 <span class="navbar-burger " data-target="navbarMenuHeroC" id="nav-toggle">
-                                   <span></span>
-                                   <span></span>
-                                   <span></span>
-                                 </span>
-                               </div>
-                               <div id="navbarMenuHeroC" class="navbar-menu ">
-                                 <div class="navbar-end">
+  <!DOCTYPE html>
+  <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta http-equiv="X-UA-Compatible" content="ie=edge">
+      <title>EPShare Rides</title>
+      <link href="./bulma.min.css" rel="stylesheet" type="text/css" />
+      <link href="./style.css" rel="stylesheet" type="text/css" />
+      <script src="https://kit.fontawesome.com/16ae8e710d.js" crossorigin="anonymous"></script>
+      <link rel="icon" href="./favicon.ico" type="image/x-icon">
+      <link rel="stylesheet" href="./style.css">
+      <script src="./script.js"></script>
+    </head>
+    <body>
+      <main>
 
-                                   <div class="is-button is-link">
+        <section class="hero is-fullheight">
+          <!-- Hero head: will stick at the top -->
+                           <div class="hero-head">
+                             <header class="navbar">
+                               <div class="container">
+                                 <div class="navbar-brand">
+                                   <a class="navbar-item">
+                                     <img src="EPS Logo - Transparent-4.png" alt="Logo">
+                                     <h1 class="title is-3" style="margin-left: 10px" >EPShare Rides
+                                     </h1>
+                                   </a>
+                                   <span class="navbar-burger " data-target="navbarMenuHeroC" id="nav-toggle">
+                                     <span></span>
+                                     <span></span>
+                                     <span></span>
+                                   </span>
+                                 </div>
+                                 <div id="navbarMenuHeroC" class="navbar-menu ">
+                                   <div class="navbar-end">
 
-                                     <div class="navbar-item">
-                                       <span style="font-size: 1em; color: #30B700; float: right">
-                                         <i class="fa-solid fa-leaf"></i>
-                                       </span>
-                                       <div class="buttons" style="margin: 10px;margin-right: 0px;">
+                                     <div class="is-button is-link">
 
-                                         <a class="button is-link is-outlined " href="/logout">
-                                          Log out
-                                         </a>
+                                       <div class="navbar-item">
+                                         <span style="font-size: 1em; color: #30B700; float: right">
+                                           <i class="fa-solid fa-leaf"></i>
+                                         </span>
+                                         <div class="buttons" style="margin: 10px;margin-right: 0px;">
 
-                                          <div class="navbar-item has-dropdown is-hoverable ">
-                                         <a class="button is-link" id="name_button">
-                                        <%= firstName %> <%= lastName %>
-                                         </a>
+                                           <a class="button is-link is-outlined " href="/logout">
+                                            Log out
+                                           </a>
 
-
+                                            <div class="navbar-item has-dropdown is-hoverable ">
+                                           <a class="button is-link" id="name_button">
+                                          <%= firstName %> <%= lastName %>
+                                           </a>
 
 
-                                              <div class="navbar-dropdown" >
-                                                <a class="navbar-item">
-                                                 Update settings
-                                                </a>
-                                                <a class="navbar-item" href="mailto:nmahesh@eastsideprep.org, ayamashita@eastsideprep.org, pjain27@eastsideprep.org, ajosan@eastsideprep.org">
-                                                  Report a bug
-                                                </a>
-                                                <a class="navbar-item">
-                                                  Delete account
-                                                </a>
-                                                <hr class="navbar-divider">
-                                                <div class="navbar-item">
-                                                  Version Beta 0.1.0
+
+
+                                                <div class="navbar-dropdown" >
+                                                  <a class="navbar-item">
+                                                   Update settings
+                                                  </a>
+                                                  <a class="navbar-item" href="mailto:nmahesh@eastsideprep.org, ayamashita@eastsideprep.org, pjain27@eastsideprep.org, ajosan@eastsideprep.org">
+                                                    Report a bug
+                                                  </a>
+                                                  <a class="navbar-item">
+                                                    Delete account
+                                                  </a>
+                                                  <hr class="navbar-divider">
+                                                  <div class="navbar-item">
+                                                    Version Beta 0.1.0
+                                                  </div>
                                                 </div>
                                               </div>
-                                            </div>
-                                          </nav>
+                                            </nav>
+
+                                         </div>
+                                       </div>
 
                                        </div>
-                                     </div>
-
-                                     </div>
+                                   </div>
                                  </div>
                                </div>
-                             </div>
-                           </header>
-                         </div>
+                             </header>
+                           </div>
 
 
-        <!-- Hero content: will be in the middle -->
-        <div class="hero-body">
-          <div class="container has-text-centered">
-            <!-- <p class="title">
-              Title
-            </p>
-            <p class="subtitle">
-              Subtitle
-            </p> -->
-
-
-            <!--Start here  -->
-         
-            <article class="panel is-link" >
-              <p class="panel-heading" style="margin-top: -10px" >
-             Sunday Soccer Game
+          <!-- Hero content: will be in the middle -->
+          <div class="hero-body">
+            <div class="container has-text-centered">
+              <!-- <p class="title">
+                Title
               </p>
-              
-              <div class="panel-block">
-                <p class="control has-icons-left">
-                  
-                 Registered Carpoolers: Nikhil Mahesh, Anmol Josan
+              <p class="subtitle">
+                Subtitle
+              </p> -->
+
+
+              <!--Start here  -->
+
+              <article class="panel is-link" >
+                <p class="panel-heading" style="margin-top: -10px" >
+               Sunday Soccer Game
                 </p>
-                <div class="buttons" style="display: inline">
+
+                <div class="panel-block">
+                  <p class="control has-icons-left">
+
+                   Registered Carpoolers: Nikhil Mahesh, Anmol Josan
+                  </p>
+                  <div class="buttons" style="">
+
+                  <div class="button" style="margin-right: 10px;">Offer to carpool</div>
+
+                  <div class="button"" >Register for this event</div>
+                   </div>
+                   </div>
+                <a class="panel-block is-active">
+                  <span class="panel-icon">
+                    <i class="fas fa-book" aria-hidden="true"></i>
+                  </span>
+                 Booked by Karla Harris
+                </a>
+                </div>
                
-                <div class="button" style="margin-right: 10px;">Offer to carpool</div>
-         
-                <div class="button" >Register for this event</div>
-                 </div>
-                 </div>
-              </div>
-              <a class="panel-block is-active">
-                <span class="panel-icon">
-                  <i class="fas fa-book" aria-hidden="true"></i>
-                </span>
-               Booked by Karla Harris
-              </a>
-              
-            </article>
-            <!-- End here -->
+
+              </article>
+              <!-- End here -->
 
 
 
 
-            <!--Start here  -->
-          
-            <!-- End here -->
+              <!--Start here  -->
+
+              <!-- End here -->
 
 
 
 
 
 
-            
-          </div>
-        </div>
-    
-        <!-- Hero footer: will stick at the bottom -->
-        <div class="hero-foot">
-          <nav class="tabs is-boxed is-fullwidth">
-            <div class="container">
-              <ul>
-                <li ><a href="/">My Carpools</a></li>
-                <li class="is-active"><a href="/upcomingevents">Upcoming Events</a></li>
-                <li  ><a href="friends">Friends</a></li>
-               
-              </ul>
+
             </div>
-          </nav>
-        </div>
-        
-      </section>
-      
-    </main>
-  <script src="index.js"></script>
-  </body>
-</html>
+          </div>
+
+          <!-- Hero footer: will stick at the bottom -->
+          <div class="hero-foot">
+            <nav class="tabs is-boxed is-fullwidth">
+              <div class="container">
+                <ul>
+                  <li ><a href="/">My Carpools</a></li>
+                  <li class="is-active"><a href="/upcomingevents">Upcoming Events</a></li>
+                  <li  ><a href="friends">Friends</a></li>
+
+                </ul>
+              </div>
+            </nav>
+          </div>
+
+        </section>
+
+      </main>
+    <script src="index.js"></script>
+    </body>
+  </html>

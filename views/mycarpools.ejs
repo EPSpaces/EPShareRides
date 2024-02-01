@@ -12,7 +12,7 @@
   </head>
   <body>
     <main>
-     
+
       <section class="hero is-fullheight">
         <!-- Hero head: will stick at the top -->
         <div class="hero-head">
@@ -32,15 +32,15 @@
               </div>
               <div id="navbarMenuHeroC" class="navbar-menu ">
                 <div class="navbar-end">
-                 
+
                   <div class="is-button is-link">
-                  
+
                     <div class="navbar-item">
                       <span style="font-size: 1em; color: #30B700; float: right">
                         <i class="fa-solid fa-leaf"></i>
                       </span>
                       <div class="buttons" style="margin: 10px;margin-right: 0px;">
-                        
+
                         <a class="button is-link is-outlined " href="/logout">
                          Log out
                         </a>
@@ -49,9 +49,9 @@
                         <a class="button is-link" id="name_button">
                        <%= firstName %> <%= lastName %>
                         </a>
-                        
-                          
-                         
+
+
+
 
                              <div class="navbar-dropdown" >
                                <a class="navbar-item">
@@ -70,10 +70,10 @@
                              </div>
                            </div>
                          </nav>
-                       
+
                       </div>
                     </div>
-                    
+
                     </div>
                 </div>
               </div>
@@ -90,8 +90,8 @@
             <p class="subtitle">
               Subtitle
             </p> -->
-          
-        <!-- <div class="wrapper" style="margin-top:-30px; margin-bottom: 30px; ">
+
+        <div class="wrapper" style="margin-top:-30px; margin-bottom: 30px; ">
           <div class="container-calendar" >
               <div id="left" style="margin-right: 15px;">
                  <h1>Calendar</h1>
@@ -107,17 +107,17 @@
                           placeholder="Location">
                       <button id="addEvent" onclick="addEvent()">
                           Add
-                      </button> 
+                      </button>
                   </div>
                   <div id="reminder-section">
                       <h3>Reminders</h3>
                       <!-- List to display reminders -->
-                    <!--<div  type="button" style="font-size: 15px; margin-top: 10px; background-color: #eee; border-radius: 0px; padding-top: 5px; padding-bottom: 5px;" class="collapsible" id="collapsible1">My carpools<i style="margin-left: 5px;" class="fa-solid fa-angle-right" id="carpools-caret"></i></div>
+                    <div  type="button" style="font-size: 15px; margin-top: 10px; background-color: #eee; border-radius: 0px; padding-top: 5px; padding-bottom: 5px;" class="collapsible" id="collapsible1">My carpools<i style="margin-left: 5px;" class="fa-solid fa-angle-right" id="carpools-caret"></i></div>
                     <div class="content" style="display: none;">
-                     
-                 
+
+
                       <ul id="reminderList">
-                        
+
                           <li data-event-id="1">
                               <strong>Event Title</strong>
                               - Event Description on Event Date
@@ -147,12 +147,12 @@
                          data-lang="en">
                       <thead id="thead-month"></thead>
                       <!-- Table body for displaying the calendar -->
-                      <!--<tbody id="calendar-body"></tbody>
+                      <tbody id="calendar-body"></tbody>
                   </table>
                   <div class="footer-container-calendar">
                       <label for="month">Jump To: </label>
                       <!-- Dropdowns to select a specific month and year -->
-                      <!--<select id="month" onchange="jump()">
+                      <select id="month" onchange="jump()">
                           <option value=0>Jan</option>
                           <option value=1>Feb</option>
                           <option value=2>Mar</option>
@@ -167,19 +167,15 @@
                           <option value=11>Dec</option>
                       </select>
                       <!-- Dropdown to select a specific year -->
-                      <!--<select id="year" onchange="jump()"></select>
+                      <select id="year" onchange="jump()"></select>
                   </div>
               </div>
           </div>
-        </div> -->
-               
-            
-          </div> 
         </div>
+            </div>
+            </div>
         <!-- Include the JavaScript file for the calendar functionality -->
         <script src="./script.js"></script>
-        
-                         
         <!-- Hero footer: will stick at the bottom -->
         <div class="hero-foot" style="  ">
           <nav class="tabs is-boxed is-fullwidth">
@@ -188,19 +184,19 @@
                 <li  class="is-active"><a href="/">My Carpools</a></li>
                 <li ><a href="/upcomingevents">Upcoming Events</a></li>
                 <li  ><a href="/friends">Friends</a></li>
-               
+
               </ul>
             </div>
           </nav>
         </div>
-        
+
       </section>
-      
+
     </main>
   <!--<script src="index.js"></script>-->
   </body>
 </html>
-<!-- <script>
+<script>
   // script.js
   // script.js
   let eventsP;
@@ -215,7 +211,7 @@
     })
     .catch((error) => console.log(error("Error:", error)));
 
-  
+
   // Define an array to store events
   let events = [];
 
@@ -231,7 +227,7 @@
 
 
 
-  
+
   // Function to add events
   function addEvent() {
     let date = eventDateInput.value;
@@ -512,10 +508,10 @@
   // Call the showCalendar function initially to display the calendar
   showCalendar(currentMonth, currentYear);
 
- 
 
 
-  
+
+
 </script>
 <script defer>
   function navBurger() {
@@ -545,4 +541,4 @@
       }
     });
   }
-</script> -->
+</script>
