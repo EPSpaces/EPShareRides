@@ -5,12 +5,26 @@ const { v4: uuidv4 } = require("uuid");
 const fs = require("fs");
 const bcrypt = require("bcrypt");
 const cookieParser = require("cookie-parser");
+const mongoose = require("mongoose");
 
 let users = require("./database/users.json");
 let events = require("./database/events.json");
 
+const User = require("./schemas/User");
+
+// JWT secret
 const token_secret = process.env["TOKEN_SECRET"];
 
+// Connect to the database
+mongoose.connect(process.env["MONGO_URI"])
+.then(() => {
+  console.log("Connected to db");
+})
+.catch((err) => {
+  console.error("Error connecting to db:", err);
+});
+
+// Init Server
 const app = express();
 
 function authenticateToken(req, res, next) {
@@ -75,6 +89,21 @@ function comparePassword(password, email) {
 
   return bcrypt.compareSync(password, hashedPassword);
 }
+
+const createUser = async (firstName, lastName, email, password) => {
+  try {
+    const existingUser = await User.findOne({ email });
+    if(existingUser) {
+      return 2;
+    }
+    const user = new User({ firstName, lastName, email, password });
+    await user.save();
+    return 1;
+  } catch (error) {
+    console.error("Error creating user:", error);
+    return 0;
+  }
+};
 
 app.set("view engine", "ejs");
 app.use(express.json());
@@ -151,16 +180,15 @@ app.post("/auth/signup", (req, res) => {
   const user = req.body;
 
   user.password = hashPassword(user.password);
-  user.id = uuidv4();
 
-  const existingUser = users.find((userA) => userA.email == user.email);
+  const result = createUser(user.firstName, user.lastName, user.email, user.password);
 
-  if (existingUser) {
+  if (result == 2) {
     res.redirect("/signup?err=Email Already In System");
-  } else {
-    users.push(user);
-    writeToJSON("./database/users.json", users);
+  } else if (result == 1) {
     res.redirect("/signin");
+  } else {
+    res.redirect("/signup?err=Error Creating User");
   }
 });
 
