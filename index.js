@@ -8,19 +8,21 @@ const cookieParser = require("cookie-parser");
 const mongoose = require("mongoose");
 
 let users = require("./database/users.json");
-let events = require("./database/events.json");
+
+const Event = require("./schemas/Event");
 
 // JWT secret
 const token_secret = process.env["TOKEN_SECRET"];
 
 // Connect to the database
-mongoose.connect(process.env["MONGO_URI"])
-.then(() => {
-  console.log("Connected to db");
-})
-.catch((err) => {
-  console.error("Error connecting to db:", err);
-});
+mongoose
+  .connect(process.env["MONGO_URI"])
+  .then(() => {
+    console.log("Connected to db");
+  })
+  .catch((err) => {
+    console.error("Error connecting to db:", err);
+  });
 
 // Init Server
 const app = express();
@@ -88,6 +90,17 @@ function comparePassword(password, email) {
   return bcrypt.compareSync(password, hashedPassword);
 }
 
+const createEvent = async (date, time, title, description, email) => {
+  try {
+    const event = new Event({ date, time, title, description, email });
+    await event.save();
+    return true;
+  } catch (error) {
+    console.error("Error creating event:", error);
+    return false;
+  }
+};
+
 app.set("view engine", "ejs");
 app.use(express.json());
 app.use(express.static(__dirname + "/public"));
@@ -105,11 +118,15 @@ app.get("/", getToken, authenticateToken, (req, res) => {
   firstName = userInData.firstName;
   lastName = userInData.lastName;
 
-  let eventsP = events.filter((event) => event.email === email);
-
-  res.render("index", { email, firstName, lastName, eventsP });
+  Event.find({ email: email })
+    .then((eventsP) => {
+      res.render("index", { email, firstName, lastName, eventsP });
+    })
+    .catch((err) => {
+      console.error("Error retrieving events:", err);
+      res.status(500).send("Error retrieving events");
+    });
 });
-
 app.get("/signup", ensureNoToken, (req, res) => {
   res.render("signup", { error: req.query.err });
 });
@@ -123,7 +140,8 @@ app.get("/logout", (req, res) => {
   res.redirect("/signin");
 });
 
-app.get("/upcomingevents", getToken, authenticateToken, (req, res) => {
+app.get("/upcomingevents", getToken, authenticateToken, async (req, res) => {
+  const allEvents = await Event.find({});
   const email = req.email;
   let firstName;
   let lastName;
@@ -132,7 +150,8 @@ app.get("/upcomingevents", getToken, authenticateToken, (req, res) => {
 
   firstName = userInData.firstName;
   lastName = userInData.lastName;
-  res.render("upcomingevents", { email, firstName, lastName, events });
+
+  res.render("upcomingevents", { email, firstName, lastName, allEvents });
 });
 
 app.get("/friends", getToken, authenticateToken, (req, res) => {
@@ -193,14 +212,14 @@ app.post("/auth/signin", (req, res) => {
 
 app.post("/event", getToken, authenticateToken, (req, res) => {
   const event = req.body;
-  event.id = uuidv4();
 
-  events.push(event);
-  writeToJSON("./database/events.json", events);
-});
-
-app.get("/data/events", (req, res) => {
-  res.json(events);
+  createEvent(
+    event.date,
+    event.time,
+    event.title,
+    event.description,
+    event.email,
+  );
 });
 
 app.listen(80, () => {
