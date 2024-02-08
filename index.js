@@ -10,8 +10,6 @@ const mongoose = require("mongoose");
 let users = require("./database/users.json");
 let events = require("./database/events.json");
 
-const User = require("./schemas/User");
-
 // JWT secret
 const token_secret = process.env["TOKEN_SECRET"];
 
@@ -90,21 +88,6 @@ function comparePassword(password, email) {
   return bcrypt.compareSync(password, hashedPassword);
 }
 
-const createUser = async (firstName, lastName, email, password) => {
-  try {
-    const existingUser = await User.findOne({ email });
-    if(existingUser) {
-      return 2;
-    }
-    const user = new User({ firstName, lastName, email, password });
-    await user.save();
-    return 1;
-  } catch (error) {
-    console.error("Error creating user:", error);
-    return 0;
-  }
-};
-
 app.set("view engine", "ejs");
 app.use(express.json());
 app.use(express.static(__dirname + "/public"));
@@ -180,15 +163,16 @@ app.post("/auth/signup", (req, res) => {
   const user = req.body;
 
   user.password = hashPassword(user.password);
+  user.id = uuidv4();
 
-  const result = createUser(user.firstName, user.lastName, user.email, user.password);
+  const existingUser = users.find((userA) => userA.email == user.email);
 
-  if (result == 2) {
+  if (existingUser) {
     res.redirect("/signup?err=Email Already In System");
-  } else if (result == 1) {
-    res.redirect("/signin");
   } else {
-    res.redirect("/signup?err=Error Creating User");
+    users.push(user);
+    writeToJSON("./database/users.json", users);
+    res.redirect("/signin");
   }
 });
 
