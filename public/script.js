@@ -1,3 +1,38 @@
+const x = document.getElementById("location");
+
+function hide() {
+    document.getElementById("myPopup").style.display = "none"
+}
+
+function getLocation() {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(showPosition);
+    } else {
+        x.innerHTML = "Geolocation is not supported by this browser.";
+    }
+    function showPosition(position) {
+        x.innerHTML = "Latitude: " + position.coords.latitude +
+            " Longitude: " + position.coords.longitude;
+    }
+}
+
+var map = L.map('map').setView([47.64332055551951, 237.80129313468936], 13);
+L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+}).addTo(map);
+
+function onMapClick(e) {
+    var test = JSON.stringify(e.latlng)
+    const obj = JSON.parse(test);
+    x.innerHTML = "Latitude: " + obj.lat +
+        " Longitude: " + obj.lng
+    var marker = L.marker([obj.lat, obj.lng]).addTo(map);
+    L.marker([obj.lat, obj.lng]).removeFrom(map);
+}
+
+map.on('click', onMapClick);
+
 // script.js
 /*
 // Define an array to store events
