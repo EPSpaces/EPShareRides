@@ -9,12 +9,12 @@
     <link href="./style.css" rel="stylesheet" type="text/css" />
     <script src="https://kit.fontawesome.com/16ae8e710d.js" crossorigin="anonymous"></script>
     <link rel="icon" href="./favicon.ico" type="image/x-icon">
+    <meta charset="UTF-8">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-     integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
-     crossorigin=""/>
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
-     crossorigin=""></script>
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
   </head>
   <body>
     <main>
@@ -89,7 +89,7 @@
 
         <!-- Hero content: will be in the middle -->
         <div class="hero-body">
-          <div class="container has-text-centered">
+          <!-- <div class="container has-text-centered"> -->
             <!-- <p class="title">
               Title
             </p>
@@ -180,10 +180,74 @@
         </div> -->
                
             
-          </div> 
-            <center>
-                <div id="map" style="height: 500px; width: 700px; z-index: 1;"></div>
-            </center>
+          <!-- </div>  -->
+          
+          <div class="columns" style="width: 100%">
+            <div class="column" style="margin-left: 20px; margin-right: 10px;">
+
+
+              
+
+                <div class="container has-text-centered" style="margin-top: -220px; width: 100%">
+
+
+                  <article class="panel is-link" style="position: relative" >
+                    <div class=" " style="float: left; margin: 7px; left:0px; position: absolute " >
+                      <span class="panel-icon" style='color: white; display: inline'>
+                        <i class="fas fa-user" aria-hidden="true" style="margin: 13px; margin-left: 15px;"></i>
+                        <p style="color: white; display: inline; font-size: 15px; ">Carpool with Rimmi J</p>
+                      </span>
+                    </div>
+
+
+                    <div class=" " style="float: right; margin: 7px; right:0px; position: absolute " >
+                      <span class="panel-icon" style='color: white; display: inline'>
+                        <i class="fas fa-car" aria-hidden="true" style="margin: 13px; margin-left: 15px;"></i>
+                        <p style="color: white; display: inline; font-size: 15px; ">3/3/24 5:30 PM</p>
+                      </span>
+                    </div>
+                    <p class="panel-heading" style="margin-top: -10px; " >
+
+                  7/8 Soccer Game
+
+
+                    </p>
+
+
+                    <div class="panel-block">
+                      <p class="control has-icons-left" style="width: 100px;">
+
+                        <!-- <span style="color: #999999; margin-right: 5px;"><i class="fa-solid fa-location-dot "></i></span>Location: 60 Acres Park  <span style="color: #999999; margin-right: 5px; margin-left: 10px;"><i class="fa-solid fa-clock "></i></span>Date: 3/3/24 5:30 PM -->
+
+                        Registered carpoolers: Anmol J, Ari Y
+                      </p>
+                      <div class="buttons" style="float: left; display: inline-block;">
+
+                  
+
+                        <div class="button" >Unregister</div>
+                        <div class="button" onclick="stuff()">View >></div>
+                       </div>
+                       </div>
+
+                    </div>
+
+
+                  </article>
+              </div>
+
+
+
+            
+            </div>
+            <div class="column">
+              <center>
+                  <div id="map" style="height: 400px; width: 500px; z-index: 1; margin-top: -75px; margin-right: 10px; border-radius: 15px;"></div>
+              </center>
+            </div>
+            
+          </div>
+            
         </div>
         <!-- Include the JavaScript file for the calendar functionality -->
         <script src="./script.js"></script>

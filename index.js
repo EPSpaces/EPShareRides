@@ -8,6 +8,7 @@ const cookieParser = require("cookie-parser");
 const mongoose = require("mongoose");
 
 let users = require("./database/users.json");
+let points = require("./database/points.json");
 
 const Event = require("./schemas/Event");
 

@@ -1,19 +1,76 @@
-var map = L.map("map").setView([47.64332055551951, 237.80129313468936], 13);
-L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-  maxZoom: 19,
-  attribution:
-    '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-}).addTo(map);
+var MARKERS_MAX = 4;
+var markers = 0;
 
-function onMapClick(e) {
-  var test = JSON.stringify(e.latlng);
-  const obj = JSON.parse(test);
-  x.innerHTML = "Latitude: " + obj.lat + " Longitude: " + obj.lng;
-  var marker = L.marker([obj.lat, obj.lng]).addTo(map);
+var map = L.map("map").setView([47.64332055551951, 237.80129313468936], 11);
+L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {}).addTo(
+  map,
+);
+map.attributionControl.setPrefix(false);
+
+// a layer group, used here like a container for markers
+var markersGroup = L.layerGroup();
+map.addLayer(markersGroup);
+
+const points = [];
+map.on("click", function (e) {
+  //var marker = L.marker(e.latlng).addTo(markersGroup);
+
+  points[markers] = L.marker(e.latlng);
+  markers++;
+  console.log(L.marker(e.latlng));
+  /*const datastuff = points[markers];
+
+  const data = {
+    datastuff,
+  };
+
+  const jsonData = JSON.stringify(data);
+
+  const url = "/auth/signup";
+
+  fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: jsonData,
+  })
+    .then((response) => {
+      if (response.redirected) {
+        window.location.href = response.url;
+      }
+    })
+    .catch((error) => console.error("Error:", error));
+  return;*/
+});
+
+let pointsP;
+fetch("/database/points", {
+  method: "GET",
+})
+  .then((response) => response.json())
+  .then((data) => {
+    pointsP = data;
+    console.log(pointsP);
+    stuff2();
+  })
+  .catch((error) => console.log(error("Error:", error)));
+
+function stuff() {
+  for (let i = 0; i < points.length; i++) {
+    var marker = points[i].addTo(markersGroup);
+  }
 }
 
-map.on("click", onMapClick);
+function stuff2() {
+  for (let i = 0; i < pointsP.length; i++) {
+    var marker = pointsP[i].addTo(markersGroup);
+  }
+}
 
+var marker = L.marker([47.64332055551951, 237.80129313468936]).addTo(map);
+var popup = marker.bindPopup("Eastside Preparatory School<br />Go eagles!");
+// .openPopup();
 // script.js
 /*
 // Define an array to store events
