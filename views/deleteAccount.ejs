@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DANGER ZONE: Delete Account</title>
+</head>
+<body>
+  This is the page to enter the password and then post to delete the account
+  Run the deleteAccount() function
+  <script>
+    function deleteAccount() {
+      const data = { password: document.getElementById("password").value, };
+
+      const jsonData = JSON.stringify(data);
+
+      fetch("/auth/deleteAccount", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: jsonData,
+      })
+      .then((response) => {
+        if (response.redirected) {
+          window.location.href = response.url;
+        }
+      })
+      .catch(error => console.error("Error:", error));
+    }
+  </script>
+</body>
+</html>

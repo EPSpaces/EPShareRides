@@ -134,6 +134,10 @@ app.get("/logout", (req, res) => {
   res.redirect("/signin");
 });
 
+app.get("/deleteAccount", getToken, authenticateToken, (req, res) => {
+  res.render("deleteAccount");
+});
+
 app.get("/upcomingevents", getToken, authenticateToken, async (req, res) => {
   const allEvents = await Event.find({});
   const email = req.email;
@@ -201,6 +205,17 @@ app.post("/auth/signin", (req, res) => {
     res.redirect("/");
   } else {
     res.redirect("/signin?err=Invalid Email or Password");
+  }
+});
+
+app.delete("/auth/deleteAccount", getToken, authenticateToken, (req, res) => {
+  const { email, password } = req.body;
+  if (comparePassword(password, email)) {
+    const updatedUsers = users.filter((user) => user.email != email);
+    writeToJSON("./database/users.json", updatedUsers);
+    res.status(202).send("Account Deleted");
+  } else {
+    res.status(403).send("Unauthorized");
   }
 });
 
