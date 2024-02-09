@@ -17,7 +17,7 @@ map.on("click", function (e) {
 
   points[markers] = L.marker(e.latlng);
   markers++;
-  console.log(L.marker(e.latlng));
+  console.log(e.latlng);
   /*const datastuff = points[markers];
 
   const data = {
@@ -44,17 +44,19 @@ map.on("click", function (e) {
   return;*/
 });
 
-let pointsP;
-fetch("/database/points", {
-  method: "GET",
-})
-  .then((response) => response.json())
-  .then((data) => {
-    pointsP = data;
-    console.log(pointsP);
-    stuff2();
+function add() {
+  let pointsP;
+  fetch("/api/points", {
+    method: "GET",
   })
-  .catch((error) => console.log(error("Error:", error)));
+    .then((response) => response.json())
+    .then((data) => {
+      pointsP = data;
+      console.log(pointsP);
+      addPointsFromDatabse(pointsP);
+    })
+    .catch((error) => console.error("Error:", error));
+}
 
 function stuff() {
   for (let i = 0; i < points.length; i++) {
@@ -62,14 +64,16 @@ function stuff() {
   }
 }
 
-function stuff2() {
+function addPointsFromDatabse(pointsP) {
   for (let i = 0; i < pointsP.length; i++) {
-    var marker = pointsP[i].addTo(markersGroup);
+    var marker = L.marker(pointsP[i]).addTo(markersGroup);
+    var popup = marker.bindPopup(pointsP[i].text);
   }
 }
 
 var marker = L.marker([47.64332055551951, 237.80129313468936]).addTo(map);
 var popup = marker.bindPopup("Eastside Preparatory School<br />Go eagles!");
+//Amon Gus
 // .openPopup();
 // script.js
 /*
@@ -87,6 +91,8 @@ let reminderList = document.getElementById("reminderList");
 
 // Counter to generate unique event IDs
 let eventIdCounter = 1;
+
+
 
 // Function to add events
 function addEvent() {
