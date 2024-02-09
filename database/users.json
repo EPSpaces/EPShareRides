@@ -1,12 +1,5 @@
 [
   {
-    "firstName": "Ari",
-    "lastName": "Yamashita",
-    "email": "bjilly@eastsideprep.org",
-    "password": "$2b$10$2oc6dtAPKolyEg6pTfMoiezs6jHNh..blfQd4rpzCdb1y1iTQPmuW",
-    "id": "06da2e12-a07e-4bfd-95d5-77863f05dc51"
-  },
-  {
     "firstName": "Anmol",
     "lastName": "Josan",
     "email": "ajosan@eastsideprep.org",
@@ -91,10 +84,17 @@
     "id": "357e3733-9e0a-4b79-a6c7-a70beebe7453"
   },
   {
-    "firstName": "Nikhil",
-    "lastName": "Mahesh",
-    "email": "nmahesh@eastsideprep.org",
-    "password": "$2b$10$EMbguKXaFjLB1GMvb3HMduFasUfoH7y9SapvEsoCKEbnMl5WYXiiy",
-    "id": "aa61b1af-8a35-4d79-84e0-ee93627e31f5"
+    "firstName": "5820",
+    "lastName": "NE 110TH ST",
+    "email": "5820@NE110THST.com",
+    "password": "$2b$10$AM4JaKytkdzNA0mMfT2HX.kI1MlTeHB13Jq6oNRJCHhNZSqU3kmBq",
+    "id": "aa4f21f1-21df-4e64-8e82-357769d66b34"
+  },
+  {
+    "firstName": "Joe",
+    "lastName": "Bobsters",
+    "email": "apeng@eastsideprep.org",
+    "password": "$2b$10$5lFBX5lXFFgB4fEM6oS5MeiQsWg0RmTl64QszB6aCkCufwBT1QRsK",
+    "id": "56413f06-5ad1-453d-85f2-c713fd0b05b3"
   }
 ]

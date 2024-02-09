@@ -16,10 +16,11 @@
     
     <main>
       <% if (error) { %>
-      <article class="message is-danger">
+      <article class="message is-danger" id="error">
         <div class="message-header">
           <p>Warning</p>
-          <button class="delete" aria-label="delete"></button>
+          <button class="delete" aria-label="delete" onclick="const element = document.getElementById('error');
+            element.remove();"></button>
         </div>
         <div class="message-body">
           <%= error %>
@@ -27,7 +28,7 @@
       </article>
       <% } %>
       
-      <article class="panel is-link" style="margin: 170px; margin-top:160px;  ">
+      <article class="panel is-link" style="margin: 170px; margin-top:150px;  ">
         <p class="panel-heading">
           Log in to EPShare Ride
           <span style="font-size: 1em; color: #30B700; float: right">
@@ -67,7 +68,7 @@
         </button>
      
       </article>
-         <p class="has-text-centered" style="margin-top: -30px;">Don't have an account? <a href="/signup">Sign up here</a></p>
+         <p class="has-text-centered" style="margin-top: -20px;">Don't have an account? <a href="/signup">Sign up here</a></p>
         
     </main>
   <script src="./index_signup.js"></script>
@@ -81,7 +82,7 @@
         password,
       };
 
-      const jsonData = JSON.stringify(data);;
+      const jsonData = JSON.stringify(data);
 
       const url = "/auth/signin";
       let accessToken;

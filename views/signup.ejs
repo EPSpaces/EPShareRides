@@ -16,10 +16,11 @@
     
     <main >
       <!-- <% if (error) { %> -->
-      <article class="message is-danger">
+      <article class="message is-danger" id="error">
         <div class="message-header">
           <p>Warning</p>
-          <button class="delete" aria-label="delete"></button> 
+          <button class="delete" aria-label="delete" onclick="const element = document.getElementById('error');
+            element.remove();"></button> 
         </div>
         <div class="message-body">
           <%= error %>
