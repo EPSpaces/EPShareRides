@@ -27,6 +27,19 @@
         </div>
       </article>
       <% } %>
+
+        <% if (message) { %>
+        <article class="message is-success" id="error">
+          <div class="message-header">
+            <p>Success</p>
+            <button class="delete" aria-label="delete" onclick="const element = document.getElementById('error');
+              element.remove();"></button>
+          </div>
+          <div class="message-body">
+            <%= message %>
+          </div>
+        </article>
+        <% } %>
       
       <article class="panel is-link" style="margin: 170px; margin-top:150px;  ">
         <p class="panel-heading">
@@ -101,7 +114,7 @@
         })
         .catch(error => console.error('Error:', error));
 
-      localStorage.setItem('accessToken', accessToken);
+      
 
     }
   </script>

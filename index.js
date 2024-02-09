@@ -1,3 +1,21 @@
+
+
+
+
+function closeModal($el) {
+  $el.classList.remove('is-active');
+}
+
+function closeAllModals() {
+  (document.querySelectorAll('.modal') || []).forEach(($modal) => {
+    closeModal($modal);
+  });
+}
+
+
+
+
+// Import libraries
 const express = require("express");
 const ejs = require("ejs");
 const jwt = require("jsonwebtoken");
@@ -7,9 +25,11 @@ const bcrypt = require("bcrypt");
 const cookieParser = require("cookie-parser");
 const mongoose = require("mongoose");
 
+// Import data from JSON
 let users = require("./database/users.json");
 let points = require("./database/points.json");
 
+// Import Event schema for MongoDB
 const Event = require("./schemas/Event");
 
 // JWT secret
@@ -18,6 +38,7 @@ const token_secret = process.env["TOKEN_SECRET"];
 // Init Server
 const app = express();
 
+// Verify token sent and set req.email to the user's email
 function authenticateToken(req, res, next) {
   const authHeader = req.headers && req.headers["Authorization"];
   const token = authHeader && authHeader.split(" ")[1];
@@ -35,6 +56,7 @@ function authenticateToken(req, res, next) {
   });
 }
 
+// Move the token from the cookie jar to the request header
 function getToken(req, res, next) {
   const token = req.cookies && req.cookies["authToken"];
 
@@ -45,6 +67,7 @@ function getToken(req, res, next) {
   next();
 }
 
+// Only allows the user to go through if they do not have a token
 function ensureNoToken(req, res, next) {
   const token = req.cookies && req.cookies["authToken"];
   if (token != null) {
@@ -126,7 +149,7 @@ app.get("/signup", ensureNoToken, (req, res) => {
 });
 
 app.get("/signin", ensureNoToken, (req, res) => {
-  res.render("signin", { error: req.query.err });
+  res.render("signin", { error: req.query.err, message: req.query.message });
 });
 
 app.get("/logout", (req, res) => {
@@ -212,10 +235,10 @@ app.delete("/auth/deleteAccount", getToken, authenticateToken, (req, res) => {
   const { password } = req.body;
   const email = req.email;
   if (comparePassword(password, email)) {
-    const users = users.filter((user) => user.email != email);
+    users = users.filter((user) => user.email != email);
     writeToJSON("./database/users.json", users);
     res.clearCookie("authToken");
-    res.redirect("/signin?err=Account Deleted Successfully");
+    res.redirect("/signin?message=Account Deleted Successfully");
   } else {
     console.log(email, password);
     res.redirect('/deleteAccount?err=Password Incorrect');
