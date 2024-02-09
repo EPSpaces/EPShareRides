@@ -135,7 +135,7 @@ app.get("/logout", (req, res) => {
 });
 
 app.get("/deleteAccount", getToken, authenticateToken, (req, res) => {
-  res.render("deleteAccount");
+  res.render("deleteAccount", { error: req.query.err });
 });
 
 app.get("/upcomingevents", getToken, authenticateToken, async (req, res) => {
@@ -209,13 +209,16 @@ app.post("/auth/signin", (req, res) => {
 });
 
 app.delete("/auth/deleteAccount", getToken, authenticateToken, (req, res) => {
-  const { email, password } = req.body;
+  const { password } = req.body;
+  const email = req.email;
   if (comparePassword(password, email)) {
-    const updatedUsers = users.filter((user) => user.email != email);
-    writeToJSON("./database/users.json", updatedUsers);
-    res.status(202).send("Account Deleted");
+    const users = users.filter((user) => user.email != email);
+    writeToJSON("./database/users.json", users);
+    res.clearCookie("authToken");
+    res.redirect("/signin?err=Account Deleted Successfully");
   } else {
-    res.status(403).send("Unauthorized");
+    console.log(email, password);
+    res.redirect('/deleteAccount?err=Password Incorrect');
   }
 });
 
@@ -229,6 +232,10 @@ app.post("/event", getToken, authenticateToken, (req, res) => {
     event.description,
     event.email,
   );
+});
+
+app.get("/api/points", (req, res) => {
+  res.json(points);
 });
 
 // Connect to the database
