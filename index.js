@@ -14,16 +14,6 @@ const Event = require("./schemas/Event");
 // JWT secret
 const token_secret = process.env["TOKEN_SECRET"];
 
-// Connect to the database
-mongoose
-  .connect(process.env["MONGO_URI"])
-  .then(() => {
-    console.log("Connected to db");
-  })
-  .catch((err) => {
-    console.error("Error connecting to db:", err);
-  });
-
 // Init Server
 const app = express();
 
@@ -35,7 +25,10 @@ function authenticateToken(req, res, next) {
   }
 
   jwt.verify(token, token_secret, (err, user) => {
-    if (err) return res.sendStatus(403);
+    if (err) {
+      res.clearCookie("authToken");
+      res.redirect("signin");
+    }
     req.email = user.email;
     next();
   });
@@ -69,7 +62,7 @@ function writeToJSON(filepath, data) {
 }
 
 function generateAccessToken(user) {
-  return jwt.sign(user, token_secret, { expiresIn: "15m" });
+  return jwt.sign(user, token_secret, { expiresIn: "60m" });
 }
 
 function hashPassword(password) {
@@ -222,6 +215,16 @@ app.post("/event", getToken, authenticateToken, (req, res) => {
   );
 });
 
-app.listen(80, () => {
-  console.log("Server started on port 80");
-});
+// Connect to the database
+mongoose
+  .connect(process.env["MONGO_URI"])
+  .then(() => {
+    console.log("Connected to db");
+    app.listen(80, () => {
+      console.log("Server started on port 80");
+    });
+  })
+  .catch((err) => {
+    console.error("Error connecting to db:", err);
+    return;
+  });
