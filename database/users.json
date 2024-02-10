@@ -89,12 +89,5 @@
     "email": "5820@NE110THST.com",
     "password": "$2b$10$AM4JaKytkdzNA0mMfT2HX.kI1MlTeHB13Jq6oNRJCHhNZSqU3kmBq",
     "id": "aa4f21f1-21df-4e64-8e82-357769d66b34"
-  },
-  {
-    "firstName": "Joe",
-    "lastName": "Bobsters",
-    "email": "apeng@eastsideprep.org",
-    "password": "$2b$10$5lFBX5lXFFgB4fEM6oS5MeiQsWg0RmTl64QszB6aCkCufwBT1QRsK",
-    "id": "56413f06-5ad1-453d-85f2-c713fd0b05b3"
   }
 ]

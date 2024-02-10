@@ -125,7 +125,7 @@
                   </p>
                   <div class="buttons" style="float: left; display: inline-block;">
 
-                  <div class="button" style="margin-right: 5px;">Offer to carpool</div>
+                  <div class="button js-modal-trigger" style="margin-right: 5px;" data-target="modal-js-example">Offer to carpool</div>
 
                   <div class="button" >Register for this event</div>
                    </div>
@@ -199,6 +199,85 @@
         </section>
 
       </main>
+
+
+
+
+                                            <div class="modal " id="modal-js-example">
+                                              <div class="modal-background"></div>
+                                              <div class="modal-card">
+                                                <header class="modal-card-head is-link">
+                                                  <p class="modal-card-title">Offer to carpool</p>
+                                                  <button class="delete" aria-label="close"></button>
+                                                </header>
+                                                <section class="modal-card-body">
+                                                  <!-- Content ... -->
+                                                  Number of seats
+                                               <br>   Address
+                                                </section>
+                                                <footer class="modal-card-foot">
+                                                  <button class="button is-link">Create carpool</button>
+                                                  <button class="button" aria-label="close">Cancel</button>
+                                                </footer>
+                                              </div>
+                                            </div>         
+
+
+
+                                                 
+                                            
+                                             
+                                            
+
+
+
+
+
+
+                                            
     <script src="index.js"></script>
+                                            <script> function openModal($el) {
+                                                $el.classList.add('is-active');
+                                              }
+
+                                              function closeModal($el) {
+                                                $el.classList.remove('is-active');
+                                              }
+
+                                              function closeAllModals() {
+                                                (document.querySelectorAll('.modal') || []).forEach(($modal) => {
+                                                  closeModal($modal);
+                                                });
+                                              }
+
+                                              // Add a click event on buttons to open a specific modal
+                                              (document.querySelectorAll('.js-modal-trigger') || []).forEach(($trigger) => {
+                                                const modal = $trigger.dataset.target;
+                                                const $target = document.getElementById(modal);
+
+                                                $trigger.addEventListener('click', () => {
+                                                  openModal($target);
+                                                });
+                                              });
+
+                                              // Add a click event on various child elements to close the parent modal
+                                              (document.querySelectorAll('.modal-background, .modal-close, .modal-card-head .delete, .modal-card-foot .cancel') || []).forEach(($close) => {
+                                                const $target = $close.closest('.modal');
+
+                                                $close.addEventListener('click', () => {
+                                                  closeModal($target);
+                                                });
+                                              });
+
+                                              // Add a keyboard event to close all modals
+                                              document.addEventListener('keydown', (event) => {
+                                                const e = event || window.event;
+
+                                                if (e.keyCode === 27) { // Escape key
+                                                  closeAllModals();
+                                                }
+                                              });
+                                      
+                                            </script>
     </body>
   </html>
