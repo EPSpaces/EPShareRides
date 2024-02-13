@@ -244,3 +244,20 @@ body {
 /* div:hover {
   cursor: pointer;
 } */
+
+
+.hoverAddress:hover {
+  background-color: #f5f5f5;
+  border-radius: 3px;
+
+}
+.hoverAddress {
+  padding: 3px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+
+#carpoolinfo:hover {
+  background-color: white;
+}

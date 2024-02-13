@@ -49,25 +49,11 @@
     "id": "1b6095bd-01b1-42d6-8356-d53ebd1f0624"
   },
   {
-    "firstName": "aerf",
-    "lastName": "aerf",
-    "email": "aerf@eastsideprep.org",
-    "password": "$2b$10$BND5LekjFZtH9BoD.Kgw9.sKOinuc.wHLEpLbYZUvfAKLZByABVyq",
-    "id": "9628d395-58d0-4787-b687-b08026f47e54"
-  },
-  {
     "firstName": "Joseph",
     "lastName": "Mother",
     "email": "jmother@eastsideprep.org",
     "password": "$2b$10$Pqg.4GjX1Ffb2MnKbXvvTOwu2clXO/WZJt.NJC6JLYdBFKV0.cxW2",
     "id": "561bcae3-ebaa-4ed1-97ab-1212a66a6212"
-  },
-  {
-    "firstName": "aerf",
-    "lastName": "aerf",
-    "email": "aerf@aerf.com",
-    "password": "$2b$10$EhLHxi0/oM43N0Dh2jtjEe2BKZ7uix4D2dpH3VowkmhqPsbs9ot8.",
-    "id": "f269bfec-52e7-4825-8598-dc1b88c224cb"
   },
   {
     "firstName": "Soren",
@@ -84,10 +70,10 @@
     "id": "357e3733-9e0a-4b79-a6c7-a70beebe7453"
   },
   {
-    "firstName": "5820",
-    "lastName": "NE 110TH ST",
-    "email": "5820@NE110THST.com",
-    "password": "$2b$10$AM4JaKytkdzNA0mMfT2HX.kI1MlTeHB13Jq6oNRJCHhNZSqU3kmBq",
-    "id": "aa4f21f1-21df-4e64-8e82-357769d66b34"
+    "firstName": "Nikhil",
+    "lastName": "Mahesh",
+    "email": "nmahesh@eastsideprep.org",
+    "password": "$2b$10$SqQXFljGkyLR55jmDtCsvuAb5t2WBpeJz/4UtzPxgE7D3XKZqBFwe",
+    "id": "a8fdc677-f9a9-4f06-bc21-161129eb67e6"
   }
 ]
