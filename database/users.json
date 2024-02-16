@@ -70,17 +70,10 @@
     "id": "357e3733-9e0a-4b79-a6c7-a70beebe7453"
   },
   {
-    "firstName": "Nikhil",
-    "lastName": "Mahesh",
-    "email": "nmahesh@eastsideprep.org",
-    "password": "$2b$10$SqQXFljGkyLR55jmDtCsvuAb5t2WBpeJz/4UtzPxgE7D3XKZqBFwe",
-    "id": "a8fdc677-f9a9-4f06-bc21-161129eb67e6"
-  },
-  {
     "firstName": "aerf",
     "lastName": "aerf",
-    "email": "aerf@aerf.com",
-    "password": "$2b$10$tTmzp1HnJ1JP5z1dvplrUOMoKHtB6Bmd5c1INYJYoYgFB38/JXl2O",
-    "id": "f7dea426-7a17-40ff-b689-ffb3705343cd"
+    "email": "aerf",
+    "password": "$2b$10$iLaMQTUj1fn0Ea/N658iM.46IBb0GDMjmo/zRtN9QFWMtC7j8dxQS",
+    "id": "b9fb4da1-03bb-499b-9451-f74fb92a1002"
   }
 ]

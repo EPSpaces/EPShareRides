@@ -12,23 +12,17 @@ const mongoose = require("mongoose");
 let users = require("./database/users.json");
 let points = require("./database/points.json");
 
+// Import Event schema for MongoDB
+const Event = require("./schemas/Event");
+
 // Import Util Functions
-const { authenticateToken, getToken, ensureNoToken, generateAccessToken, hashPassword, comparePassword } = require("./utils/authUtils");
+const { authenticateToken, getToken, ensureNoToken } = require("./utils/authUtils");
 
 // Import Routes
 const authRoutes = require("./routes/authRoutes");
 
 // Init Server
 const app = express();
-
-function writeToJSON(filepath, data) {
-  const jsonString = JSON.stringify(data, null, 2);
-  fs.writeFile(filepath, jsonString, (err) => {
-    if (err) {
-      console.error("Error writing to JSON file:", err);
-    }
-  });
-}
 
 // Configure Server
 app.set("view engine", "ejs");
@@ -59,22 +53,6 @@ app.get("/", getToken, authenticateToken, (req, res) => {
       console.error("Error retrieving events:", err);
       res.status(500).send("Error retrieving events");
     });
-});
-app.get("/signup", ensureNoToken, (req, res) => {
-  res.render("signup", { error: req.query.err });
-});
-
-app.get("/signin", ensureNoToken, (req, res) => {
-  res.render("signin", { error: req.query.err, message: req.query.message });
-});
-
-app.get("/logout", (req, res) => {
-  res.clearCookie("authToken");
-  res.redirect("/signin");
-});
-
-app.get("/deleteAccount", getToken, authenticateToken, (req, res) => {
-  res.render("deleteAccount", { error: req.query.err });
 });
 
 app.get("/upcomingevents", getToken, authenticateToken, async (req, res) => {
@@ -113,52 +91,6 @@ app.get("/friends", getToken, authenticateToken, (req, res) => {
   lastName = userInData.lastName;
 
   res.render("friends", { people, email, firstName, lastName });
-});
-
-app.post("/auth/signup", (req, res) => {
-  const user = req.body;
-
-  user.password = hashPassword(user.password);
-  user.id = uuidv4();
-
-  const existingUser = users.find((userA) => userA.email == user.email);
-
-  if (existingUser) {
-    res.redirect("/signup?err=Email Already In System");
-  } else {
-    users.push(user);
-    writeToJSON("./database/users.json", users);
-    res.redirect("/signin");
-  }
-});
-
-app.post("/auth/signin", (req, res) => {
-  const { email, password } = req.body;
-
-  if (comparePassword(password, email)) {
-    const user = { email };
-
-    const accessToken = generateAccessToken(user);
-
-    res.cookie("authToken", accessToken, { httpOnly: true, maxAge: 3600000 });
-    res.redirect("/");
-  } else {
-    res.redirect("/signin?err=Invalid Email or Password");
-  }
-});
-
-app.delete("/auth/deleteAccount", getToken, authenticateToken, (req, res) => {
-  const { password } = req.body;
-  const email = req.email;
-  if (comparePassword(password, email)) {
-    users = users.filter((user) => user.email != email);
-    writeToJSON("./database/users.json", users);
-    res.clearCookie("authToken");
-    res.redirect("/signin?message=Account Deleted Successfully");
-  } else {
-    console.log(email, password);
-    res.redirect("/deleteAccount?err=Password Incorrect");
-  }
 });
 
 app.post("/event", getToken, authenticateToken, (req, res) => {

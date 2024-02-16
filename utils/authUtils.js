@@ -1,4 +1,5 @@
 const jwt = require("jsonwebtoken");
+const bcrypt = require("bcrypt");
 
 // Verify token sent and set req.email to the user's email
 function authenticateToken(req, res, next) {
@@ -8,7 +9,7 @@ function authenticateToken(req, res, next) {
     return res.redirect("/signin");
   }
 
-  jwt.verify(token, process.env['TOKEN_SECRET'], (err, user) => {
+  jwt.verify(token, process.env["TOKEN_SECRET"], (err, user) => {
     if (err) {
       res.clearCookie("authToken");
       res.redirect("signin");
@@ -39,7 +40,7 @@ function ensureNoToken(req, res, next) {
 }
 
 function generateAccessToken(user) {
-  return jwt.sign(user, process.env['TOKEN_SECRET'], { expiresIn: "60m" });
+  return jwt.sign(user, process.env["TOKEN_SECRET"], { expiresIn: "60m" });
 }
 
 function hashPassword(password) {
@@ -49,7 +50,7 @@ function hashPassword(password) {
   return bcrypt.hashSync(password, salt);
 }
 
-function comparePassword(password, email) {
+function comparePassword(password, email, users) {
   let hashedPassword;
   try {
     hashedPassword = users.find((u) => u.email === email).password;
@@ -60,4 +61,11 @@ function comparePassword(password, email) {
   return bcrypt.compareSync(password, hashedPassword);
 }
 
-module.exports = { authenticateToken, getToken, ensureNoToken, generateAccessToken, hashPassword, comparePassword };
+module.exports = {
+  authenticateToken,
+  getToken,
+  ensureNoToken,
+  generateAccessToken,
+  hashPassword,
+  comparePassword,
+};
