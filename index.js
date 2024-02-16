@@ -12,9 +12,6 @@ const mongoose = require("mongoose");
 let users = require("./database/users.json");
 let points = require("./database/points.json");
 
-// Import Event schema for MongoDB
-const Event = require("./schemas/Event");
-
 // Import Util Functions
 const { authenticateToken, getToken, ensureNoToken, generateAccessToken, hashPassword, comparePassword } = require("./utils/authUtils");
 
@@ -32,17 +29,6 @@ function writeToJSON(filepath, data) {
     }
   });
 }
-
-const createEvent = async (date, time, title, description, email) => {
-  try {
-    const event = new Event({ date, time, title, description, email });
-    await event.save();
-    return true;
-  } catch (error) {
-    console.error("Error creating event:", error);
-    return false;
-  }
-};
 
 // Configure Server
 app.set("view engine", "ejs");
