@@ -1,20 +1,3 @@
-
-
-
-
-function closeModal($el) {
-  $el.classList.remove('is-active');
-}
-
-function closeAllModals() {
-  (document.querySelectorAll('.modal') || []).forEach(($modal) => {
-    closeModal($modal);
-  });
-}
-
-
-
-
 // Import libraries
 const express = require("express");
 const ejs = require("ejs");
@@ -32,49 +15,14 @@ let points = require("./database/points.json");
 // Import Event schema for MongoDB
 const Event = require("./schemas/Event");
 
-// JWT secret
-const token_secret = process.env["TOKEN_SECRET"];
+// Import Util Functions
+const { authenticateToken, getToken, ensureNoToken, generateAccessToken, hashPassword, comparePassword } = require("./utils/authUtils");
+
+// Import Routes
+const authRoutes = require("./routes/authRoutes");
 
 // Init Server
 const app = express();
-
-// Verify token sent and set req.email to the user's email
-function authenticateToken(req, res, next) {
-  const authHeader = req.headers && req.headers["Authorization"];
-  const token = authHeader && authHeader.split(" ")[1];
-  if (token == null) {
-    return res.redirect("/signin");
-  }
-
-  jwt.verify(token, token_secret, (err, user) => {
-    if (err) {
-      res.clearCookie("authToken");
-      res.redirect("signin");
-    }
-    req.email = user.email;
-    next();
-  });
-}
-
-// Move the token from the cookie jar to the request header
-function getToken(req, res, next) {
-  const token = req.cookies && req.cookies["authToken"];
-
-  if (token) {
-    req.headers["Authorization"] = `Bearer ${token}`;
-  }
-
-  next();
-}
-
-// Only allows the user to go through if they do not have a token
-function ensureNoToken(req, res, next) {
-  const token = req.cookies && req.cookies["authToken"];
-  if (token != null) {
-    return res.redirect("/");
-  }
-  next();
-}
 
 function writeToJSON(filepath, data) {
   const jsonString = JSON.stringify(data, null, 2);
@@ -83,28 +31,6 @@ function writeToJSON(filepath, data) {
       console.error("Error writing to JSON file:", err);
     }
   });
-}
-
-function generateAccessToken(user) {
-  return jwt.sign(user, token_secret, { expiresIn: "60m" });
-}
-
-function hashPassword(password) {
-  const saltRounds = 10;
-  const salt = bcrypt.genSaltSync(saltRounds);
-
-  return bcrypt.hashSync(password, salt);
-}
-
-function comparePassword(password, email) {
-  let hashedPassword;
-  try {
-    hashedPassword = users.find((u) => u.email === email).password;
-  } catch (err) {
-    return false;
-  }
-
-  return bcrypt.compareSync(password, hashedPassword);
 }
 
 const createEvent = async (date, time, title, description, email) => {
@@ -118,12 +44,16 @@ const createEvent = async (date, time, title, description, email) => {
   }
 };
 
+// Configure Server
 app.set("view engine", "ejs");
 app.use(express.json());
 app.use(express.static(__dirname + "/public"));
 app.use(cookieParser());
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
+
+// Init Routes
+app.use("/", authRoutes);
 
 app.get("/", getToken, authenticateToken, (req, res) => {
   const email = req.email;
@@ -241,7 +171,7 @@ app.delete("/auth/deleteAccount", getToken, authenticateToken, (req, res) => {
     res.redirect("/signin?message=Account Deleted Successfully");
   } else {
     console.log(email, password);
-    res.redirect('/deleteAccount?err=Password Incorrect');
+    res.redirect("/deleteAccount?err=Password Incorrect");
   }
 });
 
@@ -266,8 +196,8 @@ mongoose
   .connect(process.env["MONGO_URI"])
   .then(() => {
     console.log("Connected to db");
-    app.listen(80, () => {
-      console.log("Server started on port 80");
+    app.listen(process.env["PORT"], () => {
+      console.log("Server started on port " + process.env["PORT"]);
     });
   })
   .catch((err) => {
