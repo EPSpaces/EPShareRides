@@ -75,5 +75,12 @@
     "email": "nmahesh@eastsideprep.org",
     "password": "$2b$10$SqQXFljGkyLR55jmDtCsvuAb5t2WBpeJz/4UtzPxgE7D3XKZqBFwe",
     "id": "a8fdc677-f9a9-4f06-bc21-161129eb67e6"
+  },
+  {
+    "firstName": "aerf",
+    "lastName": "aerf",
+    "email": "aerf@aerf.com",
+    "password": "$2b$10$tTmzp1HnJ1JP5z1dvplrUOMoKHtB6Bmd5c1INYJYoYgFB38/JXl2O",
+    "id": "f7dea426-7a17-40ff-b689-ffb3705343cd"
   }
 ]
