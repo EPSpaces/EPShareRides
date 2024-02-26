@@ -3,7 +3,7 @@ const { v4: uuidv4 } = require("uuid");
 const fs = require("fs");
 
 const router = express.Router();
-const { ensureNoToken, authenticateToken, getToken, comparePassword, hashPassword, generateAccessToken } = require("../utils/authUtils");
+const { ensureNoToken, authenticateToken, getToken, comparePassword, hashPassword, generateAccessToken, sendVerificationCode } = require("../utils/authUtils");
 
 function writeToJSON(filepath, data) {
   const jsonString = JSON.stringify(data, null, 2);
@@ -31,7 +31,32 @@ router.get("/deleteAccount", getToken, authenticateToken, (req, res) => {
   res.render("deleteAccount", { error: req.query.err });
 });
 
-router.post("/auth/signup", (req, res) => {
+router.get("/auth/signup", (req, res) => {
+  const ipAddressCache = require("../database/ipAddressCache.json");
+  ipAddressCache.push({ip: req.ip, code: sendVerificationCode(email)});
+  writeToJSON("../database/ipAddressCache.json", ipAddressCache);
+  res.status(200);
+});
+
+router.post("/auth/signupConfirm", (req, res) => {
+  const { email, password, firstName, lastName, verificationCode } = req.body;
+
+  if (!email || !password || !firstName || !lastName || !verificationCode) {
+    return res.redirect("/signup?err=Please enter all fields");
+  }
+
+  
+  const ipAddressCache = require("../database/ipAddressCache.json");
+  
+  const ipAddressesWithVerificationCode = ipAddressCache.find(ipObj => ipObj.code === verificationCode);
+
+  if (!ipAddressesWithVerificationCode) {
+    res.redirect("/signup?err=Incorrect Verification Code");
+  } else {
+    ipAddressCache = ipAddressCache.filter(ipObj => ipObj.code !== verificationCode)
+    writeToJSON("../database/ipAddressCache.json", ipAddressCache)
+  }
+
   const users = require("../database/users.json");
   const user = req.body;
 

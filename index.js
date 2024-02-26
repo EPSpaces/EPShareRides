@@ -4,19 +4,27 @@ const ejs = require("ejs");
 const jwt = require("jsonwebtoken");
 const { v4: uuidv4 } = require("uuid");
 const fs = require("fs");
-const bcrypt = require("bcrypt");
 const cookieParser = require("cookie-parser");
 const mongoose = require("mongoose");
 
 // Import data from JSON
 let users = require("./database/users.json");
 let points = require("./database/points.json");
+let offerToCarpool = require("./database/offerToCarpool.json");
 
 // Import Event schema for MongoDB
 const Event = require("./schemas/Event");
 
+// Init Verification Code Cache
+const verificationCodeCache = {};
+
+
 // Import Util Functions
-const { authenticateToken, getToken, ensureNoToken } = require("./utils/authUtils");
+const {
+  authenticateToken,
+  getToken,
+  ensureNoToken,
+} = require("./utils/authUtils");
 
 // Import Routes
 const authRoutes = require("./routes/authRoutes");
@@ -55,7 +63,7 @@ app.get("/", getToken, authenticateToken, (req, res) => {
     });
 });
 
-app.get("/upcomingevents", getToken, authenticateToken, async (req, res) => {
+app.get("/mycarpools", getToken, authenticateToken, async (req, res) => {
   const allEvents = await Event.find({});
   const email = req.email;
   let firstName;
@@ -66,7 +74,13 @@ app.get("/upcomingevents", getToken, authenticateToken, async (req, res) => {
   firstName = userInData.firstName;
   lastName = userInData.lastName;
 
-  res.render("upcomingevents", { email, firstName, lastName, allEvents });
+  res.render("mycarpools", { email, firstName, lastName, allEvents });
+});
+
+app.get("/updateSettings", getToken, authenticateToken, async (req, res) => {
+  
+
+  res.render("updateSettings", {});
 });
 
 app.get("/friends", getToken, authenticateToken, (req, res) => {
@@ -109,6 +123,10 @@ app.get("/api/points", (req, res) => {
   res.json(points);
 });
 
+app.get("/api/offerToCarpool", (req, res) => {
+  res.json(offerToCarpool);
+});
+
 // Connect to the database
 mongoose
   .connect(process.env["MONGO_URI"])
@@ -122,3 +140,5 @@ mongoose
     console.error("Error connecting to db:", err);
     return;
   });
+
+
