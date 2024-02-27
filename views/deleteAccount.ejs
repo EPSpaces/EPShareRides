@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Delete Account?</title>
   <link href="./bulma.min.css" rel="stylesheet" type="text/css" />
+  <link href="./style.css" rel="stylesheet" type="text/css" />
 </head>
 <body>
   <div id="errordiv">
@@ -20,7 +21,7 @@
     </article>
   </div>
 
-  <article class="panel is-link" style="margin: 170px; margin-top:150px;  ">
+  <article class="panel is-link vertical-center" id="deleteaccount" style=" ">
     <p class="panel-heading">
       Delete EPShare Ride account
       <span style="font-size: 1em; color: #30B700; float: right">
@@ -47,7 +48,7 @@
       <input type="checkbox" id="checkbox">
       I understand that this action cannot be undone<br>
     </label>
-    <div class="buttons" style="margin-left: 10px; margin-top: 10px;">
+    <div class="buttons" style="margin-left: 10px; margin-bottom: 0px;">
     <button class="button  is-danger " style="margin-top: 10px;" onclick="deleteAccount()">
       Delete account
     </button>

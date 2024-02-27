@@ -18,69 +18,73 @@
       <section class="hero is-fullheight">
         <!-- Hero head: will stick at the top -->
                              <div class="hero-head">
-                               <header class="navbar">
-                                 <div class="container">
-                                   <div class="navbar-brand">
-                                     <a class="navbar-item">
-                                       <img src="EPS Logo - Transparent-4.png" alt="Logo">
-                                       <h1 class="title is-3" style="margin-left: 10px" >EPShare Rides
-                                       </h1>
-                                     </a>
-                                     <span class="navbar-burger " data-target="navbarMenuHeroC" id="nav-toggle">
-                                       <span></span>
-                                       <span></span>
-                                       <span></span>
-                                     </span>
-                                   </div>
-                                   <div id="navbarMenuHeroC" class="navbar-menu ">
-                                     <div class="navbar-end">
-
-                                       <div class="is-button is-link">
-
-                                         <div class="navbar-item">
-                                           <span style="font-size: 1em; color: #30B700; float: right">
-                                             <i class="fa-solid fa-leaf"></i>
-                                           </span>
-                                           <div class="buttons" style="margin: 10px;margin-right: 0px;">
-
-                                             <a class="button is-link is-outlined " href="/logout">
-                                              Log out
-                                             </a>
-
-                                              <div class="navbar-item has-dropdown is-hoverable ">
-                                             <a class="button is-link" id="name_button">
-                                            <%= firstName %> <%= lastName %>
-                                             </a>
-
-
-
-
-                                                  <div class="navbar-dropdown" >
+                                              <header class="navbar">
+                                                <div class="container">
+                                                  <div class="navbar-brand">
                                                     <a class="navbar-item">
-                                                     Update settings
+                                                      <img src="EPS Logo - Transparent-4.png" alt="Logo">
+                                                      <h1 class="title is-3" style="margin-left: 10px" >EPShare Rides
+                                                      </h1>
                                                     </a>
-                                                    <a class="navbar-item" href="mailto:nmahesh@eastsideprep.org, ayamashita@eastsideprep.org, pjain27@eastsideprep.org, ajosan@eastsideprep.org">
-                                                      Report a bug
-                                                    </a>
-                                                    <a class="navbar-item" href="/deleteAccount">
-                                                      Delete account
-                                                    </a>
-                                                    <hr class="navbar-divider">
-                                                    <div class="navbar-item">
-                                                      Version Beta 0.1.0
+                                                    <span class="navbar-burger " data-target="navbarMenuHeroC" id="nav-toggle">
+                                                      <span></span>
+                                                      <span></span>
+                                                      <span></span>
+                                                    </span>
+                                                  </div>
+                                                  <div id="navbarMenuHeroC" class="navbar-menu ">
+                                                    <div class="navbar-end">
+
+                                                      <div class="is-button is-link">
+
+                                                        <div class="navbar-item">
+                                                          <span style="font-size: 1em; color: #30B700; float: right">
+                                                            <i class="fa-solid fa-leaf"></i>
+                                                          </span>
+                                                          <div class="buttons" style="margin: 10px;margin-right: 0px;">
+
+                                                            <a class="button is-link is-outlined " href="/logout">
+                                                             Log out
+                                                            </a>
+
+                                                             <div class="navbar-item has-dropdown is-hoverable " onclick="document.getElementById('navbar-dropdown').style.visibility = 'visible';">
+
+
+                                                            <a class="button is-link" id="name_button">
+                                                           <%= firstName %> <%= lastName %>
+                                                            </a>
+
+
+
+                                                             <div id="filler" style="width: 130px; background-color: transparent; height: 20px; position: absolute; margin-top: -15px;"></div>
+                                                                 <div class="navbar-dropdown" id="navbar-dropdown">
+                                                                   <a class="navbar-item" href="/updateSettings">
+                                                                    Update settings
+                                                                   </a>
+                                                                   <a class="navbar-item" href="mailto:nmahesh@eastsideprep.org; ayamashita@eastsideprep.org; pjain27@eastsideprep.org; ajosan@eastsideprep.org">
+                                                                     Report a bug
+                                                                   </a>
+                                                                   <a class="navbar-item" href="/deleteAccount">
+                                                                     Delete account
+                                                                   </a>
+                                                                   <hr class="navbar-divider">
+                                                                   <div class="navbar-item">
+                                                                     Version Beta 0.1.0
+                                                                   </div>
+
+                                                                 </div>
+
+                                                               </div>
+                                                             </nav>
+
+                                                          </div>
+                                                        </div>
+
+                                                        </div>
                                                     </div>
                                                   </div>
                                                 </div>
-                                              </nav>
-
-                                           </div>
-                                         </div>
-
-                                         </div>
-                                     </div>
-                                   </div>
-                                 </div>
-                               </header>
+                                              </header>
                              </div>
 
 
@@ -94,7 +98,7 @@
               Subtitle
             </p> -->
             
-            <table class="table " style="margin-left: auto; margin-right: auto; margin-top: -60px; margin-bottom: 30px;">
+            <table class="table " style="margin-left: auto; margin-right: auto; margin-top: -50px; margin-bottom: 30px;">
               <thead>
                 <tr>
                   <th><abbr title="Friend">Friend</abbr></th>
@@ -125,8 +129,9 @@
           <nav class="tabs is-boxed is-fullwidth">
             <div class="container">
               <ul>
-                <li ><a href="/">My Carpools</a></li>
-                <li ><a href="/upcomingevents">Upcoming Events</a></li>
+                <li ><a href="/">Upcoming Events</a></li>
+                <li  "><a href="/mycarpools" >My Carpools</a></li>
+
                 <li  class="is-active"><a href="/friends">Friends</a></li>
                
               </ul>
@@ -138,5 +143,18 @@
       
     </main>
   <script src="index.js"></script>
+                  <script defer>
+                    function navBurger() {
+                        var burger = document.getElementById('nav-toggle');
+                        var menu = document.getElementById('navbarMenuHeroC');
+                        burger.addEventListener('click', function() {
+                            burger.classList.toggle('is-active');
+                            menu.classList.toggle('is-active');
+                        });
+                    }
+                    navBurger()
+
+
+                  </script>
   </body>
 </html>

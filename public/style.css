@@ -232,6 +232,8 @@ body {
     padding: 10px 0;
 }
 
+
+
 .footer-container-calendar select {
     cursor: pointer;
     background: #ffffff;
@@ -261,3 +263,220 @@ body {
 #carpoolinfo:hover {
   background-color: white;
 }
+
+/* mobile */
+@media only screen and (max-width: 768px) {
+  #signup {
+    width: 90%
+  }
+  #signin {
+    width: 90%
+  }
+  #deleteaccount {
+    width: 90% 
+  }
+  #map {
+    height: 30vh;
+  }
+  #upcoming-carpools-column {
+    height: 40vh;
+    margin-top: -10vh;
+  }
+  #hero-body {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+  #registered-carpoolers {
+    width: 60%;
+  }
+  #action-buttons {
+    width: 40%
+  }
+  .white-background {
+    background-color: transparent 
+  }
+  #datez, #spanz {
+    color: white;
+  }
+  .booker {
+    width: 100%;
+    position: relative !important;
+  }
+  .link-heading {
+    height: fit-content;
+  }
+  .extraspace {
+    display: block !important
+  }
+  #clock {
+    margin-left: 0px !important;
+    margin-top: 10px !important;
+  }
+  .upcoming-buttons {
+    width: min-content !important;
+  }
+ 
+  
+}
+
+.upcoming-carpools-button {
+  float: right;
+}
+
+/* tablet */
+@media only screen and (min-width: 769px) {
+  #signup {
+    width: 700px
+  }
+  #signin {
+    width: 700px
+  }
+  #deleteaccount {
+    width: 700px 
+  }
+  #map {
+    height: 400px;
+  }
+  #upcoming-carpools-column {
+    height: 450px;
+
+  }
+  .white-background {
+    background-color: white
+  }
+  #datez, #spanz {
+    color: black;
+  }
+
+  
+}
+/* desktop */
+@media only screen and (max-width: 1024px) {
+  .navbar-dropdown {
+    display: none; !important;
+    visibility: hidden; !important
+  }
+  #name_button:hover ~ .navbar-dropdown {
+    display: block;
+    background-color: #fff;
+    border-bottom-left-radius: 6px;
+    border-bottom-right-radius: 6px;
+    border-top: 2px solid #dbdbdb;
+    box-shadow: 0 8px 8px rgba(10,10,10,.1);
+    font-size: .875rem;
+    left: 0;
+    min-width: 100%;
+    position: absolute;
+    top: 100%;
+    width: 160px;
+    visibility: visible;
+  }
+  #name_button:hover ~ .navbar-dropdown {
+    display: block;
+    background-color: #fff;
+    border-bottom-left-radius: 6px;
+    border-bottom-right-radius: 6px;
+    border-top: 2px solid #dbdbdb;
+    box-shadow: 0 8px 8px rgba(10,10,10,.1);
+    font-size: .875rem;
+    left: 0;
+    min-width: 100%;
+    position: absolute;
+    top: 100%;
+    width: 160px;
+    visibility: visible;
+  }
+  #filler:hover ~ .navbar-dropdown {
+    display: block;
+    background-color: #fff;
+    border-bottom-left-radius: 6px;
+    border-bottom-right-radius: 6px;
+    border-top: 2px solid #dbdbdb;
+    box-shadow: 0 8px 8px rgba(10,10,10,.1);
+    font-size: .875rem;
+    left: 0;
+    min-width: 100%;
+    position: absolute;
+    top: 100%;
+    width: 160px;
+    visibility: visible;
+  }
+  .navbar-dropdown:hover {
+    display: block;
+    background-color: #fff;
+    border-bottom-left-radius: 6px;
+    border-bottom-right-radius: 6px;
+    border-top: 2px solid #dbdbdb;
+    box-shadow: 0 8px 8px rgba(10,10,10,.1);
+    font-size: .875rem;
+    left: 0;
+    min-width: 100%;
+    position: absolute;
+    top: 100%;
+    width: 160px;
+    visibility: visible;
+  }
+  .navbar-item:hover {
+    background-color: #F5F5F5;
+  }
+}
+
+
+.vertical-center {
+  margin: 0;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  -ms-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
+}
+
+
+
+
+
+
+
+
+.switch-input[type=checkbox]{
+  height: 0;
+  width: 0;
+  visibility: hidden;
+}
+
+.switch-label {
+  cursor: pointer;
+  text-indent: -9999px;
+  width: 60px;
+  height: 30px;
+  background: grey;
+  display: block;
+  border-radius: 100px;
+  position: relative;
+}
+
+.switch-label:after {
+  content: '';
+  position: absolute;
+  top: 2.5px;
+  left: 2.75px;
+  width: 25px;
+  height: 25px;
+  background: #fff;
+  border-radius: 90px;
+  transition: 0.3s;
+}
+
+.switch-input:checked + label {
+  background: hsl(217, 71%, 53%);
+}
+
+.switch-input:checked + label:after {
+  left: calc(100% - 2.75px);
+  transform: translateX(-100%);
+}
+
+.switch-label:active:after {
+
+}
+
