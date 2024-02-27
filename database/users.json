@@ -75,5 +75,40 @@
     "email": "aerf",
     "password": "$2b$10$iLaMQTUj1fn0Ea/N658iM.46IBb0GDMjmo/zRtN9QFWMtC7j8dxQS",
     "id": "b9fb4da1-03bb-499b-9451-f74fb92a1002"
+  },
+  {
+    "firstName": "aa",
+    "lastName": "aa",
+    "email": "aa",
+    "password": "$2b$10$lNscjHXT8Wh30JvHGgiVM.9IYEbrDRawJ9fNhjaaGRnOVzr6Esree",
+    "id": "9e9eb174-d2c2-4d62-9f0a-15952e942249"
+  },
+  {
+    "firstName": "Alex",
+    "lastName": "Chen",
+    "email": "achen@eastsideprep.org",
+    "password": "$2b$10$HAOXN3MWYi8sd2UMOxH2WuZSSVieyVnKEErgfzFYOIshiXIn7PqT2",
+    "id": "9851ddbf-c40e-472f-a0f3-aa7c6c9a7568"
+  },
+  {
+    "firstName": "",
+    "lastName": "",
+    "email": "",
+    "password": "$2b$10$b.U5kzqsu4Eoa6WoVvfPQeLLgVqwfO3Ci9x7HZtk0HcUDFx/11qSm",
+    "id": "d9aa223f-f91c-46c6-8666-8222ba45045f"
+  },
+  {
+    "firstName": "aerf",
+    "lastName": "aerfr",
+    "email": "aerf@aerf.com",
+    "password": "$2b$10$pVdvQjHzyWi4AsUFluVqwO/RDqEiaFUt3HkNW3LJWidlsZEr8Z1uu",
+    "id": "4f740bb0-7662-475b-a3f2-e891d3036494"
+  },
+  {
+    "firstName": "Hannah",
+    "lastName": "Yamashita",
+    "email": "hyamashita@eastsideprep.orge",
+    "password": "$2b$10$tW8A6mzOF1iSsC/uiQ0J0OOQxGgQJEdURVswCLbAdSeBWvkwI2uRq",
+    "id": "8542d985-062f-4942-9728-e6bb2bbe9820"
   }
 ]

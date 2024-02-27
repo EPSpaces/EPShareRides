@@ -73,6 +73,20 @@ function addPointsFromDatabse(pointsP) {
 
 var marker = L.marker([47.64332055551951, 237.80129313468936]).addTo(map);
 var popup = marker.bindPopup("Eastside Preparatory School<br />Go eagles!");
+
+
+
+  window.addEventListener('click', function(e){
+      if (!document.getElementById('navbar-dropdown').contains(e.target) && (!document.getElementById('name_button').contains(e.target))){
+        
+       document.getElementById('navbar-dropdown').style.visibility="hidden"; 
+   //the same code you've used to hide the menu
+    } 
+  })
+
+
+
+
 //Amon Gus
 // .openPopup();
 // script.js

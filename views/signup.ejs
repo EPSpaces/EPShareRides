@@ -14,7 +14,7 @@
   </head>
   <body >
     
-    <main >
+    <main>
       <!-- <% if (error) { %> -->
       <article class="message is-danger" id="error">
         <div class="message-header">
@@ -28,7 +28,7 @@
       </article>
       <!-- <% } %> -->
       
-      <article class="panel is-link" style="margin: 200px; margin-top:100px; margin-bottom: 120px;  ">
+      <article id="signup" class="panel is-link vertical-center " style=" ">
         <p class="panel-heading">
           Sign Up for EPShare Ride
           <span style="font-size: 1em; color: #30B700; float: right">
@@ -37,7 +37,7 @@
         </p>
         
         <div class="panel-block">
-          <p>Sign up to post events. Carpool with friends.</p>
+          <p>Sign up to see events. Carpool with friends.</p>
         </div>
         <a class="panel-block is-active">
            <input class="input is-link" type="text" placeholder="First Name" style="margin-right:10px;" id="first_name">
@@ -47,7 +47,7 @@
         <a class="">
            <div class="field">
              <p class="control has-icons-left has-icons-right">
-               <input class="input is-link" type="email" placeholder="Email" id="email"; style="margin:10px;margin-bottom:0px;margin-right:10px;width: 97%">
+               <input class="input is-link" type="email" placeholder="Email" id="email"; style="margin:10px;margin-bottom:0px;margin-right:10px;width: calc(100% - 20px)">
                <span class="icon is-small is-left" style="margin:10px">
                  <i class="fas fa-envelope"></i>
                </span>
@@ -60,7 +60,7 @@
           <a class="" style="">
            <div class="field">
              <p class="control has-icons-left">
-               <input class="input is-link" type="password" placeholder="Password" style="margin:10px; width: 97%" id="password">
+               <input class="input is-link" type="password" placeholder="Password" style="margin:10px; width: calc(100% - 20px)" id="password">
                <span class="icon is-small is-left" style="margin:10px">
                  <i class="fas fa-lock"></i>
                </span>
@@ -72,9 +72,13 @@
         </button>
         
       </article>
-        <p class="has-text-centered" style="margin-top: 20px;">Already have an account? <a href="/signin">Log in here</a></p>
+   
+      <p class="has-text-centered" style="bottom: 0px; top: calc(100% - 30px); position: absolute; width: 100%">Already have an account? <a href="/signin">Log in here</a></p>
+ 
+       </main>
+  
+    
         
-    </main>
   <script src="./index_signup.js"></script>
     
   </body>

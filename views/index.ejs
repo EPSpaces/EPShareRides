@@ -1,787 +1,813 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>EPShare Rides</title>
-    <link href="./bulma.min.css" rel="stylesheet" type="text/css" />
-    <link href="./style.css" rel="stylesheet" type="text/css" />
-    <script src="https://kit.fontawesome.com/16ae8e710d.js" crossorigin="anonymous"></script>
-    <link rel="icon" href="./favicon.ico" type="image/x-icon">
-    <meta charset="UTF-8">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  </head>
-  <body>
-    <main>
-     
-      <section class="hero is-fullheight">
-        <!-- Hero head: will stick at the top -->
-        <div class="hero-head">
-          <header class="navbar">
-            <div class="container">
-              <div class="navbar-brand">
-                <a class="navbar-item">
-                  <img src="EPS Logo - Transparent-4.png" alt="Logo">
-                  <h1 class="title is-3" style="margin-left: 10px" >EPShare Rides
-                  </h1>
-                </a>
-                <span class="navbar-burger " data-target="navbarMenuHeroC" id="nav-toggle">
-                  <span></span>
-                  <span></span>
-                  <span></span>
-                </span>
-              </div>
-              <div id="navbarMenuHeroC" class="navbar-menu ">
-                <div class="navbar-end">
-                 
-                  <div class="is-button is-link">
-                  
-                    <div class="navbar-item">
-                      <span style="font-size: 1em; color: #30B700; float: right">
-                        <i class="fa-solid fa-leaf"></i>
-                      </span>
-                      <div class="buttons" style="margin: 10px;margin-right: 0px;">
-                        
-                        <a class="button is-link is-outlined " href="/logout">
-                         Log out
-                        </a>
-
-                         <div class="navbar-item has-dropdown is-hoverable ">
-                        <a class="button is-link" id="name_button">
-                       <%= firstName %> <%= lastName %>
-                        </a>
-                        
-                          
-                         
-
-                             <div class="navbar-dropdown" >
-                               <a class="navbar-item">
-                                Update settings
-                               </a>
-                               <a class="navbar-item" href="mailto:nmahesh@eastsideprep.org; ayamashita@eastsideprep.org; pjain27@eastsideprep.org; ajosan@eastsideprep.org">
-                                 Report a bug
-                               </a>
-                               <a class="navbar-item" href="/deleteAccount">
-                                 Delete account
-                               </a>
-                               <hr class="navbar-divider">
-                               <div class="navbar-item">
-                                 Version Beta 0.1.0
-                               </div>
-                             </div>
-                           </div>
-                         </nav>
-                       
-                      </div>
-                    </div>
-                    
-                    </div>
-                </div>
-              </div>
-            </div>
-          </header>
-        </div>
-
-        <!-- Hero content: will be in the middle -->
-        <div class="hero-body" >
-          <!-- <div class="container has-text-centered"> -->
-            <!-- <p class="title">
-              Title
-            </p>
-            <p class="subtitle">
-              Subtitle
-            </p> -->
-          
-        <!-- <div class="wrapper" style="margin-top:-30px; margin-bottom: 30px; ">
-          <div class="container-calendar" >
-              <div id="left" style="margin-right: 15px;">
-                 <h1>Calendar</h1>
-                  <div id="event-section">
-                      <h3>Add Event</h3>
-                    <input type="date" id="eventDate">
-                    <input type="time" id="eventTime">
-                      <input type="text"
-                          id="eventTitle"
-                          placeholder="Event Title">
-                      <input type="text"
-                          id="eventDescription"
-                          placeholder="Location">
-                      <button id="addEvent" onclick="addEvent()">
-                          Add
-                      </button> 
-                  </div>
-                  <div id="reminder-section">
-                      <h3>Reminders</h3>
-                      <!-- List to display reminders -->
-                    <!--<div  type="button" style="font-size: 15px; margin-top: 10px; background-color: #eee; border-radius: 0px; padding-top: 5px; padding-bottom: 5px;" class="collapsible" id="collapsible1">My carpools<i style="margin-left: 5px;" class="fa-solid fa-angle-right" id="carpools-caret"></i></div>
-                    <div class="content" style="display: none;">
-                     
-                 
-                      <ul id="reminderList">
-                        
-                          <li data-event-id="1">
-                              <strong>Event Title</strong>
-                              - Event Description on Event Date
-                              <button class="delete-event"
-                                  onclick="deleteEvent(1)">
-                                  Delete
-                              </button>
-                          </li>
-                      </ul>
-                       </div>
-                  </div>
-              </div>
-              <div id="right">
-                  <h3 id="monthAndYear"></h3>
-                  <div class="button-container-calendar">
-                      <button id="previous"
-                              onclick="previous()">
-                            ‹
-                        </button>
-                      <button id="next"
-                              onclick="next()">
-                            ›
-                        </button>
-                  </div>
-                  <table class="table-calendar"
-                         id="calendar"
-                         data-lang="en">
-                      <thead id="thead-month"></thead>
-                      <!-- Table body for displaying the calendar -->
-                      <!--<tbody id="calendar-body"></tbody>
-                  </table>
-                  <div class="footer-container-calendar">
-                      <label for="month">Jump To: </label>
-                      <!-- Dropdowns to select a specific month and year -->
-                      <!--<select id="month" onchange="jump()">
-                          <option value=0>Jan</option>
-                          <option value=1>Feb</option>
-                          <option value=2>Mar</option>
-                          <option value=3>Apr</option>
-                          <option value=4>May</option>
-                          <option value=5>Jun</option>
-                          <option value=6>Jul</option>
-                          <option value=7>Aug</option>
-                          <option value=8>Sep</option>
-                          <option value=9>Oct</option>
-                          <option value=10>Nov</option>
-                          <option value=11>Dec</option>
-                      </select>
-                      <!-- Dropdown to select a specific year -->
-                      <!--<select id="year" onchange="jump()"></select>
-                  </div>
-              </div>
-          </div>
-        </div> -->
-               
-            
-          <!-- </div>  -->
-          
-          <div class="columns" style="width: 100%; margin-left: 0px; margin-top: -50px;">
-            <div class="column is-7 has-text-centered" style="margin-left: 0px; margin-right: 0px; overflow:auto; height:450px;">
-
-
-              
-
-                <div class="container " style="margin-top: 5px; ">
-
-<!-- start here -->
-                  <article class="panel is-link" style="position: relative" >
-                    <div class=" " style="float: left; margin: 7px; left:0px; position: absolute " >
-                      <span class="panel-icon" style='color: white; display: inline'>
-                        <i class="fas fa-user" aria-hidden="true" style="margin: 13px; margin-left: 15px;"></i>
-                        <p style="color: white; display: inline; font-size: 15px; ">Carpool with Rimmi J</p>
-                      </span>
-                    </div>
-
-
-                    <div class=" " style="float: right; margin: 7px; right:0px; position: absolute " >
-                      <span class="panel-icon" style='color: white; display: inline'>
-                        <i class="fas fa-car" aria-hidden="true" style="margin: 13px; margin-left: 15px;"></i>
-                        <p style="color: white; display: inline; font-size: 15px; ">3/3/24 5:30 PM</p>
-                      </span>
-                    </div>
-                    <p class="panel-heading" style="margin-top: -10px; " >
-
-                  7/8 Soccer Game
-
-                    </p>
-
-                    <div class="panel-block">
-                      <p class="control has-icons-left" style="width: 100px;">
-
-                        <!-- <span style="color: #999999; margin-right: 5px;"><i class="fa-solid fa-location-dot "></i></span>Location: 60 Acres Park  <span style="color: #999999; margin-right: 5px; margin-left: 10px;"><i class="fa-solid fa-clock "></i></span>Date: 3/3/24 5:30 PM -->
-
-                        Registered carpoolers: Anmol J, Ari Y
-                      </p>
-                      <div class="buttons" style="float: left; display: inline-block;">
-
-                  
-
-                        <div class="button" >Unregister</div>
-                        <div class="button" onclick="add()">View >></div>
-                       </div>
-                       </div>
-                  </article>
-
-                  <!-- stop here -->
-
-
-                  <!-- start here -->
-                  <article class="panel is-link" style="position: relative" >
-                    <div class=" " style="float: left; margin: 7px; left:0px; position: absolute " >
-                      <span class="panel-icon" style='color: white; display: inline'>
-                        <i class="fas fa-user" aria-hidden="true" style="margin: 13px; margin-left: 15px;"></i>
-                        <p style="color: white; display: inline; font-size: 15px; ">Carpool with Rimmi J</p>
-                      </span>
-                    </div>
-
-
-                    <div class=" " style="float: right; margin: 7px; right:0px; position: absolute " >
-                      <span class="panel-icon" style='color: white; display: inline'>
-                        <i class="fas fa-car" aria-hidden="true" style="margin: 13px; margin-left: 15px;"></i>
-                        <p style="color: white; display: inline; font-size: 15px; ">3/3/24 5:30 PM</p>
-                      </span>
-                    </div>
-                    <p class="panel-heading" style="margin-top: -10px; " >
-
-                  7/8 Soccer Game
-
-                    </p>
-
-                    <div class="panel-block">
-                      <p class="control has-icons-left" style="width: 100px;">
-
-                        <!-- <span style="color: #999999; margin-right: 5px;"><i class="fa-solid fa-location-dot "></i></span>Location: 60 Acres Park  <span style="color: #999999; margin-right: 5px; margin-left: 10px;"><i class="fa-solid fa-clock "></i></span>Date: 3/3/24 5:30 PM -->
-
-                        Registered carpoolers: Anmol J, Ari Y
-                      </p>
-                      <div class="buttons" style="float: left; display: inline-block;">
-
-
-
-                        <div class="button" >Unregister</div>
-                        <div class="button" onclick="add()">View >></div>
-                       </div>
-                       </div>
-                  </article>
-
-                  <!-- stop here -->
-
-
-                  <!-- start here -->
-                  <article class="panel is-link" style="position: relative" >
-                    <div class=" " style="float: left; margin: 7px; left:0px; position: absolute " >
-                      <span class="panel-icon" style='color: white; display: inline'>
-                        <i class="fas fa-user" aria-hidden="true" style="margin: 13px; margin-left: 15px;"></i>
-                        <p style="color: white; display: inline; font-size: 15px; ">Carpool with Rimmi J</p>
-                      </span>
-                    </div>
-
-
-                    <div class=" " style="float: right; margin: 7px; right:0px; position: absolute " >
-                      <span class="panel-icon" style='color: white; display: inline'>
-                        <i class="fas fa-car" aria-hidden="true" style="margin: 13px; margin-left: 15px;"></i>
-                        <p style="color: white; display: inline; font-size: 15px; ">3/3/24 5:30 PM</p>
-                      </span>
-                    </div>
-                    <p class="panel-heading" style="margin-top: -10px; " >
-
-                  7/8 Soccer Game
-
-                    </p>
-
-                    <div class="panel-block">
-                      <p class="control has-icons-left" style="width: 100px;">
-
-                        <!-- <span style="color: #999999; margin-right: 5px;"><i class="fa-solid fa-location-dot "></i></span>Location: 60 Acres Park  <span style="color: #999999; margin-right: 5px; margin-left: 10px;"><i class="fa-solid fa-clock "></i></span>Date: 3/3/24 5:30 PM -->
-
-                        Registered carpoolers: Anmol J, Ari Y
-                      </p>
-                      <div class="buttons" style="float: left; display: inline-block;">
-
-
-
-                        <div class="button" >Unregister</div>
-                        <div class="button" onclick="add()">View >></div>
-                       </div>
-                       </div>
-                  </article>
-
-                  <!-- stop here -->
-
-
-                  <!-- start here -->
-                  <article class="panel is-link" style="position: relative" >
-                    <div class=" " style="float: left; margin: 7px; left:0px; position: absolute " >
-                      <span class="panel-icon" style='color: white; display: inline'>
-                        <i class="fas fa-user" aria-hidden="true" style="margin: 13px; margin-left: 15px;"></i>
-                        <p style="color: white; display: inline; font-size: 15px; ">Carpool with Rimmi J</p>
-                      </span>
-                    </div>
-
-
-                    <div class=" " style="float: right; margin: 7px; right:0px; position: absolute " >
-                      <span class="panel-icon" style='color: white; display: inline'>
-                        <i class="fas fa-car" aria-hidden="true" style="margin: 13px; margin-left: 15px;"></i>
-                        <p style="color: white; display: inline; font-size: 15px; ">3/3/24 5:30 PM</p>
-                      </span>
-                    </div>
-                    <p class="panel-heading" style="margin-top: -10px; " >
-
-                  7/8 Soccer Game
-
-                    </p>
-
-                    <div class="panel-block">
-                      <p class="control has-icons-left" style="width: 100px;">
-
-                        <!-- <span style="color: #999999; margin-right: 5px;"><i class="fa-solid fa-location-dot "></i></span>Location: 60 Acres Park  <span style="color: #999999; margin-right: 5px; margin-left: 10px;"><i class="fa-solid fa-clock "></i></span>Date: 3/3/24 5:30 PM -->
-
-                        Registered carpoolers: Anmol J, Ari Y
-                      </p>
-                      <div class="buttons" style="float: left; display: inline-block;">
-
-
-
-                        <div class="button" >Unregister</div>
-                        <div class="button" onclick="add()">View >></div>
-                       </div>
-                       </div>
-                  </article>
-
-                  <!-- stop here -->
-
-                  <!-- start here -->
-                  <article class="panel is-link" style="position: relative" >
-                    <div class=" " style="float: left; margin: 7px; left:0px; position: absolute " >
-                      <span class="panel-icon" style='color: white; display: inline'>
-                        <i class="fas fa-user" aria-hidden="true" style="margin: 13px; margin-left: 15px;"></i>
-                        <p style="color: white; display: inline; font-size: 15px; ">Carpool with Rimmi J</p>
-                      </span>
-                    </div>
-
-
-                    <div class=" " style="float: right; margin: 7px; right:0px; position: absolute " >
-                      <span class="panel-icon" style='color: white; display: inline'>
-                        <i class="fas fa-car" aria-hidden="true" style="margin: 13px; margin-left: 15px;"></i>
-                        <p style="color: white; display: inline; font-size: 15px; ">3/3/24 5:30 PM</p>
-                      </span>
-                    </div>
-                    <p class="panel-heading" style="margin-top: -10px; " >
-
-                  7/8 Soccer Game
-
-                    </p>
-
-                    <div class="panel-block">
-                      <p class="control has-icons-left" style="width: 100px;">
-
-                        <!-- <span style="color: #999999; margin-right: 5px;"><i class="fa-solid fa-location-dot "></i></span>Location: 60 Acres Park  <span style="color: #999999; margin-right: 5px; margin-left: 10px;"><i class="fa-solid fa-clock "></i></span>Date: 3/3/24 5:30 PM -->
-
-                        Registered carpoolers: Anmol J, Ari Y
-                      </p>
-                      <div class="buttons" style="float: left; display: inline-block;">
-
-
-
-                        <div class="button" >Unregister</div>
-                        <div class="button" onclick="add()">View >></div>
-                       </div>
-                       </div>
-                  </article>
-
-                  <!-- stop here -->
-
-
-                  </div>
-              </div>
-
-
-
-            
-          
-            <div class="column has-text-centered flex-center">
-              <center>
-                  <div id="map" style="height: 400px; width: 100%; z-index: 1; margin-top: 0px; margin-right: 0px; border-radius: 15px;"></div>
-              </center>
-            </div>
-            
-          </div>
-            
-        </div>
-        <!-- Include the JavaScript file for the calendar functionality -->
-        <script src="./script.js"></script>
-        
-                         
-        <!-- Hero footer: will stick at the bottom -->
-        <div class="hero-foot" style="  ">
-          <nav class="tabs is-boxed is-fullwidth">
-            <div class="container">
-              <ul>
-                <li  class="is-active"><a href="/">My Carpools</a></li>
-                <li ><a href="/upcomingevents">Upcoming Events</a></li>
-                <li  ><a href="/friends">Friends</a></li>
-               
-              </ul>
-            </div>
-          </nav>
-        </div>
-        
-      </section>
-      
-    </main>
-  <!--<script src="index.js"></script>-->
-  </body>
-</html>
-<!-- <script>
-  // script.js
-  // script.js
-  let eventsP;
-  fetch("/data/events", {
-    method: "GET",
-  })
-    .then((response) => response.json())
-    .then((data) => {
-      eventsP = data;
-      console.log(eventsP);
-      displayReminders();
-    })
-    .catch((error) => console.log(error("Error:", error)));
-
-  
-  // Define an array to store events
-  let events = [];
-
-  // letiables to store event input fields and reminder list
-  let eventDateInput = document.getElementById("eventDate");
-  let eventTimeInput = document.getElementById("eventTime");
-  let eventTitleInput = document.getElementById("eventTitle");
-  let eventDescriptionInput = document.getElementById("eventDescription");
-  let reminderList = document.getElementById("reminderList");
-
-  // Counter to generate unique event IDs
-  let eventIdCounter = 1;
-
-
-
-  
-  // Function to add events
-  function addEvent() {
-    let date = eventDateInput.value;
-    let time = eventTimeInput.value;
-    let title = eventTitleInput.value;
-    let description = eventDescriptionInput.value;
-
-    if (date && title) {
-      // Create a unique event ID
-      let eventId = eventIdCounter++;
-      var hours = time.substring(0, 2);
-      var minutes = time.substring(3, 5);
-      if (hours > 12) {
-        hours -= 12;
-
-        time = hours + ":" + minutes + " PM";
-      } else {
-        time = time + " AM";
-      }
-      events.push({
-        id: eventId,
-        date: date,
-        time: time,
-        title: title,
-        description: description,
-      });
-
-      const event = {
-        id: eventId,
-        date: date,
-        time: time,
-        title: title,
-        description: description,
-        email: "<%= email %>",
-      };
-
-      const url = "/event";
-
-      const jsonData = JSON.stringify(event);
-
-      fetch(url, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: jsonData,
-      })
-        .then((response) => {
-          if (response.redirected) {
-            window.location.href = response.url;
-          }
-        })
-        .catch((error) => console.log(error("Error:", error)));
-
-      showCalendar(currentMonth, currentYear, time);
-      eventDateInput.value = "";
-      eventTimeInput.value = "";
-      eventTitleInput.value = "";
-      eventDescriptionInput.value = "";
-      displayReminders();
-    }
-  }
-
-  // Function to delete an event by ID
-  function deleteEvent(eventId) {
-    // Find the index of the event with the given ID
-    let eventIndex = events.findIndex((event) => event.id === eventId);
-
-    if (eventIndex !== -1) {
-      // Remove the event from the events array
-      events.splice(eventIndex, 1);
-      showCalendar(currentMonth, currentYear);
-      displayReminders();
-    }
-  }
-
-  // Function to display reminders
-  function displayReminders() {
-    reminderList.innerHTML = "";
-    for (let i = 0; i < eventsP.length; i++) {
-      let event = eventsP[i];
-      let eventDate = new Date(event.date);
-      if (
-        eventDate.getMonth() === currentMonth &&
-        eventDate.getFullYear() === currentYear
-      ) {
-        let listItem = document.createElement("li");
-        listItem.innerHTML = `<strong>${event.title}</strong> - 
-              ${event.description} at ${event.time} on 
-              ${eventDate.toLocaleDateString()} `;
-
-        // Add a delete button for each reminder item
-        let deleteButton = document.createElement("button");
-        deleteButton.className = "delete-event";
-        deleteButton.textContent = "Delete";
-        deleteButton.onclick = function () {
-          deleteEvent(event.id);
-        };
-
-        let seeButton = document.createElement("button");
-        seeButton.className = "see-event";
-        seeButton.textContent = "See who's registered";
-        seeButton.onclick = function () {
-          // seeButton function
-        };
-
-        listItem.appendChild(deleteButton);
-        listItem.appendChild(seeButton);
-        reminderList.appendChild(listItem);
-      }
-    }
-  }
-
-  // Function to generate a range of
-  // years for the year select input
-  function generate_year_range(start, end) {
-    let years = "";
-    for (let year = start; year <= end; year++) {
-      years += "<option value='" + year + "'>" + year + "</option>";
-    }
-    return years;
-  }
-
-  // Initialize date-related letiables
-  today = new Date();
-  currentMonth = today.getMonth();
-  currentYear = today.getFullYear();
-  selectYear = document.getElementById("year");
-  selectMonth = document.getElementById("month");
-
-  createYear = generate_year_range(1970, 2050);
-
-  document.getElementById("year").innerHTML = createYear;
-
-  let calendar = document.getElementById("calendar");
-
-  let months = [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
-  ];
-  let days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-
-  $dataHead = "<tr>";
-  for (dhead in days) {
-    $dataHead += "<th data-days='" + days[dhead] + "'>" + days[dhead] + "</th>";
-  }
-  $dataHead += "</tr>";
-
-  document.getElementById("thead-month").innerHTML = $dataHead;
-
-  monthAndYear = document.getElementById("monthAndYear");
-  showCalendar(currentMonth, currentYear);
-
-  // Function to navigate to the next month
-  function next() {
-    currentYear = currentMonth === 11 ? currentYear + 1 : currentYear;
-    currentMonth = (currentMonth + 1) % 12;
-    showCalendar(currentMonth, currentYear);
-  }
-
-  // Function to navigate to the previous month
-  function previous() {
-    currentYear = currentMonth === 0 ? currentYear - 1 : currentYear;
-    currentMonth = currentMonth === 0 ? 11 : currentMonth - 1;
-    showCalendar(currentMonth, currentYear);
-  }
-
-  // Function to jump to a specific month and year
-  function jump() {
-    currentYear = parseInt(selectYear.value);
-    currentMonth = parseInt(selectMonth.value);
-    showCalendar(currentMonth, currentYear);
-  }
-
-  // Function to display the calendar
-  function showCalendar(month, year) {
-    let firstDay = new Date(year, month, 1).getDay();
-    tbl = document.getElementById("calendar-body");
-    tbl.innerHTML = "";
-    monthAndYear.innerHTML = months[month] + " " + year;
-    selectYear.value = year;
-    selectMonth.value = month;
-
-    let date = 1;
-    for (let i = 0; i < 6; i++) {
-      let row = document.createElement("tr");
-      for (let j = 0; j < 7; j++) {
-        if (i === 0 && j < firstDay) {
-          cell = document.createElement("td");
-          cellText = document.createTextNode("");
-          cell.appendChild(cellText);
-          row.appendChild(cell);
-        } else if (date > daysInMonth(month, year)) {
-          break;
-        } else {
-          cell = document.createElement("td");
-          cell.setAttribute("data-date", date);
-          cell.setAttribute("data-month", month + 1);
-          cell.setAttribute("data-year", year);
-          cell.setAttribute("data-month_name", months[month]);
-          cell.className = "date-picker";
-          cell.innerHTML = "<span>" + date + "</span";
-
-          if (
-            date === today.getDate() &&
-            year === today.getFullYear() &&
-            month === today.getMonth()
-          ) {
-            cell.className = "date-picker selected";
-          }
-
-          // Check if there are events on this date
-          if (hasEventOnDate(date, month, year)) {
-            cell.classList.add("event-marker");
-            cell.appendChild(createEventTooltip(date, month, year, event.time));
-          }
-
-          row.appendChild(cell);
-          date++;
-        }
-      }
-      tbl.appendChild(row);
-    }
-
-    displayReminders();
-  }
-
-  // Function to create an event tooltip
-  function createEventTooltip(date, month, year, time) {
-    let tooltip = document.createElement("div");
-    tooltip.className = "event-tooltip";
-    let eventsOnDate = getEventsOnDate(date, month, year, time);
-    for (let i = 0; i < eventsOnDate.length; i++) {
-      let event = eventsOnDate[i];
-      let eventDate = new Date(event.date);
-      let eventText = `<strong>${event.title}</strong> - 
-              ${event.description} at ${event.time} on 
-              ${eventDate.toLocaleDateString()}`;
-      let eventElement = document.createElement("p");
-      eventElement.innerHTML = eventText;
-      tooltip.appendChild(eventElement);
-    }
-    return tooltip;
-  }
-
-  // Function to get events on a specific date
-  function getEventsOnDate(date, month, year, time) {
-    return events.filter(function (event) {
-      let eventDate = new Date(event.date);
-      return (
-        eventDate.getDate() === date &&
-        eventDate.getMonth() === month &&
-        eventDate.getFullYear() === year
-      );
-    });
-  }
-
-  // Function to check if there are events on a specific date
-  function hasEventOnDate(date, month, year) {
-    return getEventsOnDate(date, month, year).length > 0;
-  }
-
-  // Function to get the number of days in a month
-  function daysInMonth(iMonth, iYear) {
-    return 32 - new Date(iYear, iMonth, 32).getDate();
-  }
-
-  // Call the showCalendar function initially to display the calendar
-  showCalendar(currentMonth, currentYear);
-
- 
-
-
-  
-</script>
-<script defer>
-  function navBurger() {
-      var burger = document.getElementById('nav-toggle');
-      var menu = document.getElementById('navbarMenuHeroC');
-      burger.addEventListener('click', function() {
-          burger.classList.toggle('is-active');
-          menu.classList.toggle('is-active');
-      });
-  }
-  navBurger()
-
-
-  var coll = document.getElementsByClassName("collapsible");
-  var i;
-
-  for (i = 0; i < coll.length; i++) {
-    coll[i].addEventListener("click", function() {
-      this.classList.toggle("active");
-      var content = this.nextElementSibling;
-      if (content.style.display === "block") {
-        content.style.display = "none";
-        document.getElementById("carpools-caret").classList="fa-solid fa-angle-right";
-      } else {
-        content.style.display = "block";
-        document.getElementById("carpools-caret").classList="fa-solid fa-angle-down";
-      }
-    });
-  }
-</script> -->
+                           <!DOCTYPE html>
+                           <html lang="en">
+                             <head>
+                               <meta charset="UTF-8">
+                               <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                               <meta http-equiv="X-UA-Compatible" content="ie=edge">
+                               <title>EPShare Rides</title>
+                               <link href="./bulma.min.css" rel="stylesheet" type="text/css" />
+                               <link href="./style.css" rel="stylesheet" type="text/css" />
+                               <script src="https://kit.fontawesome.com/16ae8e710d.js" crossorigin="anonymous"></script>
+                               <link rel="icon" href="./favicon.ico" type="image/x-icon">
+                               <link rel="stylesheet" href="./style.css">
+                               <script src="./upcoming.js"></script>
+
+                             </head>
+                             <body>
+                               <main>
+
+                                 <section class="hero is-fullheight">
+                                   <!-- Hero head: will stick at the top -->
+                                                    <div class="hero-head">
+                                                                     <header class="navbar">
+                                                                       <div class="container">
+                                                                         <div class="navbar-brand">
+                                                                           <a class="navbar-item">
+                                                                             <img src="EPS Logo - Transparent-4.png" alt="Logo">
+                                                                             <h1 class="title is-3" style="margin-left: 10px" >EPShare Rides
+                                                                             </h1>
+                                                                           </a>
+                                                                           <span class="navbar-burger " data-target="navbarMenuHeroC" id="nav-toggle">
+                                                                             <span></span>
+                                                                             <span></span>
+                                                                             <span></span>
+                                                                           </span>
+                                                                         </div>
+                                                                         <div id="navbarMenuHeroC" class="navbar-menu ">
+                                                                           <div class="navbar-end">
+
+                                                                             <div class="is-button is-link">
+
+                                                                               <div class="navbar-item">
+                                                                                 <span style="font-size: 1em; color: #30B700; float: right">
+                                                                                   <i class="fa-solid fa-leaf"></i>
+                                                                                 </span>
+                                                                                 <div class="buttons" style="margin: 10px;margin-right: 0px;">
+
+                                                                                   <a class="button is-link is-outlined " href="/logout">
+                                                                                    Log out
+                                                                                   </a>
+
+                                                                                    <div class="navbar-item has-dropdown is-hoverable " onclick="document.getElementById('navbar-dropdown').style.visibility = 'visible';">
+
+
+                                                                                   <a class="button is-link" id="name_button">
+                                                                                  <%= firstName %> <%= lastName %>
+                                                                                   </a>
+
+
+
+                                                                                    <div id="filler" style="width: 130px; background-color: transparent; height: 20px; position: absolute; margin-top: -15px;"></div>
+                                                                                        <div class="navbar-dropdown" id="navbar-dropdown">
+                                                                                          <a class="navbar-item" href="/updateSettings">
+                                                                                           Update settings
+                                                                                          </a>
+                                                                                          <a class="navbar-item" href="mailto:nmahesh@eastsideprep.org; ayamashita@eastsideprep.org; pjain27@eastsideprep.org; ajosan@eastsideprep.org">
+                                                                                            Report a bug
+                                                                                          </a>
+                                                                                          <a class="navbar-item" href="/deleteAccount">
+                                                                                            Delete account
+                                                                                          </a>
+                                                                                          <hr class="navbar-divider">
+                                                                                          <div class="navbar-item">
+                                                                                            Version Beta 0.1.0
+                                                                                          </div>
+
+                                                                                        </div>
+
+                                                                                      </div>
+                                                                                    </nav>
+
+                                                                                 </div>
+                                                                               </div>
+
+                                                                               </div>
+                                                                           </div>
+                                                                         </div>
+                                                                       </div>
+                                                                     </header>
+                                                    </div>
+
+
+                                   <!-- Hero content: will be in the middle -->
+                                   <div class="hero-body"  style="padding-bottom: 80px;">
+                                      <div class="container" style="margin-top: 0px; width: 100%; ">
+                                    <div class=" " style="position: absolute; margin-top: -40px;  width: 100%; ">
+                                     <label for="filter">Filter by: </label>
+                                     <select name="filter" id="filter">
+                                       <option value="all" >All</option>
+                                       <option value="sports">Sports</option>
+                                       <option value="academic teams">Academic teams</option>
+                                       <option value="socials">Socials</option>
+                                       <option value="socials">Other</option>
+                                     </select>
+                         </div>
+                                     <!--Start here  -->
+
+
+
+
+
+
+                                       <article class="panel is-link has-text-centered" style=" margin-top: 10px;" >
+                                         <div style="float: left; margin: 7px; left:0px; position: absolute " class="booker" >
+                                           <span class="panel-icon" style='color: white; display: inline'>
+                                             <i class="fas fa-book" aria-hidden="true" style="margin: 13px; margin-left: 15px;"></i>
+                                             <p style="color: white; display: inline; font-size: 15px; " >Booked by Karla Harris</p>
+                                           </span>
+                                         </div>
+                                         <p class="panel-heading link-heading" style="margin-top: -10px; " >
+
+                                       Debate Tournament
+
+
+                                         </p>
+
+
+                                         <div class="panel-block">
+                                           <p class="control has-icons-left" style="width: 100px;">
+
+                                             <span style="color: #999999; margin-right: 5px;"><i class="fa-solid fa-location-dot "></i></span>Location: Mount Vernon Highschool <br class="extraspace" style='display: none; '>  <span id="clock"  style="color: #999999; margin-right: 5px; margin-left: 10px;"><i class="fa-solid fa-clock "></i></span> Date: 2/29/24 9:30 PM
+                                           </p>
+                                           <div class="buttons upcoming-buttons" style="float: left; display: inline-block;">
+
+                                           <div class="button js-modal-trigger" style="margin-right: 5px;" data-target="modal-js-example">Offer to carpool</div>
+
+                                           <div class="button js-modal-trigger" data-target="modal-js-register">Register for this event</div>
+                                            </div>
+                                            </div>
+
+
+
+
+                                       </article>
+
+
+                                        <!-- Stop here -->
+
+
+
+                                        <!--Start here  -->
+
+
+
+
+
+
+                                         <article class="panel is-link has-text-centered" style=" margin-top: 10px;" >
+                                           <div style="float: left; margin: 7px; left:0px; position: absolute " class="booker" >
+                                             <span class="panel-icon" style='color: white; display: inline'>
+                                               <i class="fas fa-book" aria-hidden="true" style="margin: 13px; margin-left: 15px;"></i>
+                                               <p style="color: white; display: inline; font-size: 15px; " >Booked by Karla Harris</p>
+                                             </span>
+                                           </div>
+                                           <p class="panel-heading link-heading" style="margin-top: -10px; " >
+
+                                         Debate Tournament
+
+
+                                           </p>
+
+
+                                           <div class="panel-block">
+                                             <p class="control has-icons-left" style="width: 100px;">
+
+                                               <span style="color: #999999; margin-right: 5px;"><i class="fa-solid fa-location-dot "></i></span>Location: Mount Vernon Highschool <br class="extraspace" style='display: none; '>  <span id="clock"  style="color: #999999; margin-right: 5px; margin-left: 10px;"><i class="fa-solid fa-clock "></i></span> Date: 2/29/24 9:30 PM
+                                             </p>
+                                             <div class="buttons upcoming-buttons" style="float: left; display: inline-block;">
+
+                                             <div class="button js-modal-trigger" style="margin-right: 5px;" data-target="modal-js-example">Offer to carpool</div>
+
+                                             <div class="button js-modal-trigger" data-target="modal-js-register">Register for this event</div>
+                                              </div>
+                                              </div>
+
+
+
+
+                                         </article>
+
+
+                                          <!-- Stop here -->
+
+                                        <!--Start here  -->
+
+
+
+
+
+
+                                         <article class="panel is-link has-text-centered" style=" margin-top: 10px;" >
+                                           <div style="float: left; margin: 7px; left:0px; position: absolute " class="booker" >
+                                             <span class="panel-icon" style='color: white; display: inline'>
+                                               <i class="fas fa-book" aria-hidden="true" style="margin: 13px; margin-left: 15px;"></i>
+                                               <p style="color: white; display: inline; font-size: 15px; " >Booked by Karla Harris</p>
+                                             </span>
+                                           </div>
+                                           <p class="panel-heading link-heading" style="margin-top: -10px; " >
+
+                                         Debate Tournament
+
+
+                                           </p>
+
+
+                                           <div class="panel-block">
+                                             <p class="control has-icons-left" style="width: 100px;">
+
+                                               <span style="color: #999999; margin-right: 5px;"><i class="fa-solid fa-location-dot "></i></span>Location: Mount Vernon Highschool <br class="extraspace" style='display: none; '>  <span id="clock"  style="color: #999999; margin-right: 5px; margin-left: 10px;"><i class="fa-solid fa-clock "></i></span> Date: 2/29/24 9:30 PM
+                                             </p>
+                                             <div class="buttons upcoming-buttons" style="float: left; display: inline-block;">
+
+                                             <div class="button js-modal-trigger" style="margin-right: 5px;" data-target="modal-js-example">Offer to carpool</div>
+
+                                             <div class="button js-modal-trigger" data-target="modal-js-register">Register for this event</div>
+                                              </div>
+                                              </div>
+
+
+
+
+                                         </article>
+
+
+                                          <!-- Stop here -->
+
+
+
+                                        <!--Start here  -->
+
+
+
+
+
+
+                                         <article class="panel is-link has-text-centered" style=" margin-top: 10px;" >
+                                           <div style="float: left; margin: 7px; left:0px; position: absolute " class="booker" >
+                                             <span class="panel-icon" style='color: white; display: inline'>
+                                               <i class="fas fa-book" aria-hidden="true" style="margin: 13px; margin-left: 15px;"></i>
+                                               <p style="color: white; display: inline; font-size: 15px; " >Booked by Karla Harris</p>
+                                             </span>
+                                           </div>
+                                           <p class="panel-heading link-heading" style="margin-top: -10px; " >
+
+                                         Debate Tournament
+
+
+                                           </p>
+
+
+                                           <div class="panel-block">
+                                             <p class="control has-icons-left" style="width: 100px;">
+
+                                               <span style="color: #999999; margin-right: 5px;"><i class="fa-solid fa-location-dot "></i></span>Location: Mount Vernon Highschool <br class="extraspace" style='display: none; '>  <span id="clock"  style="color: #999999; margin-right: 5px; margin-left: 10px;"><i class="fa-solid fa-clock "></i></span> Date: 2/29/24 9:30 PM
+                                             </p>
+                                             <div class="buttons upcoming-buttons" style="float: left; display: inline-block;">
+
+                                             <div class="button js-modal-trigger" style="margin-right: 5px;" data-target="modal-js-example">Offer to carpool</div>
+
+                                             <div class="button js-modal-trigger" data-target="modal-js-register">Register for this event</div>
+                                              </div>
+                                              </div>
+
+
+
+
+                                         </article>
+
+
+                                          <!-- Stop here -->
+
+
+
+
+
+                                        </div>
+
+                                                                   </div>
+                                   <!-- Hero footer: will stick at the bottom -->
+                                   <div class="hero-foot">
+                                     <nav class="tabs is-boxed is-fullwidth">
+                                       <div class="container">
+                                         <ul>
+                                           <li class="is-active"><a href="/">Upcoming Events</a></li>
+                                           <li  ><a href="/mycarpools" >My Carpools</a></li>
+
+                                           <li  ><a href="/friends">Friends</a></li>
+
+                                         </ul>
+                                       </div>
+                                     </nav>
+                                   </div>
+
+                                 </section>
+
+                               </main>
+
+
+
+                         <!-- start here -->
+                                                                     <div class="modal " id="modal-js-example">
+                                                                       <div class="modal-background" style="background-color: rgba(10,10,10,.50)"></div>
+                                                                       <div class="modal-card" style="">
+                                                                         <p class="panel-heading has-text-centered" style="padding: 15px;">
+                                                                         Offer to Carpool
+
+                                                                              <button class="delete" aria-label="close" onclick="closeAllModals()" style="float: right"></button>
+
+                                                                         </p>
+
+                                                                         <section class="modal-card-body">
+
+                                                                             <div class="container">
+
+                                                                                <label >Carpool information </label>
+                                                                               <div class="field">
+                                                                                  <a class="panel-block" id="carpoolinfo" style="border-radius: 5px; padding:0px;">
+
+                                                                                  <input style="margin-right: 10px; " class="input" type="fname"  placeholder="Driver first name">
+
+
+
+
+                                                                                     <input style="" class="input" type="lname"  placeholder="Driver last name">                 
+                                                                                     </a>
+                                                                                   </div>
+
+
+                                                                                <input class="input" type="number" min="1" max="9"  placeholder="Number of car seats" style=" margin-top: -5px; margin-bottom: 10px; ">
+
+
+
+                                                                               <label >Type of route </label>
+                                                                               <div class="field" style="margin-bottom: 10px;">
+                                                                                <div class="control">
+
+                                                                                  <div class="select" style="margin-right: 10px; " >
+                                                                                    <form>
+                                                                                    <select id="route-type">
+                                                                                      <option value="route" >Home to home</option>
+                                                                                      <option value="point"  >Common meeting point</option>
+                                                                                    </select>
+                                                                                      </form>
+                                                                                  </div>
+                                                                             </div>
+
+                                                                               </div>
+
+
+                                                                               <div class="field">
+                                                                                  <label id="address-label">Home address </label>
+
+                                                                                 <div class="autocomplete-container " id=""> <div class='control' id="autocomplete-container">
+                                                                                   </div>
+                                                                               </div>
+                                                                               </div>
+                                                                             </div>
+
+
+                                                                            </section>
+                                                                           <footer class="modal-card-foot" style="background-color: white; border-width: 1px; padding: 10px; ">
+                                                                               <div class="buttons" style="margin-left: 0px;">
+                                                                                 <button class="button is-link ">Create carpool</button>
+                                                                                 <button class="button" aria-label="close" onclick="closeAllModals()">Cancel</button>
+                                                                                    </div>
+                                                                                 </footer>
+                                                                             </div>
+                                                                           </div> 
+
+                         <!-- end here -->
+
+
+
+
+
+                                          <!-- start here -->
+                                                                             <div class="modal " id="modal-js-register">
+                                                                               <div class="modal-background" style="background-color: rgba(10,10,10,.50)"></div>
+                                                                               <div class="modal-card" style="">
+                                                                                 <p class="panel-heading has-text-centered" style="padding: 15px;">
+                                                                                 Register to a Carpool
+
+                                                                                      <button class="delete" aria-label="close" onclick="closeAllModals()" style="float: right"></button>
+
+                                                                                 </p>
+
+                                                                                 <section class="modal-card-body">
+
+                                                                                     <div class="container">
+
+                                                                                        <label >Choose a carpool </label>
+
+
+
+
+                                                                                       <div style="overflow: auto;">
+                                                                                       <div class="notification" style="padding: 10px;   margin-bottom: 10px;">
+                                                                                 <div class="button  selectCarpool" style=" margin-left: 10px; margin-top: 4px; background-color: transparent; float: right" onclick=" if (this.classList[2] == 'is-focused') {unfocus()} else {unfocus(); this.classList.add('is-focused')}">Select</div>
+                                                                                         <div style="float: right; margin-top: 3px;"  >2/6 signed up</div>
+                                                                                                                   Organizer: <a style="color: #3273dc" href="mailto:ajosan@eastsideprep.org">ajosan@eastsideprep.org</a>
+                                                                                           <br>  Route type: Home to home
+                                                  <br>                                                                                          </div>   
+
+                                                                                       <div class="notification" style="padding: 10px;   margin-bottom: 10px;">
+                                                                                                                       <div class="button selectCarpool " style=" margin-left: 10px; margin-top: 4px; background-color: transparent; float: right" onclick="if (this.classList[2] == 'is-focused') {unfocus()} else {unfocus(); this.classList.add('is-focused')}">Select</div>
+                                                                                                                               <div style="float: right; margin-top: 3px;"  >2/6 signed up</div>
+                                                                                                                                                         Organizer: <a style="color: #3273dc" href="mailto:chrisyamashita@hotmail.com">chrisyamashita@hotmail.com</a>
+                                                                                                                                 <br>  Route type: Common meeting point
+                                                                                   <br>                                                                                          </div>                
+
+                                                                                  </div>                                                                      
+                                            </div>                                                                              <div class="field">
+                                                                                     <label >Your home address </label>
+
+                                                                                    <div class="autocomplete-container " id=""> <div class='control' id="autocomplete-container2" >
+                                                                                      <!-- South Kirkland Park and Ride, Bellevue, WA 98004, United States of America -->
+                                                                                      </div>
+                                                                                  </div>
+                                                                                  </div>
+                                                                                  </section>
+                                                                              <footer class="modal-card-foot" style="background-color: white; border-width: 1px; padding: 10px; ">
+                                                                               <var></var>
+                                                                                  <div class="buttons" style="margin-left: 0px;">
+                                                                                    <button class="button is-link " onclick="iDoNotKnow()">Join carpool</button>
+                                                                                    <button class="button" aria-label="close" onclick="closeAllModals()">Cancel</button>
+                                                                                       </div>
+                                                                                    </footer>
+                                                                                </div>
+
+
+                                           <!-- end here -->
+
+
+
+
+
+                         <script type="text/javascript">//<![CDATA[
+
+
+                               /* 
+                                 The addressAutocomplete takes as parameters:
+                                 - a container element (div)
+                                 - callback to notify about address selection
+                                 - geocoder options:
+                                    - placeholder - placeholder text for an input element
+                                    - type - location type
+                               */
+                                      document.body.onmousedown = function() {
+                                        if (document.getElementById('address-input') != null) {
+                                           document.getElementById("autocomplete-container").classList.remove("is-loading");
+                                          document.getElementById("autocomplete-container2").classList.remove("is-loading");
+                                        }
+
+                                      }
+
+
+
+                               function addressAutocomplete(containerElement, callback, options) {
+                                 // create input element
+                                 var inputElement = document.createElement("input");
+                                 inputElement.setAttribute("type", "text");
+                                 inputElement.setAttribute("placeholder", options.placeholder);
+                                       inputElement.setAttribute("id", "address-input");
+                                 inputElement.classList.add("input");
+                                 containerElement.appendChild(inputElement);
+
+
+
+                                 // add input field clear button
+                                 var clearButton = document.createElement("div");
+                                 clearButton.classList.add("clear-button");
+                                 addIcon(clearButton);
+                                 clearButton.addEventListener("click", (e) => {
+                                   e.stopPropagation();
+                                   inputElement.value = '';
+                                   callback(null);
+                                   clearButton.classList.remove("visible");
+                                   closeDropDownList();
+                                 });
+                                 containerElement.appendChild(clearButton);
+
+                                 /* Current autocomplete items data (GeoJSON.Feature) */
+                                 var currentItems;
+
+                                 /* Active request promise reject function. To be able to cancel the promise when a new request comes */
+                                 var currentPromiseReject;
+
+                                 /* Focused item in the autocomplete list. This variable is used to navigate with buttons */
+                                 var focusedItemIndex;
+
+                                 /* Execute a function when someone writes in the text field: */
+                                 inputElement.addEventListener("input", function(e) {
+                                   var currentValue = this.value;
+
+                                   document.getElementById("autocomplete-container").classList.add("is-loading");
+                                    document.getElementById("autocomplete-container2").classList.add("is-loading");
+
+                                   /* Close any already open dropdown list */
+                                   closeDropDownList();
+
+                                   // Cancel previous request promise
+                                   if (currentPromiseReject) {
+                                     currentPromiseReject({
+                                       canceled: true
+                                     });
+                                   }
+
+                                   if (!currentValue) {
+                                     clearButton.classList.remove("visible");
+                                     return false;
+                                   }
+
+                                   // Show clearButton when there is a text
+                                   clearButton.classList.add("visible");
+
+                                   /* Create a new promise and send geocoding request */
+                                   var promise = new Promise((resolve, reject) => {
+                                     currentPromiseReject = reject;
+
+                                     var apiKey = "992ef3d60d434f2283ea8c6d70a4898d";
+                                     var url = `https://api.geoapify.com/v1/geocode/autocomplete?text=${encodeURIComponent(currentValue)}&limit=5&apiKey=${apiKey}`;
+
+                                     if (options.type) {
+                                       url += `&type=${options.type}`;
+                                     }
+
+                                     fetch(url)
+                                       .then(response => {
+                                         // check if the call was successful
+                                         if (response.ok) {
+                                           response.json().then(data => resolve(data));
+
+                                         } else {
+                                           response.json().then(data => reject(data));
+                                         }
+                                       });
+                                   });
+
+                                   promise.then((data) => {
+                                     document.getElementById("autocomplete-container").classList.remove("is-loading");
+                                     document.getElementById("autocomplete-container2").classList.remove("is-loading");
+                                     currentItems = data.features;
+
+                                     /*create a DIV element that will contain the items (values):*/
+                                     var autocompleteItemsElement = document.createElement("div");
+                                     autocompleteItemsElement.setAttribute("class", "autocomplete-items");
+                                     containerElement.appendChild(autocompleteItemsElement);
+
+                                     /* For each item in the results */
+                                     data.features.forEach((feature, index) => {
+                                       /* Create a DIV element for each element: */
+                                       var itemElement = document.createElement("DIV");
+                                       /* Set formatted address as item value */
+                                       itemElement.innerHTML = feature.properties.formatted;
+                         itemElement.classList.add("hoverAddress");
+                                       /* Set the value for the autocomplete text field and notify: */
+                                       itemElement.addEventListener("click", function(e) {
+                                         inputElement.value = currentItems[index].properties.formatted;
+
+
+
+                                         callback(currentItems[index]);
+
+                                         /* Close the list of autocompleted values: */
+                                         closeDropDownList();
+                                       });
+
+                                       autocompleteItemsElement.appendChild(itemElement);
+                                     });
+                                   }, (err) => {
+                                     if (!err.canceled) {
+                                       console.log(err);
+                                     }
+                                   });
+                                 });
+
+                                 /* Add support for keyboard navigation */
+                                 inputElement.addEventListener("keydown", function(e) {
+                                   var autocompleteItemsElement = containerElement.querySelector(".autocomplete-items");
+                                   if (autocompleteItemsElement) {
+                                     var itemElements = autocompleteItemsElement.getElementsByTagName("div");
+                                     if (e.keyCode == 40) {
+                                       e.preventDefault();
+                                       /*If the arrow DOWN key is pressed, increase the focusedItemIndex variable:*/
+                                       focusedItemIndex = focusedItemIndex !== itemElements.length - 1 ? focusedItemIndex + 1 : 0;
+                                       /*and and make the current item more visible:*/
+                                       setActive(itemElements, focusedItemIndex);
+                                     } else if (e.keyCode == 38) {
+                                       e.preventDefault();
+
+                                       /*If the arrow UP key is pressed, decrease the focusedItemIndex variable:*/
+                                       focusedItemIndex = focusedItemIndex !== 0 ? focusedItemIndex - 1 : focusedItemIndex = (itemElements.length - 1);
+                                       /*and and make the current item more visible:*/
+                                       setActive(itemElements, focusedItemIndex);
+                                     } else if (e.keyCode == 13) {
+                                       /* If the ENTER key is pressed and value as selected, close the list*/
+                                       e.preventDefault();
+                                       if (focusedItemIndex > -1) {
+                                         closeDropDownList();
+                                       }
+                                     }
+                                   } else {
+                                     if (e.keyCode == 40) {
+                                       /* Open dropdown list again */
+                                       var event = document.createEvent('Event');
+                                       event.initEvent('input', true, true);
+                                       inputElement.dispatchEvent(event);
+                                     }
+                                   }
+                                 });
+
+                                 function setActive(items, index) {
+                                   if (!items || !items.length) return false;
+
+                                   for (var i = 0; i < items.length; i++) {
+                                     items[i].classList.remove("autocomplete-active");
+                                   }
+
+                                   /* Add class "autocomplete-active" to the active element*/
+                                   items[index].classList.add("autocomplete-active");
+
+                                   // Change input value and notify
+                                   inputElement.value = currentItems[index].properties.formatted;
+                                   callback(currentItems[index]);
+                                 }
+
+                                 function closeDropDownList() {
+                                   var autocompleteItemsElement = containerElement.querySelector(".autocomplete-items");
+                                   if (autocompleteItemsElement) {
+                                     containerElement.removeChild(autocompleteItemsElement);
+                                   }
+
+                                   focusedItemIndex = -1;
+                                 }
+
+                                 function addIcon(buttonElement) {
+                                   var svgElement = document.createElementNS("", 'svg');
+                                   svgElement.setAttribute('viewBox', "0 0 24 24");
+                                   svgElement.setAttribute('height', "24");
+
+
+                                 }
+
+                                   /* Close the autocomplete dropdown when the document is clicked. 
+                                   Skip, when a user clicks on the input field */
+                                 document.addEventListener("click", function(e) {
+                                   if (e.target !== inputElement) {
+                                     closeDropDownList();
+                                   } else if (!containerElement.querySelector(".autocomplete-items")) {
+                                     // open dropdown list again
+                                     var event = document.createEvent('Event');
+                                     event.initEvent('input', true, true);
+                                     inputElement.dispatchEvent(event);
+                                   }
+                                 });
+
+                               }
+
+                               addressAutocomplete(document.getElementById("autocomplete-container"), (data) => {
+                                 console.log("Selected option: ");
+                                 console.log(data);
+                               }, {
+
+                                 placeholder: "Enter an address here"
+
+                               });
+
+                                     addressAutocomplete(document.getElementById("autocomplete-container2"), (data) => {
+                                       console.log("Selected option: ");
+                                       console.log(data);
+                                     }, {
+
+                                       placeholder: "Enter an address here"
+
+                                     });
+
+
+
+
+
+
+
+                                 //]]></script>
+
+                                 <script>
+                                   // tell the embed parent frame the height of the content
+                                   if (window.parent && window.parent.parent){
+                                     window.parent.parent.postMessage(["resultsFrame", {
+                                       height: document.body.getBoundingClientRect().height,
+                                       slug: "akzrtm26"
+                                     }], "*")
+                                   }
+
+                                   // always overwrite window.name, in case users try to set it manually
+                                   window.name = "result"
+                                 </script>
+
+
+
+
+
+
+                             <!-- Content ... -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                         <script src="index.js"></script>
+                         <script> function openModal($el) {
+                           $el.classList.add('is-active');
+                         }
+
+                         function closeModal($el) {
+                           $el.classList.remove('is-active');
+                         }
+
+                         function closeAllModals() {
+                           (document.querySelectorAll('.modal') || []).forEach(($modal) => {
+                             closeModal($modal);
+                           });
+                         }
+
+                         // Add a click event on buttons to open a specific modal
+                         (document.querySelectorAll('.js-modal-trigger') || []).forEach(($trigger) => {
+                           const modal = $trigger.dataset.target;
+                           const $target = document.getElementById(modal);
+
+                           $trigger.addEventListener('click', () => {
+                             openModal($target);
+                           });
+                         });
+
+                         // Add a click event on various child elements to close the parent modal
+                         (document.querySelectorAll('.modal-background, .modal-close, .modal-card-head .delete, .modal-card-foot .cancel') || []).forEach(($close) => {
+                           const $target = $close.closest('.modal');
+
+                           $close.addEventListener('click', () => {
+                             closeModal($target);
+                           });
+                         });
+
+                         // Add a keyboard event to close all modals
+                         document.addEventListener('keydown', (event) => {
+                           const e = event || window.event;
+
+                           if (e.keyCode === 27) { // Escape key
+                             closeAllModals();
+                           }
+                         });
+                         var route_type = document.getElementById("route-type");
+                         var address_label =  document.getElementById("address-label");
+
+                         function changeLabel() {
+                           if (route_type.value == "route") {
+                            address_label.innerText = "Your home address";
+                           }
+                           else if (route_type.value == "point") {
+                              address_label.innerText = "Meeting point";
+                            }
+                         }
+
+                         route_type.onchange = changeLabel;
+                         changeLabel();
+
+
+                           function unfocus() {
+                             var selects = document.getElementsByClassName('selectCarpool')
+                             for (const element of selects) { // You can use `let` instead of `const` if you like
+                             element.classList.remove('is-focused');
+                             }
+                           }
+
+
+                         </script>
+                                                                               <script defer>
+                                                                                 function navBurger() {
+                                                                                     var burger = document.getElementById('nav-toggle');
+                                                                                     var menu = document.getElementById('navbarMenuHeroC');
+                                                                                     burger.addEventListener('click', function() {
+                                                                                         burger.classList.toggle('is-active');
+                                                                                         menu.classList.toggle('is-active');
+                                                                                     });
+                                                                                 }
+                                                                                 navBurger()
+
+
+                                                                               </script>
+                             </body>
+                           </html>
