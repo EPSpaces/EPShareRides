@@ -54,7 +54,6 @@ function dataInput() {
 
 function signup() {
   const email = document.getElementById("email").value;
-  const password = document.getElementById("password").value;
   const firstName = document.getElementById("first_name").value;
   const lastName = document.getElementById("last_name").value;
 
@@ -62,7 +61,6 @@ function signup() {
     firstName,
     lastName,
     email,
-    password,
   };
 
   const jsonData = JSON.stringify(data);
@@ -77,9 +75,12 @@ function signup() {
     body: jsonData,
   })
     .then((response) => {
-      if (response.redirected) {
-        window.location.href = response.url;
-      }
+      console.log(response);
+      // Open verification checker
     })
     .catch((error) => console.error("Error:", error));
+}
+
+function checkAndVerifyCode() {
+  
 }

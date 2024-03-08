@@ -18,7 +18,6 @@ const Event = require("./schemas/Event");
 // Init Verification Code Cache
 const verificationCodeCache = {};
 
-
 // Import Util Functions
 const {
   authenticateToken,
@@ -78,8 +77,6 @@ app.get("/mycarpools", getToken, authenticateToken, async (req, res) => {
 });
 
 app.get("/updateSettings", getToken, authenticateToken, async (req, res) => {
-  
-
   res.render("updateSettings", {});
 });
 
@@ -140,5 +137,3 @@ mongoose
     console.error("Error connecting to db:", err);
     return;
   });
-
-
