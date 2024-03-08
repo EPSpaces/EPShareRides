@@ -3,7 +3,15 @@ const { v4: uuidv4 } = require("uuid");
 const fs = require("fs");
 
 const router = express.Router();
-const { ensureNoToken, authenticateToken, getToken, comparePassword, hashPassword, generateAccessToken, sendVerificationCode } = require("../utils/authUtils");
+const {
+  ensureNoToken,
+  authenticateToken,
+  getToken,
+  comparePassword,
+  hashPassword,
+  generateAccessToken,
+  sendVerificationCode,
+} = require("../utils/authUtils");
 
 function writeToJSON(filepath, data) {
   const jsonString = JSON.stringify(data, null, 2);
@@ -32,9 +40,13 @@ router.get("/deleteAccount", getToken, authenticateToken, (req, res) => {
 });
 
 router.get("/auth/signup", (req, res) => {
-  const ipAddressCache = require("../database/ipAddressCache.json");
-  ipAddressCache.push({ip: req.ip, code: sendVerificationCode(email)});
-  writeToJSON("../database/ipAddressCache.json", ipAddressCache);
+  const ipCache = require("../database/ipCache.json");
+  ipCache.push({
+    ip: req.ip,
+    code: sendVerificationCode(req.query.email),
+    email: req.query.email,
+  });
+  writeToJSON("./database/ipCache.json", ipCache);
   res.status(200);
 });
 
@@ -45,16 +57,17 @@ router.post("/auth/signupConfirm", (req, res) => {
     return res.redirect("/signup?err=Please enter all fields");
   }
 
-  
-  const ipAddressCache = require("../database/ipAddressCache.json");
-  
-  const ipAddressesWithVerificationCode = ipAddressCache.find(ipObj => ipObj.code === verificationCode);
+  const ipCache = require("../database/ipCache.json");
+
+  const ipAddressesWithVerificationCode = ipCache.find(
+    (ipObj) => ipObj.code === verificationCode && ipObj.email === email,
+  );
 
   if (!ipAddressesWithVerificationCode) {
     res.redirect("/signup?err=Incorrect Verification Code");
   } else {
-    ipAddressCache = ipAddressCache.filter(ipObj => ipObj.code !== verificationCode)
-    writeToJSON("../database/ipAddressCache.json", ipAddressCache)
+    ipCache = ipCache.filter((ipObj) => ipObj.code !== verificationCode);
+    writeToJSON("./database/ipCache.json", ipCache);
   }
 
   const users = require("../database/users.json");
@@ -89,19 +102,24 @@ router.post("/auth/signin", (req, res) => {
   }
 });
 
-router.delete("/auth/deleteAccount", getToken, authenticateToken, (req, res) => {
-  const { password } = req.body;
-  const email = req.email;
-  if (comparePassword(password, email)) {
-    const users = require("../database/users.json");
-    const Changedusers = users.filter((user) => user.email != email);
-    writeToJSON("./database/users.json", Changedusers);
-    res.clearCookie("authToken");
-    res.redirect("/signin?message=Account Deleted Successfully");
-  } else {
-    console.log(email, password);
-    res.redirect("/deleteAccount?err=Password Incorrect");
-  }
-});
+router.delete(
+  "/auth/deleteAccount",
+  getToken,
+  authenticateToken,
+  (req, res) => {
+    const { password } = req.body;
+    const email = req.email;
+    if (comparePassword(password, email)) {
+      const users = require("./database/users.json");
+      const Changedusers = users.filter((user) => user.email != email);
+      writeToJSON("./database/users.json", Changedusers);
+      res.clearCookie("authToken");
+      res.redirect("/signin?message=Account Deleted Successfully");
+    } else {
+      console.log(email, password);
+      res.redirect("/deleteAccount?err=Password Incorrect");
+    }
+  },
+);
 
 module.exports = router;
