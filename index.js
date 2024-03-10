@@ -9,12 +9,13 @@ const mongoose = require("mongoose");
 
 // Import data from JSON
 let users = require("./database/users.json");
+let events = require("./database/events.json");
 let points = require("./database/points.json");
 let offerToCarpool = require("./database/offerToCarpool.json");
 
 // Import Event schema for MongoDB
 const Event = require("./schemas/Event");
-
+//nuh uh
 // Init Verification Code Cache
 const verificationCodeCache = {};
 
@@ -32,6 +33,7 @@ const authRoutes = require("./routes/authRoutes");
 const app = express();
 
 // Configure Server
+app.set('trust proxy', true); // Trust the first proxy
 app.set("view engine", "ejs");
 app.use(express.json());
 app.use(express.static(__dirname + "/public"));
