@@ -26,6 +26,15 @@ const {
   ensureNoToken,
 } = require("./utils/authUtils");
 
+function writeToJSON(filepath, data) {
+  const jsonString = JSON.stringify(data, null, 2);
+  fs.writeFile(filepath, jsonString, (err) => {
+    if (err) {
+      console.error("Error writing to JSON file:", err);
+    }
+  });
+}
+
 // Import Routes
 const authRoutes = require("./routes/authRoutes");
 
@@ -33,7 +42,7 @@ const authRoutes = require("./routes/authRoutes");
 const app = express();
 
 // Configure Server
-app.set('trust proxy', true); // Trust the first proxy
+app.set("trust proxy", true); // Trust the first proxy
 app.set("view engine", "ejs");
 app.use(express.json());
 app.use(express.static(__dirname + "/public"));
@@ -106,24 +115,27 @@ app.get("/friends", getToken, authenticateToken, (req, res) => {
   res.render("friends", { people, email, firstName, lastName });
 });
 
-app.post("/event", getToken, authenticateToken, (req, res) => {
-  const event = req.body;
-
-  createEvent(
-    event.date,
-    event.time,
-    event.title,
-    event.description,
-    event.email,
-  );
-});
-
 app.get("/api/points", (req, res) => {
   res.json(points);
 });
 
 app.get("/api/offerToCarpool", (req, res) => {
   res.json(offerToCarpool);
+});
+
+app.post("/api/events", (req, res) => {
+  const { firstName, lastName, eventName, location, data } = req.body;
+  const id = uuidv4();
+  const newEvent = {
+    firstName,
+    lastName,
+    eventName,
+    location,
+    data,
+    id
+  };
+  events.push(newEvent);
+  writeToJSON("./database/events.json", events);
 });
 
 // Connect to the database

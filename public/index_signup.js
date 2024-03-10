@@ -110,8 +110,9 @@ function signup() {
     body: jsonData,
   })
     .then((response) => {
-      console.log(response);
-      window.location.href = "/verification";
+      if (response.redirected) {
+        window.location.href = response.url;
+      }
     })
     .catch((error) => console.error("Error:", error));
 }
