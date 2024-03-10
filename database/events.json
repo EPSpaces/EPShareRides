@@ -1,3 +1,16 @@
 [
-  
+  {
+    "firstName": "a",
+    "lastName": "a",
+    "eventName": "a",
+    "location": "a",
+    "id": "7cb31dcd-fce3-4a35-b4d5-d585f6a06509"
+  },
+  {
+    "firstName": "Karla",
+    "lastName": "Harris",
+    "eventName": "Debate Tournament",
+    "location": "Mount Vernon Highschool",
+    "id": "e7afc2c6-3078-44f6-a724-d4ba9dfefb0a"
+  }
 ]

@@ -91,13 +91,6 @@
     "id": "9851ddbf-c40e-472f-a0f3-aa7c6c9a7568"
   },
   {
-    "firstName": "Mein",
-    "lastName": "Fuhrer",
-    "email": "mein@neo.com",
-    "password": "$2b$10$b.U5kzqsu4Eoa6WoVvfPQeLLgVqwfO3Ci9x7HZtk0HcUDFx/11qSm",
-    "id": "d9aa223f-f91c-46c6-8666-8222ba45045f"
-  },
-  {
     "firstName": "aerf",
     "lastName": "aerfr",
     "email": "aerf@aerf.com",
@@ -107,7 +100,7 @@
   {
     "firstName": "Hannah",
     "lastName": "Yamashita",
-    "email": "hyamashita@eastsideprep.orge",
+    "email": "hyamashita@eastsideprep.org",
     "password": "$2b$10$tW8A6mzOF1iSsC/uiQ0J0OOQxGgQJEdURVswCLbAdSeBWvkwI2uRq",
     "id": "8542d985-062f-4942-9728-e6bb2bbe9820"
   }

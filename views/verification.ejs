@@ -13,7 +13,19 @@
     <link rel="icon" href="./favicon.ico" type="image/x-icon">
   </head>
   <body>
-  
+    <div id="errordiv">
+      <article class="message is-danger" id="error">
+        <div class="message-header">
+          <p>Warning</p>
+          <button class="delete" aria-label="delete" onclick="const element = document.getElementById('error');
+            element.remove();"></button>
+        </div>
+        <div class="message-body" id="errormessagebody">
+          <%= error %>
+        </div>
+      </article>
+    </div>
+    
        <style>
          /* Styles for the app */
          .App {
@@ -44,7 +56,7 @@
      <body>
        <div id="root">
          <div class="App">
-           <h1 class="subtitle is-5">Verification code sent to ayamashita@eastsideprep.org</h1>
+           <h1 class="subtitle is-5">Verification code sent to <%= email %></h1>
 
            <div class="code-input">
         
@@ -67,7 +79,7 @@
          const processInput = (e, slot) => {
            const num = e.target.value;
            if (/[^0-9]/.test(num)) return;
-
+          
            if (slot !== codeInputs.length - 1) {
              codeInputs[slot + 1].focus();
            }
@@ -75,6 +87,7 @@
            const code = Array.from(codeInputs).map((input) => input.value).join("");
            if (code.length === codeInputs.length) {
              onComplete(code);
+
            }
          };
 
@@ -88,6 +101,28 @@
          const onComplete = (code) => {
            setLoading(true);
            setTimeout(() => setLoading(false), 10000);
+           const data = {
+             email: "<%= email %>",
+             code,
+           };
+
+           const jsonData = JSON.stringify(data);
+
+           const url = "/auth/signupConfirm";
+
+           fetch(url, {
+             method: "POST",
+             headers: {
+               "Content-Type": "application/json",
+             },
+             body: jsonData,
+           })
+             .then((response) => {
+               if (response.redirected) {
+                 window.location.href = response.url;
+               }
+             })
+             .catch((error) => console.error("Error:", error));
          };
 
          const setLoading = (isLoading) => {
@@ -103,7 +138,7 @@
          });
        </script>
 
-  <script src="./index_signup.js"></script>
+  <script src="./verificationScript.js"></script>
   <script>
     
   </script>

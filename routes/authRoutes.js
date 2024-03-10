@@ -37,65 +37,87 @@ router.get("/logout", (req, res) => {
 
 router.get("/deleteAccount", getToken, authenticateToken, (req, res) => {
   res.render("deleteAccount", { error: req.query.err });
-
 });
 
-
-
 router.post("/auth/signup", (req, res) => {
-  const ipCache = require("../database/ipCache.json");
+  if (
+    !req.body.firstName ||
+    !req.body.lastName ||
+    !req.body.email ||
+    !req.body.password
+  ) {
+    res.redirect("/signup?err=Please fill in all fields");
+  }
+  let ipCache = require("../database/ipCache.json");
+  ipCache = ipCache.filter((obj) => obj.user.email !== req.body.email);
+  const verificationCode =
+    Math.floor(Math.random() * (999999 - 100000 + 1)) + 100000;
+  sendVerificationCode(req.body.email, verificationCode);
   ipCache.push({
     ip: req.ip,
-    code: sendVerificationCode(req.body.email),
+    code: verificationCode,
     user: {
       firstName: req.body.firstName,
       lastName: req.body.lastName,
       email: req.body.email,
       password: hashPassword(req.body.password),
-    }
+    },
   });
   writeToJSON("./database/ipCache.json", ipCache);
-  res.status(200);
+  res.redirect("/verification?email=" + req.body.email);
 });
 
 router.get("/verification", (req, res) => {
-  res.render('verification');
+  res.render("verification", { email: req.query.email, error: req.query.err });
 });
 
 router.post("/auth/signupConfirm", (req, res) => {
-  const { email, password, firstName, lastName, verificationCode } = req.body;
+  const { email, code } = req.body;
+  const ip = req.ip;
 
-  if (!email || !password || !firstName || !lastName || !verificationCode) {
-    return res.redirect("/signup?err=Please enter all fields");
+  if (!email || !code || !ip) {
+    return res.redirect("/signup?err=Error Occured During Verification");
   }
 
-  const ipCache = require("../database/ipCache.json");
+  let ipCache = require("../database/ipCache.json");
 
-  const ipAddressesWithVerificationCode = ipCache.find(
-    (ipObj) => ipObj.code === verificationCode && ipObj.email === email,
-  );
+  const ipAddressesWithVerificationCode = ipCache.find((ipObj) => ipObj.code === code);
+
+  console.log(ipAddressesWithVerificationCode);
+
+  ipCache = ipCache.filter((ipObj) => ipObj.user.email !== email);
+  writeToJSON("./database/ipCache.json", ipCache);
 
   if (!ipAddressesWithVerificationCode) {
     res.redirect("/signup?err=Incorrect Verification Code");
   } else {
-    ipCache = ipCache.filter((ipObj) => ipObj.code !== verificationCode);
+    ipCache = ipCache.filter((ipObj) => ipObj.code !== code);
     writeToJSON("./database/ipCache.json", ipCache);
-  }
 
-  const users = require("../database/users.json");
-  const user = req.body;
+    const users = require("../database/users.json");
+    const user = ipCache.find((ipObj) => ipObj.email === email).user;
 
-  user.password = hashPassword(user.password);
-  user.id = uuidv4();
+    const existingUser = users.find((userA) => userA.email == user.email);
 
-  const existingUser = users.find((userA) => userA.email == user.email);
+    if (existingUser) {
+      res.redirect("/signup?err=Email Already In System");
+    } else {
+      users.push(user);
+      writeToJSON("./database/users.json", users);
+      if (comparePassword(password, email, require("../database/users.json"))) {
+        const user = { email };
 
-  if (existingUser) {
-    res.redirect("/signup?err=Email Already In System");
-  } else {
-    users.push(user);
-    writeToJSON("./database/users.json", users);
-    res.redirect("/signin");
+        const accessToken = generateAccessToken(user);
+
+        res.cookie("authToken", accessToken, {
+          httpOnly: true,
+          maxAge: 3600000,
+        });
+        res.redirect("/");
+      } else {
+        res.redirect("/signin?err=Invalid Email or Password");
+      }
+    }
   }
 });
 

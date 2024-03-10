@@ -62,7 +62,7 @@ function comparePassword(password, email, users) {
   return bcrypt.compareSync(password, hashedPassword);
 }
 
-async function sendVerificationCode(email) {
+async function sendVerificationCode(email, verificationCode) {
   const transporter = nodemailer.createTransport({
     host: "smtp.gmail.com",
     port: 465,
@@ -73,8 +73,6 @@ async function sendVerificationCode(email) {
     }
   });
 
-  const verificationCode = Math.floor(Math.random() * (999999 - 100000 + 1)) + 100000;
-
   const mailOptions = {
     from: process.env["EMAIL_ADDRESS"],
     to: email,
@@ -82,7 +80,7 @@ async function sendVerificationCode(email) {
     html: "<h3>The verification code for your new account on EPShareRide is " + verificationCode + "</h3>" + "<p>Note: If you did not request this, you can safely ignore this email</p>"
   };
 
-  transporter.sendMail(mailOptions, function(error, info) {
+  await transporter.sendMail(mailOptions, function(error, info) {
     if (error) {
       console.log(error);
     }

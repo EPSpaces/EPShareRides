@@ -325,17 +325,17 @@ Debate Tournament
                                        <div class="field">
                                           <a class="panel-block" id="carpoolinfo" style="border-radius: 5px; padding:0px;">
 
-                                          <input style="margin-right: 10px; " class="input" type="fname"  placeholder="Driver first name">
+                                          <input style="margin-right: 10px; " id="fname" class="input" type="fname"  placeholder="Driver first name">
 
 
 
 
-                                             <input style="" class="input" type="lname"  placeholder="Driver last name">                 
+                                             <input style="" id="lname" class="input" type="lname"  placeholder="Driver last name">                 
                                              </a>
                                            </div>
 
 
-                                        <input class="input" type="number" min="1" max="9"  placeholder="Number of car seats" style=" margin-top: -5px; margin-bottom: 10px; ">
+                                        <input class="input" id="seats" type="number" min="1" max="9"  placeholder="Number of car seats" style=" margin-top: -5px; margin-bottom: 10px; ">
 
 
 
@@ -359,7 +359,7 @@ Debate Tournament
                                        <div class="field">
                                           <label id="address-label">Home address </label>
 
-                                         <div class="autocomplete-container " id=""> <div class='control' id="autocomplete-container">
+                                         <div class="autocomplete-container" id=""> <div class='control' id="autocomplete-container">
                                            </div>
                                        </div>
                                        </div>
@@ -369,7 +369,7 @@ Debate Tournament
                                     </section>
                                    <footer class="modal-card-foot" style="background-color: white; border-width: 1px; padding: 10px; ">
                                        <div class="buttons" style="margin-left: 0px;">
-                                         <button class="button is-link ">Create carpool</button>
+                                         <button class="button is-link " onclick="offer()">Create carpool</button>
                                          <button class="button" aria-label="close" onclick="closeAllModals()">Cancel</button>
                                             </div>
                                          </footer>
@@ -444,6 +444,33 @@ Debate Tournament
 
 
 <script type="text/javascript">//<![CDATA[
+  function createevent(firstName, lastName, eventName, location, date) {
+    const data = {
+      firstName,
+      lastName,
+      eventName,
+      location,
+      date,
+    };
+    console.log(data);
+
+    const jsonData = JSON.stringify(data);
+
+    const url = "/api/events";
+
+    fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: jsonData,
+    })
+      .then((response) => {
+        console.log(response);
+        // Open verification checker
+      })
+      .catch((error) => console.error("Error:", error));
+  }
 
 
 /* 
@@ -668,6 +695,8 @@ inputElement.dispatchEvent(event);
 addressAutocomplete(document.getElementById("autocomplete-container"), (data) => {
 console.log("Selected option: ");
 console.log(data);
+console.log(data.properties.formatted);
+arr.push(data.properties.formatted);
 }, {
 
 placeholder: "Enter an address here"
@@ -685,11 +714,21 @@ placeholder: "Enter an address here"
 
 });
 
-function joinCarpool() {
-  let newArray = arr[arr.length - 1];
-  var personName = "<%= firstName %> <%= lastName %>";
-  console.log(newArray+ " " + personName);
-}
+  function joinCarpool() {
+    let newArray = arr[arr.length - 1];
+    var personName = "<%= firstName %> <%= lastName %>";
+    console.log(newArray+ " " + personName);
+  }
+
+  function offer() {
+    let newArray = arr[arr.length - 1];
+    let DriverFName = document.getElementById("fname").value;
+    let DriverLName = document.getElementById("lname").value;
+    let Seats = document.getElementById("seats").value;
+    let route = document.getElementById("route-type").innerHTML;
+    var personName = "<%= firstName %> <%= lastName %>";
+    console.log(newArray+ " " + DriverFName + " " + DriverLName + " " + Seats);
+  }
 
 //]]></script>
 
