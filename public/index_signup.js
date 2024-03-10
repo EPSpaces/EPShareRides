@@ -52,15 +52,17 @@ function dataInput() {
   console.log(email);
 }
 
-function signup() {
+/*function signup() {
   const email = document.getElementById("email").value;
   const firstName = document.getElementById("first_name").value;
   const lastName = document.getElementById("last_name").value;
+  const admin = false;
 
   const data = {
     firstName,
     lastName,
     email,
+    admin
   };
 
   const jsonData = JSON.stringify(data);
@@ -81,6 +83,35 @@ function signup() {
     .catch((error) => console.error("Error:", error));
 }
 
-function checkAndVerifyCode() {
-  
+function checkAndVerifyCode() {}
+*/
+function signup() {
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+  const firstName = document.getElementById("first_name").value;
+  const lastName = document.getElementById("last_name").value;
+
+  const data = {
+    firstName,
+    lastName,
+    email,
+    password,
+  };
+
+  const jsonData = JSON.stringify(data);
+
+  const url = "/auth/signup";
+
+  fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: jsonData,
+  })
+    .then((response) => {
+      console.log(response);
+      window.location.href = "/verification";
+    })
+    .catch((error) => console.error("Error:", error));
 }

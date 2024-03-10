@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>EPShare Rides | Login</title>
+    <link href="./bulma.min.css" rel="stylesheet" type="text/css" />
+    <script src="https://kit.fontawesome.com/16ae8e710d.js" crossorigin="anonymous"></script>
+    
+    <link href="./style.css" rel="stylesheet" type="text/css" />
+    <!--Get your code at fontawesome.com-->
+    <link rel="icon" href="./favicon.ico" type="image/x-icon">
+  </head>
+  <body>
+  
+       <style>
+         /* Styles for the app */
+         .App {
+           font-family: sans-serif;
+           text-align: center;
+         }
+
+         /* Styles for the code input */
+         .code-input {
+           margin-bottom: 20px;
+         }
+
+         .code-label {
+           font-weight: bold;
+           display: block;
+           margin-bottom: 5px;
+         }
+
+         .code-inputs input {
+           width: 50px;
+           height: 50px;
+           font-size: 18px;
+           text-align: center;
+           margin-right: 5px;
+         }
+       </style>
+     </head>
+     <body>
+       <div id="root">
+         <div class="App">
+           <h1 class="subtitle is-5">Verification code sent to ayamashita@eastsideprep.org</h1>
+
+           <div class="code-input">
+        
+             <div class="code-inputs">
+               <input type="text" inputMode="numeric" maxLength="1" />
+               <input type="text" inputMode="numeric" maxLength="1" />
+               <input type="text" inputMode="numeric" maxLength="1" />
+               <input type="text" inputMode="numeric" maxLength="1" />
+               <input type="text" inputMode="numeric" maxLength="1" />
+               <input type="text" inputMode="numeric" maxLength="1" />
+             </div>
+           </div>
+         </div>
+       </div>
+
+       <script>
+         const codeInputs = document.querySelectorAll(".code-inputs input");
+         let loading = false;
+
+         const processInput = (e, slot) => {
+           const num = e.target.value;
+           if (/[^0-9]/.test(num)) return;
+
+           if (slot !== codeInputs.length - 1) {
+             codeInputs[slot + 1].focus();
+           }
+
+           const code = Array.from(codeInputs).map((input) => input.value).join("");
+           if (code.length === codeInputs.length) {
+             onComplete(code);
+           }
+         };
+
+         const onKeyUp = (e, slot) => {
+           if (e.keyCode === 8 && !codeInputs[slot].value && slot !== 0) {
+             codeInputs[slot - 1].value = "";
+             codeInputs[slot - 1].focus();
+           }
+         };
+
+         const onComplete = (code) => {
+           setLoading(true);
+           setTimeout(() => setLoading(false), 10000);
+         };
+
+         const setLoading = (isLoading) => {
+           loading = isLoading;
+           codeInputs.forEach((input) => {
+             input.readOnly = isLoading;
+           });
+         };
+
+         codeInputs.forEach((input, idx) => {
+           input.addEventListener("input", (e) => processInput(e, idx));
+           input.addEventListener("keyup", (e) => onKeyUp(e, idx));
+         });
+       </script>
+
+  <script src="./index_signup.js"></script>
+  <script>
+    
+  </script>
+    
+  </body>
+</html>

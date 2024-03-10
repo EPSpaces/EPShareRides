@@ -37,17 +37,29 @@ router.get("/logout", (req, res) => {
 
 router.get("/deleteAccount", getToken, authenticateToken, (req, res) => {
   res.render("deleteAccount", { error: req.query.err });
+
 });
 
-router.get("/auth/signup", (req, res) => {
+
+
+router.post("/auth/signup", (req, res) => {
   const ipCache = require("../database/ipCache.json");
   ipCache.push({
     ip: req.ip,
-    code: sendVerificationCode(req.query.email),
-    email: req.query.email,
+    code: sendVerificationCode(req.body.email),
+    user: {
+      firstName: req.body.firstName,
+      lastName: req.body.lastName,
+      email: req.body.email,
+      password: hashPassword(req.body.password),
+    }
   });
   writeToJSON("./database/ipCache.json", ipCache);
   res.status(200);
+});
+
+router.get("/verification", (req, res) => {
+  res.render('verification');
 });
 
 router.post("/auth/signupConfirm", (req, res) => {
