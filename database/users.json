@@ -21,20 +21,6 @@
     "id": "36671415-0f89-475e-b915-a6f1bf9cfc16"
   },
   {
-    "firstName": "John",
-    "lastName": "Doe",
-    "email": "jdoe@eastsideprep.org",
-    "password": "$2b$10$cIR8BWnjbs2RgKmqS9ZCJejs8gQWDiTjTRqz/hi77dn4LshR8d9qe",
-    "id": "72a72031-5c00-403d-a809-461e850bcdae"
-  },
-  {
-    "firstName": "Hannah",
-    "lastName": "Yamashita",
-    "email": "hyamashita@eastsideprep.org",
-    "password": "$2b$10$Jt6Ki0Fo0MqDZW8huRetauo6/L8HT5FDIVBSq8u2Kc5zCf652n9d6",
-    "id": "d16b1ce8-1a1a-4e73-9629-4d61bae8ef5f"
-  },
-  {
     "firstName": "Praneel",
     "lastName": "Jain",
     "email": "pjain27@eastsideprep.org",

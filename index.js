@@ -7,6 +7,7 @@ const fs = require("fs");
 const cookieParser = require("cookie-parser");
 const mongoose = require("mongoose");
 
+
 // Import data from JSON
 let users = require("./database/users.json");
 
@@ -40,6 +41,7 @@ const apiRoutes = require("./routes/apiRoutes");
 const app = express();
 
 // Configure Server
+
 app.set("trust proxy", true); // Trust the first proxy
 app.set("view engine", "ejs");
 app.use(express.json());
@@ -113,6 +115,8 @@ app.get("/friends", getToken, authenticateToken, (req, res) => {
 
   res.render("friends", { people, email, firstName, lastName });
 });
+
+
 
 // Connect to the database
 mongoose
