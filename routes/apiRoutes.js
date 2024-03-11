@@ -29,14 +29,15 @@ router.get("/events", (req, res) => {
 });
 
 router.post("/events", (req, res) => {
-  const { firstName, lastName, eventName, location, data, category } = req.body;
+  const { firstName, lastName, eventName, wlocation, date, category } =
+    req.body;
   const id = uuidv4();
   const newEvent = {
     firstName,
     lastName,
     eventName,
-    location,
-    data,
+    wlocation,
+    date,
     category,
     id,
   };
@@ -51,13 +52,26 @@ router.get("/carpools", (req, res) => {
 });
 
 router.post("/carpools", (req, res) => {
-  const { firstName, lastName, seats, route, location } = req.body;
+  const {
+    firstName,
+    lastName,
+    seats,
+    route,
+    wlocation,
+    carpoolers,
+    nameOfEvent,
+    email,
+  } = req.body;
+  const id = uuidv4();
   const newcarpools = {
     firstName,
     lastName,
     seats,
     route,
-    location
+    wlocation, //location is a used variable
+    carpoolers,
+    nameOfEvent,
+    email,
   };
   let carpools = require("../database/carpools.json");
   carpools.push(newcarpools);

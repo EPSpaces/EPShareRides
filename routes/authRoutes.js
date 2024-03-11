@@ -4,11 +4,11 @@ const fs = require("fs");
 
 async function loadJSONFile(filePath) {
   try {
-    const fileData = await fs.promises.readFile(filePath, 'utf8');
+    const fileData = await fs.promises.readFile(filePath, "utf8");
     const jsonData = JSON.parse(fileData);
     return jsonData;
   } catch (err) {
-    console.error('Error reading or parsing JSON file:', err);
+    console.error("Error reading or parsing JSON file:", err);
     throw err;
   }
 }
@@ -58,7 +58,18 @@ router.post("/auth/signup", (req, res) => {
     !req.body.password
   ) {
     res.redirect("/signup?err=Please fill in all fields");
+    return;
   }
+
+  let users = require("../database/users.json");
+
+  const existingUser = users.find((userA) => userA.email === req.body.email);
+
+  if (existingUser) {
+    res.redirect("/signup?err=Email Already Exists");
+    return;
+  }
+
   let ipCache = require("../database/ipCache.json");
   ipCache = ipCache.filter((obj) => obj.user.email !== req.body.email);
   const verificationCode =
@@ -92,13 +103,9 @@ router.post("/auth/signupConfirm", async (req, res) => {
 
   let ipCache = await loadJSONFile("./database/ipCache.json");
 
-  console.log(ipCache);
-
-  const ipAddressesWithVerificationCode = ipCache.find((ipObj) => ipObj.code === code);
-
-  console.log(ipAddressesWithVerificationCode);
-
-  ipCache = ipCache.filter((ipObj) => ipObj.user.email != email);
+  const userEntry = ipCache.find((ipObj) => ipObj.user.email == email && ipObj.code == code && ipObj.ip == ip);
+  
+  ipCache = ipCache.filter((ipObj) => ipObj.ip != ip);
   writeToJSON("./database/ipCache.json", ipCache);
 
   if (!ipAddressesWithVerificationCode) {
@@ -113,7 +120,7 @@ router.post("/auth/signupConfirm", async (req, res) => {
     const existingUser = users.find((userA) => userA.email == user.email);
 
     if (existingUser) {
-      res.redirect("/signup?err=Email Already In System");
+      res.redirect("/signup?err=Email Already Exists");
     } else {
       users.push(user);
       writeToJSON("./database/users.json", users);

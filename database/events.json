@@ -1,24 +1,65 @@
 [
   {
-    "firstName": "a",
-    "lastName": "a",
-    "eventName": "a",
-    "location": "a",
-    "id": "7cb31dcd-fce3-4a35-b4d5-d585f6a06509"
-  },
-  {
     "firstName": "Karla",
     "lastName": "Harris",
-    "eventName": "Debate Tournament",
-    "location": "Mount Vernon Highschool",
-    "id": "e7afc2c6-3078-44f6-a724-d4ba9dfefb0a"
-  },
-  {
-    "firstName": "Karla",
-    "lastName": "Harris",
-    "eventName": "Debate Tournament",
-    "location": "Mount Vernon Highschool",
-    "category": "Sports",
+    "eventName": "Senior Prom",
+    "wlocation": "TALI Building",
+    "date": "2/29/24 9:30 PM",
+    "category": "socials",
     "id": "03d36869-3a89-48b1-b5cc-474f3b2bb9df"
+  },
+  {
+    "firstName": "Melisa",
+    "lastName": "Hayes",
+    "eventName": "Debate Tournament",
+    "wlocation": "Mount Vernon Highschool",
+    "date": "2/29/24 9:30 PM",
+    "category": "academic teams",
+    "id": "5a9a56f7-5da3-4634-89c4-2d470c24d9c9"
+  },
+  {
+    "firstName": "Nikhil",
+    "lastName": "Mahesh",
+    "eventName": "Procrastinate for Finals",
+    "wlocation": "EPS Library",
+    "date": "3/11/24 3:00 PM",
+    "category": "other",
+    "id": "162a64f0-3ccf-467b-8e3b-d110dbfbae3e"
+  },
+  {
+    "firstName": "Ari ",
+    "lastName": "Yamashita ",
+    "eventName": "7/8 Soccer Game",
+    "wlocation": "Marymoor Park",
+    "date": "2024-03-19T16:30",
+    "category": "sports",
+    "id": "5b6a25ac-bb22-4627-96a6-7ee225240f56"
+  },
+  {
+    "firstName": "Ari ",
+    "lastName": "Yamashita ",
+    "eventName": "Dr. Reina welcoming party",
+    "wlocation": "Everest park",
+    "date": "2024-04-10T12:31",
+    "category": "socials",
+    "id": "73f4a98d-befb-472a-8472-0c27b02fe3c7"
+  },
+  {
+    "firstName": "Anmol ",
+    "lastName": "Josan ",
+    "eventName": "2",
+    "wlocation": "2",
+    "date": "222222-02-22T14:22",
+    "category": "sports",
+    "id": "972b3dc3-0da6-4cec-980d-040984002a4f"
+  },
+  {
+    "firstName": "Anmol ",
+    "lastName": "Josan ",
+    "eventName": "Do finals",
+    "wlocation": "Home",
+    "date": "2024-02-22T14:22",
+    "category": "academic teams",
+    "id": "c600260c-326c-49f5-a96c-0f165d7dbf35"
   }
 ]
