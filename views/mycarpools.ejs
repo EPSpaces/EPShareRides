@@ -47,7 +47,7 @@
                                     Log out
                                     </a>
                                     <div class="navbar-item has-dropdown is-hoverable " onclick="document.getElementById('navbar-dropdown').style.visibility = 'visible';">
-                                       <a class="button is-link" id="name_button">
+                                       <a class="button is-link" id="name_button"style="background: linear-gradient(105deg, #3273DC, #275CBF);">
                                        <%= firstName %> <%= lastName %>
                                        </a>
                                        <div id="filler" style="width: 130px; background-color: transparent; height: 20px; position: absolute; margin-top: -15px;"></div>
@@ -174,13 +174,14 @@
                      -->
                </div>
                <!-- </div>  -->
+              <div class="container">
                <div class="columns " style="width: 100%; margin-left: 0px; margin-top: -50px;">
                   <div class="column is-7 has-text-centered" id="upcoming-carpools-column" style="margin-left: 0px; margin-right: 0px; overflow:auto;">
                      <div class="container " style="margin-top: 5px; ">
                         <!-- <p class="has-text-centered">Don't see any carpools? Find events <a href="/">here</a>.</p> -->
                         <!-- start here -->
                         <article class="panel is-link" style="position: relative" >
-                           <div class="panel-heading" style="padding: 0px; margin-bottom: 12px; border-radius: 6px 6px 0px 0px; line-height: 22px;" >
+                           <div class="panel-heading" style="padding: 0px; margin-bottom: 12px; border-radius: 6px 6px 0px 0px; line-height: 22px;background: linear-gradient(105deg, #3273DC, #275CBF);" >
                               <div class="columns is-mobile">
                                  <div class="column" style=" padding: 0px; padding-left: 10px;">
                                     <div class=" " style="float: left; margin: 7px; left:0px;" >
@@ -217,7 +218,7 @@
                         <!-- stop here -->
                         <!-- start here -->
                         <article class="panel is-link" style="position: relative" >
-                           <div class="panel-heading" style="padding: 0px; margin-bottom: 12px; border-radius: 6px 6px 0px 0px; line-height: 22px;" >
+                           <div class="panel-heading" style="padding: 0px; margin-bottom: 12px; border-radius: 6px 6px 0px 0px; line-height: 22px;background: linear-gradient(105deg, #3273DC, #275CBF);" >
                               <div class="columns is-mobile">
                                 <div class="column" style=" padding: 0px; padding-left: 10px;">
                               <div class=" " style="float: left; margin: 7px; left:0px;" >
@@ -284,6 +285,7 @@
                      </ul>
                   </div>
                </nav>
+            </div>
             </div>
          </section>
       </main>
@@ -382,6 +384,28 @@
 
                                          
 </html>
+<script>
+  let carpoools;
+  var request = new Request("/api/carpools", {
+    method: "GET",
+    headers: new Headers({
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+    })
+  });
+  fetch(request)
+    .then((response) => response.json())
+    .then((data) => {
+      carpoools = data;
+      console.log(carpoools);
+    })
+    .catch((error) => {
+      console.error(error)
+    });
+  console.log(carpoools)
+</script>
+
+  
 <!-- <script>
    // script.js
    // script.js

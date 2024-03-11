@@ -88,8 +88,14 @@ function checkAndVerifyCode() {}
 function signup() {
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
+  const confirm_password = document.getElementById("confirm_password").value;
   const firstName = document.getElementById("first_name").value;
   const lastName = document.getElementById("last_name").value;
+
+  if (password !== confirm_password) {
+    window.location.href = "/signup?err=Passwords do not match"
+    return;
+  }
 
   const data = {
     firstName,

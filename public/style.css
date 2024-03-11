@@ -295,6 +295,9 @@ body {
   #action-buttons {
     width: 40%
   }
+  #mycarpools {
+    width: 100%
+  }
   .white-background {
     background-color: transparent 
   }
@@ -346,6 +349,9 @@ body {
   #upcoming-carpools-column {
     height: 450px;
 
+  }
+  #mycarpools {
+    width: 500px
   }
   .white-background {
     background-color: white
