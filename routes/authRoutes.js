@@ -19,6 +19,7 @@ const {
   authenticateToken,
   getToken,
   comparePassword,
+  comparePasswordHash,
   hashPassword,
   generateAccessToken,
   sendVerificationCode,
@@ -104,27 +105,31 @@ router.post("/auth/signupConfirm", async (req, res) => {
   let ipCache = await loadJSONFile("./database/ipCache.json");
 
   const userEntry = ipCache.find((ipObj) => ipObj.user.email == email && ipObj.code == code && ipObj.ip == ip);
-  
-  ipCache = ipCache.filter((ipObj) => ipObj.ip != ip);
+
+  ipCache = ipCache.filter((ipObj) => ipObj.ip != ip || ipObj.user.email != email || ipObj.code != code);
   writeToJSON("./database/ipCache.json", ipCache);
-
-  if (!ipAddressesWithVerificationCode) {
+  
+  try {
+    const user = userEntry.user;
+  } catch (err) {
     res.redirect("/signup?err=Incorrect Verification Code");
+    return;
+  }
+
+  if (!userEntry) {
+    res.redirect("/signup?err=Incorrect Verification Code");
+    return;
   } else {
-    ipCache = ipCache.filter((ipObj) => ipObj.code !== code);
-    writeToJSON("./database/ipCache.json", ipCache);
-
     const users = require("../database/users.json");
-    const user = ipCache.find((ipObj) => ipObj.email === email).user;
-
     const existingUser = users.find((userA) => userA.email == user.email);
+    const password = user.password;
 
     if (existingUser) {
       res.redirect("/signup?err=Email Already Exists");
     } else {
       users.push(user);
       writeToJSON("./database/users.json", users);
-      if (comparePassword(password, email, require("../database/users.json"))) {
+      if (comparePasswordHash(password, email, require("../database/users.json"))) {
         const user = { email };
 
         const accessToken = generateAccessToken(user);
@@ -135,7 +140,7 @@ router.post("/auth/signupConfirm", async (req, res) => {
         });
         res.redirect("/");
       } else {
-        res.redirect("/signin?err=Invalid Email or Password");
+        res.redirect("/signin?err=Account created, error while signing in, please try to sign in");
       }
     }
   }
@@ -170,7 +175,6 @@ router.delete(
       res.clearCookie("authToken");
       res.redirect("/signin?message=Account Deleted Successfully");
     } else {
-      console.log(email, password);
       res.redirect("/deleteAccount?err=Password Incorrect");
     }
   },

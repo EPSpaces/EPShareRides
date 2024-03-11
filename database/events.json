@@ -1,65 +1,65 @@
 [
   {
-    "firstName": "Karla",
-    "lastName": "Harris",
-    "eventName": "Senior Prom",
-    "wlocation": "TALI Building",
-    "date": "2/29/24 9:30 PM",
+    "firstName": "Ari ",
+    "lastName": "Yamashita ",
+    "eventName": "Dr. Reina welcoming party",
+    "wlocation": "Everest park",
+    "date": "4/5/2024, 1:30 PM",
     "category": "socials",
-    "id": "03d36869-3a89-48b1-b5cc-474f3b2bb9df"
-  },
-  {
-    "firstName": "Melisa",
-    "lastName": "Hayes",
-    "eventName": "Debate Tournament",
-    "wlocation": "Mount Vernon Highschool",
-    "date": "2/29/24 9:30 PM",
-    "category": "academic teams",
-    "id": "5a9a56f7-5da3-4634-89c4-2d470c24d9c9"
-  },
-  {
-    "firstName": "Nikhil",
-    "lastName": "Mahesh",
-    "eventName": "Procrastinate for Finals",
-    "wlocation": "EPS Library",
-    "date": "3/11/24 3:00 PM",
-    "category": "other",
-    "id": "162a64f0-3ccf-467b-8e3b-d110dbfbae3e"
+    "id": "1173cb0b-7f73-44f8-a42b-52c3853cf9fe"
   },
   {
     "firstName": "Ari ",
     "lastName": "Yamashita ",
     "eventName": "7/8 Soccer Game",
-    "wlocation": "Marymoor Park",
-    "date": "2024-03-19T16:30",
+    "wlocation": "Marymoor",
+    "date": "3/14/2024, 4:15 PM",
     "category": "sports",
-    "id": "5b6a25ac-bb22-4627-96a6-7ee225240f56"
+    "id": "fbb34522-92b7-40f7-958b-49b0357f3885"
   },
   {
     "firstName": "Ari ",
     "lastName": "Yamashita ",
-    "eventName": "Dr. Reina welcoming party",
-    "wlocation": "Everest park",
-    "date": "2024-04-10T12:31",
-    "category": "socials",
-    "id": "73f4a98d-befb-472a-8472-0c27b02fe3c7"
+    "eventName": "Procrastinating Study Session",
+    "wlocation": "EPS Library",
+    "date": "3/26/2024, 9:00 AM",
+    "category": "other",
+    "id": "87f1ce78-54cc-4dda-b51b-20e7cc573434"
   },
   {
-    "firstName": "Anmol ",
-    "lastName": "Josan ",
-    "eventName": "2",
-    "wlocation": "2",
-    "date": "222222-02-22T14:22",
-    "category": "sports",
-    "id": "972b3dc3-0da6-4cec-980d-040984002a4f"
-  },
-  {
-    "firstName": "Anmol ",
-    "lastName": "Josan ",
-    "eventName": "Do finals",
-    "wlocation": "Home",
-    "date": "2024-02-22T14:22",
+    "firstName": "Ari ",
+    "lastName": "Yamashita ",
+    "eventName": "Debate Tournament",
+    "wlocation": "Mt. Vernon Highschool",
+    "date": "3/30/2024, 7:00 PM",
     "category": "academic teams",
-    "id": "c600260c-326c-49f5-a96c-0f165d7dbf35"
+    "id": "c4efc455-6185-4050-a3b8-1810f27ccaa4"
+  },
+  {
+    "firstName": "Ari ",
+    "lastName": "Yamashita ",
+    "eventName": "Bowling Social",
+    "wlocation": "Lucky Strike",
+    "date": "3/27/2024, 4:45 PM",
+    "category": "socials",
+    "id": "03c1cde3-3375-411f-a680-87c5ce90c215"
+  },
+  {
+    "firstName": "Ari ",
+    "lastName": "Yamashita ",
+    "eventName": "7/8 Soccer Game",
+    "wlocation": "Perrigo",
+    "date": "3/26/2024, 3:40 PM",
+    "category": "sports",
+    "id": "1fe6b539-6649-44aa-92e5-95985ca7ea04"
+  },
+  {
+    "firstName": "Ari ",
+    "lastName": "Yamashita ",
+    "eventName": "7/8 Soccer Game",
+    "wlocation": "Perrigo",
+    "date": "3/13/2024, 1:42 PM",
+    "category": "sports",
+    "id": "f2ce4ec7-2220-4672-9ac8-a90a2f2e38eb"
   }
 ]

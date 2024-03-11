@@ -62,7 +62,21 @@ router.post("/carpools", (req, res) => {
     nameOfEvent,
     email,
   } = req.body;
-  const id = uuidv4();
+
+  if (
+    !firstName ||
+    !lastName ||
+    !seats ||
+    !route ||
+    !wlocation ||
+    !carpoolers ||
+    !nameOfEvent ||
+    !email
+  ) {
+    res.status(451);
+    return;
+  }
+
   const newcarpools = {
     firstName,
     lastName,
@@ -72,6 +86,7 @@ router.post("/carpools", (req, res) => {
     carpoolers,
     nameOfEvent,
     email,
+    id: uuidv4(),
   };
   let carpools = require("../database/carpools.json");
   carpools.push(newcarpools);
