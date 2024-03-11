@@ -12,5 +12,13 @@
     "eventName": "Debate Tournament",
     "location": "Mount Vernon Highschool",
     "id": "e7afc2c6-3078-44f6-a724-d4ba9dfefb0a"
+  },
+  {
+    "firstName": "Karla",
+    "lastName": "Harris",
+    "eventName": "Debate Tournament",
+    "location": "Mount Vernon Highschool",
+    "category": "Sports",
+    "id": "03d36869-3a89-48b1-b5cc-474f3b2bb9df"
   }
 ]

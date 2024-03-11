@@ -2,6 +2,17 @@ const express = require("express");
 const { v4: uuidv4 } = require("uuid");
 const fs = require("fs");
 
+async function loadJSONFile(filePath) {
+  try {
+    const fileData = await fs.promises.readFile(filePath, 'utf8');
+    const jsonData = JSON.parse(fileData);
+    return jsonData;
+  } catch (err) {
+    console.error('Error reading or parsing JSON file:', err);
+    throw err;
+  }
+}
+
 const router = express.Router();
 const {
   ensureNoToken,
@@ -71,7 +82,7 @@ router.get("/verification", (req, res) => {
   res.render("verification", { email: req.query.email, error: req.query.err });
 });
 
-router.post("/auth/signupConfirm", (req, res) => {
+router.post("/auth/signupConfirm", async (req, res) => {
   const { email, code } = req.body;
   const ip = req.ip;
 
@@ -79,13 +90,15 @@ router.post("/auth/signupConfirm", (req, res) => {
     return res.redirect("/signup?err=Error Occured During Verification");
   }
 
-  let ipCache = require("../database/ipCache.json");
+  let ipCache = await loadJSONFile("./database/ipCache.json");
+
+  console.log(ipCache);
 
   const ipAddressesWithVerificationCode = ipCache.find((ipObj) => ipObj.code === code);
 
   console.log(ipAddressesWithVerificationCode);
 
-  ipCache = ipCache.filter((ipObj) => ipObj.user.email !== email);
+  ipCache = ipCache.filter((ipObj) => ipObj.user.email != email);
   writeToJSON("./database/ipCache.json", ipCache);
 
   if (!ipAddressesWithVerificationCode) {

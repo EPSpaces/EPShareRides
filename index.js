@@ -9,9 +9,6 @@ const mongoose = require("mongoose");
 
 // Import data from JSON
 let users = require("./database/users.json");
-let events = require("./database/events.json");
-let points = require("./database/points.json");
-let offerToCarpool = require("./database/offerToCarpool.json");
 
 // Import Event schema for MongoDB
 const Event = require("./schemas/Event");
@@ -37,6 +34,7 @@ function writeToJSON(filepath, data) {
 
 // Import Routes
 const authRoutes = require("./routes/authRoutes");
+const apiRoutes = require("./routes/apiRoutes");
 
 // Init Server
 const app = express();
@@ -51,6 +49,7 @@ app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
 // Init Routes
+app.use("/api", apiRoutes);
 app.use("/", authRoutes);
 
 app.get("/", getToken, authenticateToken, (req, res) => {
@@ -113,29 +112,6 @@ app.get("/friends", getToken, authenticateToken, (req, res) => {
   lastName = userInData.lastName;
 
   res.render("friends", { people, email, firstName, lastName });
-});
-
-app.get("/api/points", (req, res) => {
-  res.json(points);
-});
-
-app.get("/api/offerToCarpool", (req, res) => {
-  res.json(offerToCarpool);
-});
-
-app.post("/api/events", (req, res) => {
-  const { firstName, lastName, eventName, location, data } = req.body;
-  const id = uuidv4();
-  const newEvent = {
-    firstName,
-    lastName,
-    eventName,
-    location,
-    data,
-    id
-  };
-  events.push(newEvent);
-  writeToJSON("./database/events.json", events);
 });
 
 // Connect to the database
