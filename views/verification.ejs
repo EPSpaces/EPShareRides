@@ -13,18 +13,16 @@
     <link rel="icon" href="./favicon.ico" type="image/x-icon">
   </head>
   <body>
-    <div id="errordiv">
-      <article class="message is-danger" id="error">
-        <div class="message-header">
-          <p>Warning</p>
-          <button class="delete" aria-label="delete" onclick="const element = document.getElementById('error');
-            element.remove();"></button>
-        </div>
-        <div class="message-body" id="errormessagebody">
-          <%= error %>
-        </div>
-      </article>
-    </div>
+    <article class="message is-danger" id="error" style="display: none">
+      <div class="message-header">
+        <p>Warning</p>
+        <button class="delete" aria-label="delete" onclick="const element = document.getElementById('error');
+          element.remove();"></button> 
+      </div>
+      <div class="message-body" id="errorMessageText">
+        <%= error %>
+      </div>
+    </article>
     
        <style>
          /* Styles for the app */
@@ -56,7 +54,8 @@
      <body>
        <div id="root">
          <div class="App">
-           <h1 class="subtitle is-5">Verification code sent to <%= email %></h1>
+           <h1 class="subtitle is-5" style="margin-bottom: 0px">Verification code sent to <%= email %></h1>
+           <h1 class="subtitle is-5">Don't see an email? Check your junk folder or <a href="/signup">go back</a></h1>
 
            <div class="code-input">
         

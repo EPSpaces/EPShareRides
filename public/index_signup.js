@@ -94,7 +94,7 @@ function signup() {
 
   if (password !== confirm_password) {
     confirm_password = "";
-    document.getElementById("errorMessageText").innerHTML = "Passwords do not match";
+    window.location.href="/signup?err=Passwords do not match";
     return;
   }
 

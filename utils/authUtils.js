@@ -62,6 +62,17 @@ function comparePassword(password, email, users) {
   return bcrypt.compareSync(password, hashedPassword);
 }
 
+function comparePasswordHash(hash, email, users) {
+  try {
+    hashedPassword = users.find((u) => u.email === email).password;
+  } catch(err) {
+    return false;
+  }
+
+  if (hash == hashedPassword) return true;
+  else return false;
+}
+
 async function sendVerificationCode(email, verificationCode) {
   const transporter = nodemailer.createTransport({
     host: "smtp.gmail.com",
@@ -96,5 +107,6 @@ module.exports = {
   generateAccessToken,
   hashPassword,
   comparePassword,
+  comparePasswordHash,
   sendVerificationCode,
 };

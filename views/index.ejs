@@ -343,6 +343,11 @@ Debate Tournament
 
 
 <script type="text/javascript">
+
+  console.error("418 I'm a teapot");
+
+  var eventsW2 = [];
+ 
   function sendData(data){
     datarray.push(data);
     console.log(data);
@@ -354,7 +359,19 @@ Debate Tournament
     eventName=document.getElementById("ename").value
     wlocation=document.getElementById("elocation").value
     console.log(wlocation)
-    date=document.getElementById("edate").value
+    dateb=document.getElementById("edate").value//hotdogs
+    var components = dateb.split(/[-T:]/);
+    // Create a new Date object
+    var dateTimeObject = new Date(components[0], components[1] - 1, components[2], components[3], components[4]);
+    // Format the Date object as a string in the desired format
+    date = dateTimeObject.toLocaleString('en-US', {
+        month: 'numeric',
+        day: 'numeric',
+        year: 'numeric',
+        hour: 'numeric',
+        minute: 'numeric',
+        hour12: true
+    });
     category=document.getElementById("ecategory").value
     const data = {
       firstName,
@@ -389,12 +406,16 @@ Debate Tournament
   fetch(request)
     .then((response) => response.json())
     .then((data) => {
+      
       eventsW = data;
       console.log(eventsW);
+      eventsW2 = sortJSON(eventsW,'date', '123'); 
+      console.log(eventsW2);
+
  
-console.log("length:" + eventsW.length)
-  for (var i = 0; i < eventsW.length; i++){
-  var obj = eventsW[i];
+console.log("length:" + eventsW2.length)
+  for (var i = 0; i < eventsW2.length; i++){
+  var obj = eventsW2[i];
     
   document.getElementById("eventsJS").innerHTML += `<article class="panel is-link has-text-centered" style=" margin-top: 10px;" >
  <div style="float: left; margin: 7px; left:0px; position: absolute " class="booker" >
@@ -434,8 +455,9 @@ console.log("length:" + eventsW.length)
       function sortJSON(arr, key, way) {
           return arr.sort(function(a, b) {
               var datex = a[key]; var datey = b[key];
+
             datex = new Date(datex)
-            datey = new Date(datey)
+             datey = new Date(datey)
             x = datex.getTime() / 1000
              y = datey.getTime() / 1000
               if (way === '123') { return ((x < y) ? -1 : ((x > y) ? 1 : 0)); }
@@ -443,8 +465,9 @@ console.log("length:" + eventsW.length)
           });
       }
 
-      eventsW2 = sortJSON(eventsW,'date', '123'); 
-      console.log("Sorted events: " + JSON.stringify(eventsW2));
+      // eventsW2 = sortJSON(eventsW,'date', '123'); 
+      // console.log("Sorted events: " + JSON.stringify(eventsW2));
+      
       
       
       
@@ -594,7 +617,7 @@ console.log("length:" + eventsW.length)
 
   
   function offerACar(firstName, lastName, seats, route, wlocation, carpoolers, nameOfEvent){
-    var email = "<%= email %>"
+    let email = "<%= email %>"
     const newcarpools = {
       firstName,
       lastName,
