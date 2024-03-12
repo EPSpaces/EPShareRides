@@ -7,7 +7,6 @@ const fs = require("fs");
 const cookieParser = require("cookie-parser");
 const mongoose = require("mongoose");
 
-
 // Import data from JSON
 let users = require("./database/users.json");
 
@@ -115,8 +114,6 @@ app.get("/friends", getToken, authenticateToken, (req, res) => {
 
   res.render("friends", { people, email, firstName, lastName });
 });
-
-
 
 // Connect to the database
 mongoose

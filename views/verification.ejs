@@ -13,7 +13,8 @@
     <link rel="icon" href="./favicon.ico" type="image/x-icon">
   </head>
   <body>
-    <article class="message is-danger" id="error" style="display: none">
+    <% if (error) { %>
+    <article class="message is-danger" id="error">
       <div class="message-header">
         <p>Warning</p>
         <button class="delete" aria-label="delete" onclick="const element = document.getElementById('error');
@@ -23,6 +24,7 @@
         <%= error %>
       </div>
     </article>
+      <% } %>
     
        <style>
          /* Styles for the app */
