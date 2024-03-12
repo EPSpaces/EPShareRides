@@ -203,7 +203,9 @@ Debate Tournament
 
 </main>
 
-
+<script>
+ 
+  </script>
 
 <!-- start here -->
                              <div class="modal " id="modal-js-example">
@@ -268,7 +270,7 @@ Debate Tournament
                                     </section>
                                    <footer class="modal-card-foot" style="background-color: white; border-width: 1px; padding: 10px; ">
                                        <div class="buttons" style="margin-left: 0px;">
-                                         <button class="button is-link " onclick="offer();closeAllModals()">Create carpool</button>
+                                         <button class="button is-link " onclick="offer();window.location.href='/mycarpools'">Create carpool</button>
                                          <button class="button" aria-label="close" onclick="closeAllModals()">Cancel</button>
                                             </div>
                                          </footer>
@@ -302,19 +304,16 @@ Debate Tournament
 
 
                                                <div style="overflow: auto;">
-                                               <div class="notification" style="padding: 10px;   margin-bottom: 10px;">
+                                                 <div id="registerJS">
+                                               <!-- <div class="notification" style="padding: 10px;   margin-bottom: 10px;">
                                          <div class="button  selectCarpool" style=" margin-left: 10px; margin-top: 4px; background-color: transparent; float: right" onclick=" if (this.classList[2] == 'is-focused') {unfocus()} else {unfocus(); this.classList.add('is-focused')}">Select</div>
                                                  <div style="float: right; margin-top: 3px;"  >2/6 signed up</div>
                                                                            Organizer: <a style="color: #3273dc" href="mailto:ajosan@eastsideprep.org">ajosan@eastsideprep.org</a>
                                                    <br>  Route type: Home to home
-          <br>                                                                                          </div>   
-
-                                               <div class="notification" style="padding: 10px;   margin-bottom: 10px;">
-                                                                               <div class="button selectCarpool " style=" margin-left: 10px; margin-top: 4px; background-color: transparent; float: right" onclick="if (this.classList[2] == 'is-focused') {unfocus()} else {unfocus(); this.classList.add('is-focused')}">Select</div>
-                                                                                       <div style="float: right; margin-top: 3px;"  >2/6 signed up</div>
-                                                                                                                 Organizer: <a style="color: #3273dc" href="mailto:chrisyamashita@hotmail.com">chrisyamashita@hotmail.com</a>
-                                                                                         <br>  Route type: Common meeting point
-                                           <br>                                                                                          </div>                
+<br> 
+                                               </div>    -->
+                                                 </div>
+                                                           
 
                                           </div>                                                                      
     </div>                                                                              <div class="field">
@@ -554,6 +553,56 @@ console.log("length:" + eventsW2.length)
       
       function openModal($el) {
       $el.classList.add('is-active');
+
+        let carpoools;
+        var request = new Request("/api/carpools", {
+          method: "GET",
+          headers: new Headers({
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+          })
+        });
+        fetch(request)
+          .then((response) => response.json())
+          .then((data) => {
+            carpoools = data;
+            console.log(carpoools);
+
+        console.log(carpoools)
+            document.getElementById("registerJS").innerHTML = ``;
+   
+            //checks if the carpools id matches an events id
+         for (var i = 0; i < carpoools.length; i++){
+          var obj = carpoools[i];
+ 
+             if (obj["nameOfEvent"] == datarray[datarray.length - 1]) {
+               
+           
+          
+           //datarray[datarray.length - 1]
+           
+           
+           var routeType;
+           if (obj["route"] == "route") {
+             routeType = "Home to home"
+           }
+           else if (obj["route"] == "point") {
+                routeType = "Common meeting point"
+              }
+            
+        document.getElementById("registerJS").innerHTML +=
+        `<div class="notification" style="padding: 10px;   margin-bottom: 10px;">
+                                               <div class="button  selectCarpool" style=" margin-left: 10px; margin-top: 4px; background-color: transparent; float: right" onclick=" if (this.classList[2] == 'is-focused') {unfocus()} else {unfocus(); this.classList.add('is-focused')}">Select</div>
+                                                       <div style="float: right; margin-top: 3px;"  >` + obj["carpoolers"].length + `/`+ obj["seats"] +` signed up</div>
+                                                                                 Organizer: <a style="color: #3273dc" href="mailto:` + obj["email"] + `">` + obj["email"] + `</a>
+                                                         <br>  Route type: ` + routeType + `
+                <br>                                                                                          </div>   `
+         }
+           }
+           })
+             .catch((error) => {
+               console.error(error)
+             });
       }
 
       function closeModal($el) {

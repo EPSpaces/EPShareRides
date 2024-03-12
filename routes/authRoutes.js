@@ -108,16 +108,17 @@ router.post("/auth/signupConfirm", async (req, res) => {
 
   ipCache = ipCache.filter((ipObj) => ipObj.ip != ip || ipObj.user.email != email || ipObj.code != code);
   writeToJSON("./database/ipCache.json", ipCache);
+  let user;
   
   try {
-    const user = userEntry.user;
+    user = userEntry.user;
   } catch (err) {
-    res.redirect("/signup?err=Incorrect Verification Code");
+    res.redirect("/verification?err=Incorrect Verification Code&email=" + email);
     return;
   }
 
   if (!userEntry) {
-    res.redirect("/signup?err=Incorrect Verification Code");
+    res.redirect("/verification?err=Incorrect Verification Code&email=" + email);
     return;
   } else {
     const users = require("../database/users.json");
@@ -168,8 +169,8 @@ router.delete(
   (req, res) => {
     const { password } = req.body;
     const email = req.email;
-    if (comparePassword(password, email)) {
-      const users = require("./database/users.json");
+    if (comparePassword(password, email, require("../database/users.json"))) {
+      const users = require("../database/users.json");
       const Changedusers = users.filter((user) => user.email != email);
       writeToJSON("./database/users.json", Changedusers);
       res.clearCookie("authToken");
