@@ -73,7 +73,7 @@ router.post("/carpools", (req, res) => {
     !nameOfEvent ||
     !email
   ) {
-    res.status(451);
+    res.status(400);
     return;
   }
 
