@@ -345,6 +345,16 @@ Debate Tournament
 
   console.error("418 I'm a teapot");
 
+  function getDayOfWeek(string) {
+    const d = new Date(string);
+    const dayOfWeek = d.getDay();
+
+    // Example: Get the name of the weekday (not just a number)
+    const weekdays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+    const currentDay = weekdays[dayOfWeek];
+    return(currentDay)
+  }  
+  
   var eventsW2 = [];
  
   function sendData(data){
@@ -415,6 +425,7 @@ Debate Tournament
 console.log("length:" + eventsW2.length)
   for (var i = 0; i < eventsW2.length; i++){
   var obj = eventsW2[i];
+    var day = getDayOfWeek(obj["date"]);
     
   document.getElementById("eventsJS").innerHTML += `<article class="panel is-link has-text-centered" style=" margin-top: 10px;" >
  <div style="float: left; margin: 7px; left:0px; position: absolute " class="booker" >
@@ -434,7 +445,7 @@ console.log("length:" + eventsW2.length)
  <div class="panel-block">
    <p class="control has-icons-left" style="width: 100px;">
 
-     <span style="color: #999999; margin-right: 5px;"><i class="fa-solid fa-location-dot "></i></span>Location: `+obj["wlocation"]+`<br class="extraspace" style='display: none; '>  <span id="clock"  style="color: #999999; margin-right: 5px; margin-left: 10px;"><i class="fa-solid fa-clock "></i></span> Date: `+obj["date"]+`
+     <span style="color: #999999; margin-right: 5px;"><i class="fa-solid fa-location-dot "></i></span>Location: `+obj["wlocation"]+`<br class="extraspace" style='display: none; '>  <span id="clock"  style="color: #999999; margin-right: 5px; margin-left: 10px;"><i class="fa-solid fa-clock "></i></span> Date: ` + day + `, ` + obj["date"]+`
     </p>
    <div class="buttons upcoming-buttons" style="float: left; display: inline-block;">
 
@@ -467,7 +478,7 @@ console.log("length:" + eventsW2.length)
       // eventsW2 = sortJSON(eventsW,'date', '123'); 
       // console.log("Sorted events: " + JSON.stringify(eventsW2));
       
-      
+
       
       
       document.getElementById("filter").onchange = filter;
@@ -475,8 +486,10 @@ console.log("length:" + eventsW2.length)
         document.getElementById("eventsJS").innerHTML = ``
          for (var i = 0; i < eventsW.length; i++){
           var obj = eventsW[i];
+           var day = getDayOfWeek(obj["date"]);
            if (document.getElementById("filter").value == "all") {
-
+             // `<div style="float: right; margin: 10px; width: 35px; height: 35px; background-color: hsl(348, 100%, 61%); border-radius: 5px
+             //    " <="" div=""></div>`
                document.getElementById("eventsJS").innerHTML += `<article class="panel is-link has-text-centered" style=" margin-top: 10px;" >
               <div style="float: left; margin: 7px; left:0px; position: absolute " class="booker" >
                 <span class="panel-icon" style='color: white; display: inline'>
@@ -495,7 +508,7 @@ console.log("length:" + eventsW2.length)
               <div class="panel-block">
                 <p class="control has-icons-left" style="width: 100px;">
 
-                  <span style="color: #999999; margin-right: 5px;"><i class="fa-solid fa-location-dot "></i></span>Location: `+obj["wlocation"]+`<br class="extraspace" style='display: none; '>  <span id="clock"  style="color: #999999; margin-right: 5px; margin-left: 10px;"><i class="fa-solid fa-clock "></i></span> Date: `+obj["date"]+`
+                  <span style="color: #999999; margin-right: 5px;"><i class="fa-solid fa-location-dot "></i></span>Location: `+obj["wlocation"]+`<br class="extraspace" style='display: none; '>  <span id="clock"  style="color: #999999; margin-right: 5px; margin-left: 10px;"><i class="fa-solid fa-clock "></i></span> Date: ` + day + `, ` + obj["date"] + `
                  </p>
                 <div class="buttons upcoming-buttons" style="float: left; display: inline-block;">
 
@@ -530,7 +543,7 @@ console.log("length:" + eventsW2.length)
          <div class="panel-block">
            <p class="control has-icons-left" style="width: 100px;">
 
-             <span style="color: #999999; margin-right: 5px;"><i class="fa-solid fa-location-dot "></i></span>Location: `+obj["wlocation"]+`<br class="extraspace" style='display: none; '>  <span id="clock"  style="color: #999999; margin-right: 5px; margin-left: 10px;"><i class="fa-solid fa-clock "></i></span> Date: `+obj["date"]+`
+             <span style="color: #999999; margin-right: 5px;"><i class="fa-solid fa-location-dot "></i></span>Location: `+obj["wlocation"]+`<br class="extraspace" style='display: none; '>  <span id="clock"  style="color: #999999; margin-right: 5px; margin-left: 10px;"><i class="fa-solid fa-clock "></i></span> Date: ` + day + `, ` + obj["date"]+`
             </p>
            <div class="buttons upcoming-buttons" style="float: left; display: inline-block;">
 
@@ -595,7 +608,7 @@ console.log("length:" + eventsW2.length)
                                                <div class="button  selectCarpool" style=" margin-left: 10px; margin-top: 4px; background-color: transparent; float: right" onclick=" if (this.classList[2] == 'is-focused') {unfocus()} else {unfocus(); this.classList.add('is-focused')}">Select</div>
                                                        <div style="float: right; margin-top: 3px;"  >` + obj["carpoolers"].length + `/`+ obj["seats"] +` signed up</div>
                                                                                  Organizer: <a style="color: #3273dc" href="mailto:` + obj["email"] + `">` + obj["email"] + `</a>
-                                                         <br>  Route type: ` + routeType + `
+                                                         <br> Driver name: ` + obj["firstName"] + ` ` + obj["lastName"].charAt(0) + `<br> Route type: ` + routeType + `
                 <br>                                                                                          </div>   `
          }
            }

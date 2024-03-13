@@ -84,6 +84,7 @@ router.post("/auth/signup", (req, res) => {
       lastName: req.body.lastName,
       email: req.body.email,
       password: hashPassword(req.body.password),
+      admin: req.body.admin
     },
   });
   writeToJSON("./database/ipCache.json", ipCache);

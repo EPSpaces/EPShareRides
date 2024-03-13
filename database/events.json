@@ -61,5 +61,32 @@
     "date": "3/13/2024, 1:42 PM",
     "category": "sports",
     "id": "f2ce4ec7-2220-4672-9ac8-a90a2f2e38eb"
+  },
+  {
+    "firstName": "N ",
+    "lastName": "Mahesh ",
+    "eventName": "Ari Yamashita goes to Spanish one in mexico",
+    "wlocation": "1020 Mars, 103029094",
+    "date": "Invalid Date",
+    "category": "sports",
+    "id": "64abf9df-1b9c-4294-9706-ad4b05f99eca"
+  },
+  {
+    "firstName": "aerf ",
+    "lastName": "aerfr ",
+    "eventName": "Stefan Bachelor's Party",
+    "wlocation": "Idylwood Park",
+    "date": "3/25/2024, 10:13 PM",
+    "category": "other",
+    "id": "2857e366-8e06-4295-af31-34cb8e39b115"
+  },
+  {
+    "firstName": "Mein ",
+    "lastName": "Fuhrer ",
+    "eventName": "Strategy Meeting",
+    "wlocation": "Germany",
+    "date": "8/30/1942, 3:00 AM",
+    "category": "socials",
+    "id": "8e0d8e69-ac8e-43a2-a6d7-0bcf73eeebe2"
   }
 ]

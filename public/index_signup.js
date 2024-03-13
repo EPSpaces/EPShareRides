@@ -91,6 +91,7 @@ function signup() {
   let confirm_password = document.getElementById("confirm_password").value;
   const firstName = document.getElementById("first_name").value;
   const lastName = document.getElementById("last_name").value;
+  const admin = false;
 
   if (password !== confirm_password) {
     confirm_password = "";
@@ -103,6 +104,7 @@ function signup() {
     lastName,
     email,
     password,
+    admin
   };
 
   const jsonData = JSON.stringify(data);
