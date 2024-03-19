@@ -1,6 +1,7 @@
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const nodemailer = require("nodemailer");
+const User = require("../schemas/User.model");
 
 // Verify token sent and set req.email to the user's email
 function authenticateToken(req, res, next) {
@@ -51,26 +52,44 @@ function hashPassword(password) {
   return bcrypt.hashSync(password, salt);
 }
 
-function comparePassword(password, email, users) {
+async function comparePassword(password, email) {
   let hashedPassword;
+  let user;
   try {
-    hashedPassword = users.find((u) => u.email === email).password;
+    user = await User.findOne({ email })
   } catch (err) {
+    console.error("Error getting passwords to compare passwords: " + eer);
     return false;
   }
-
-  return bcrypt.compareSync(password, hashedPassword);
+  
+  if (!user) {
+    return false;
+  } else {
+    let hashedPassword = user.password;
+    if (!hashedPassword) {
+      return false;
+    }
+    return bcrypt.compareSync(password, hashedPassword);
+  }
 }
 
 function comparePasswordHash(hash, email, users) {
-  try {
-    hashedPassword = users.find((u) => u.email === email).password;
-  } catch(err) {
-    return false;
-  }
+  let hashedPassword;
 
-  if (hash == hashedPassword) return true;
-  else return false;
+  User.findOne({ email })
+    .then((user) => {
+      if (!user) {
+        return false;
+      } else {
+        let hashedPassword = user.password;
+        if (hash == hashedPassword) return true;
+        else return false;
+      }
+    })
+    .catch((err) => {
+      console.error("Error getting passwords to compare passwords: " + err);
+      return false;
+    });
 }
 
 async function sendVerificationCode(email, verificationCode) {
@@ -81,17 +100,21 @@ async function sendVerificationCode(email, verificationCode) {
     auth: {
       user: process.env["EMAIL_ADDRESS"],
       pass: process.env["EMAIL_PASSWORD"],
-    }
+    },
   });
 
   const mailOptions = {
     from: process.env["EMAIL_ADDRESS"],
     to: email,
     subject: "EPShareRide - Verification Code: " + verificationCode,
-    html: "<h3>The verification code for your new account on EPShareRide is " + verificationCode + "</h3>" + "<p>Note: If you did not request this, you can safely ignore this email</p>"
+    html:
+      "<h3>The verification code for your new account on EPShareRide is " +
+      verificationCode +
+      "</h3>" +
+      "<p>Note: If you did not request this, you can safely ignore this email</p>",
   };
 
-  await transporter.sendMail(mailOptions, function(error, info) {
+  await transporter.sendMail(mailOptions, function (error, info) {
     if (error) {
       console.log(error);
     }

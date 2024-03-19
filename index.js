@@ -7,12 +7,10 @@ const fs = require("fs");
 const cookieParser = require("cookie-parser");
 const mongoose = require("mongoose");
 
-// Import data from JSON
-let users = require("./database/users.json");
-
 // Import Event schema for MongoDB
 const Event = require("./schemas/Event");
-//nuh uh
+const User = require("./schemas/User.model");
+
 // Init Verification Code Cache
 const verificationCodeCache = {};
 
@@ -22,15 +20,6 @@ const {
   getToken,
   ensureNoToken,
 } = require("./utils/authUtils");
-
-function writeToJSON(filepath, data) {
-  const jsonString = JSON.stringify(data, null, 2);
-  fs.writeFile(filepath, jsonString, (err) => {
-    if (err) {
-      console.error("Error writing to JSON file:", err);
-    }
-  });
-}
 
 // Import Routes
 const authRoutes = require("./routes/authRoutes");
@@ -53,15 +42,29 @@ app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 app.use("/api", apiRoutes);
 app.use("/", authRoutes);
 
-app.get("/", getToken, authenticateToken, (req, res) => {
+app.get("/", getToken, authenticateToken, async (req, res) => {
   const email = req.email;
   let firstName;
   let lastName;
 
-  const userInData = users.find((u) => u.email == email);
+  let userInData;
 
-  firstName = userInData.firstName;
-  lastName = userInData.lastName;
+  try {
+    userInData = await User.findOne({ email });
+    if (!userInData) {
+      res.clearCookie("authToken");
+      res.redirect("/signin?err=Error with system finding User, please try again");
+      return;
+    }
+  } catch (err) {
+    console.error("Error finding user: " + err);
+    res.clearCookie("authToken");
+    res.redirect("/signin?err=Internal server error, please sign in again");
+    return;
+  }
+  firstName = userInData['firstName'];
+  lastName = userInData['lastName'];
+  admin = userInData['admin'];
 
   Event.find({ email: email })
     .then((eventsP) => {
@@ -79,10 +82,19 @@ app.get("/mycarpools", getToken, authenticateToken, async (req, res) => {
   let firstName;
   let lastName;
 
-  const userInData = users.find((u) => u.email == email);
+  let userInData;
 
-  firstName = userInData.firstName;
-  lastName = userInData.lastName;
+  try {
+    userInData = await User.findOne({ email });
+  } catch (err) {
+    console.error("Error finding user: " + err);
+    res.clearCookie("authToken");
+    res.redirect("/signin?err=Internal server error, please sign in again");
+    return;
+  }
+
+  firstName = userInData['firstName'];
+  lastName = userInData['lastName'];
 
   res.render("mycarpools", { email, firstName, lastName, allEvents });
 });
@@ -91,7 +103,7 @@ app.get("/updateSettings", getToken, authenticateToken, async (req, res) => {
   res.render("updateSettings", {});
 });
 
-app.get("/friends", getToken, authenticateToken, (req, res) => {
+app.get("/friends", getToken, authenticateToken, async (req, res) => {
   let people = [];
   let i = 0;
   users.forEach((u) => {
@@ -107,10 +119,19 @@ app.get("/friends", getToken, authenticateToken, (req, res) => {
   let firstName;
   let lastName;
 
-  const userInData = users.find((u) => u.email == email);
+  let userInData;
 
-  firstName = userInData.firstName;
-  lastName = userInData.lastName;
+  try {
+    userInData = await User.findOne({ email });
+  } catch (err) {
+    console.error("Error finding user: " + err);
+    res.clearCookie("authToken");
+    res.redirect("/signin?err=Internal server error, please sign in again");
+    return;
+  }
+
+  firstName = userInData['firstName'];
+  lastName = userInData['lastName'];
 
   res.render("friends", { people, email, firstName, lastName });
 });
@@ -120,6 +141,16 @@ mongoose
   .connect(process.env["MONGO_URI"])
   .then(() => {
     console.log("Connected to db");
+
+    // Create the TTL index after the connection is established
+    mongoose.connection.once('open', () => {
+      const verificationCodeCollection = mongoose.connection.db.collection('VerificationCode');
+      verificationCodeCollection.createIndex(
+        { createdAt: 1 },
+        { expireAfterSeconds: 300 }
+      );
+    });
+
     app.listen(process.env["PORT"], () => {
       console.log("Server started on port " + process.env["PORT"]);
     });

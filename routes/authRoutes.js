@@ -1,17 +1,8 @@
 const express = require("express");
 const { v4: uuidv4 } = require("uuid");
 const fs = require("fs");
-
-async function loadJSONFile(filePath) {
-  try {
-    const fileData = await fs.promises.readFile(filePath, "utf8");
-    const jsonData = JSON.parse(fileData);
-    return jsonData;
-  } catch (err) {
-    console.error("Error reading or parsing JSON file:", err);
-    throw err;
-  }
-}
+const VerificationCode = require('../schemas/VerificationCode.model');
+const User = require('../schemas/User.model');
 
 const router = express.Router();
 const {
@@ -24,15 +15,6 @@ const {
   generateAccessToken,
   sendVerificationCode,
 } = require("../utils/authUtils");
-
-function writeToJSON(filepath, data) {
-  const jsonString = JSON.stringify(data, null, 2);
-  fs.writeFile(filepath, jsonString, (err) => {
-    if (err) {
-      console.error("Error writing to JSON file:", err);
-    }
-  });
-}
 
 router.get("/signup", ensureNoToken, (req, res) => {
   res.render("signup", { error: req.query.err });
@@ -51,7 +33,7 @@ router.get("/deleteAccount", getToken, authenticateToken, (req, res) => {
   res.render("deleteAccount", { error: req.query.err });
 });
 
-router.post("/auth/signup", (req, res) => {
+router.post("/auth/signup", async (req, res) => {
   if (
     !req.body.firstName ||
     !req.body.lastName ||
@@ -62,21 +44,23 @@ router.post("/auth/signup", (req, res) => {
     return;
   }
 
-  let users = require("../database/users.json");
+  let UserAlready;
 
-  const existingUser = users.find((userA) => userA.email === req.body.email);
-
-  if (existingUser) {
-    res.redirect("/signup?err=Email Already Exists");
+  try {
+    UserAlready = await User.findOne({ email: req.body.email });
+  } catch (err) {
+    console.error("Error finding user during verification cache: " + err);
+    res.redirect("/signup?err=Error validating user creation, please try again");
     return;
   }
-
-  let ipCache = require("../database/ipCache.json");
-  ipCache = ipCache.filter((obj) => obj.user.email !== req.body.email);
-  const verificationCode =
-    Math.floor(Math.random() * (999999 - 100000 + 1)) + 100000;
+  if (UserAlready) {
+     res.redirect("/signup?err=Email already exists");
+     return;
+  }
+  
+  const verificationCode = Math.floor(Math.random() * (999999 - 100000 + 1)) + 100000;
   sendVerificationCode(req.body.email, verificationCode);
-  ipCache.push({
+  const newVerificationCode = new VerificationCode({
     ip: req.ip,
     code: verificationCode,
     user: {
@@ -84,10 +68,18 @@ router.post("/auth/signup", (req, res) => {
       lastName: req.body.lastName,
       email: req.body.email,
       password: hashPassword(req.body.password),
-      admin: req.body.admin
-    },
+      admin: false
+    }
   });
-  writeToJSON("./database/ipCache.json", ipCache);
+
+  try {
+    await newVerificationCode.save()
+  } catch (err) {
+    console.error("Error saving verification code for: " + req.body.email + "at ip: " + req.ip + "With this error: " + err);
+    res.redirect("/signup?err=Error sending verification code, please try again");
+    return;
+  }
+  
   res.redirect("/verification?email=" + req.body.email);
 });
 
@@ -103,55 +95,95 @@ router.post("/auth/signupConfirm", async (req, res) => {
     return res.redirect("/signup?err=Error Occured During Verification");
   }
 
-  let ipCache = await loadJSONFile("./database/ipCache.json");
+  let verifyEntry;
 
-  const userEntry = ipCache.find((ipObj) => ipObj.user.email == email && ipObj.code == code && ipObj.ip == ip);
-
-  ipCache = ipCache.filter((ipObj) => ipObj.ip != ip || ipObj.user.email != email || ipObj.code != code);
-  writeToJSON("./database/ipCache.json", ipCache);
-  let user;
-  
   try {
-    user = userEntry.user;
+    verifyEntry = await VerificationCode.findOne({
+      'user.email': email,
+      code: code,
+      ip
+    })
   } catch (err) {
-    res.redirect("/verification?err=Incorrect Verification Code&email=" + email);
+    console.error("Error finding verification entry: " + err);
+    res.redirect("/signup?Internal server error, please try again");
+    return;
+  }
+  if (!verifyEntry) {
+    res.redirect("/signup?err=Verification session timed out, please try again");
     return;
   }
 
-  if (!userEntry) {
-    res.redirect("/verification?err=Incorrect Verification Code&email=" + email);
+  let entryToDelete;
+
+  try {
+    entryToDelete = await VerificationCode.findOneAndDelete({
+      'user.email': email,
+      code: code,
+      ip
+    })
+  } catch (err) {
+    console.error("Error finding ip cache after found: " + err);
+    res.redirect("/verification?Internal server error, please try again&email=" + email);
     return;
+  }
+  
+  if (!entryToDelete) {
+      console.error("Error finding ip cache after found: " + err);
+      res.redirect("/verification?Internal server error, please try again&email=" + email);
+      return;
+  }
+  
+  let user = verifyEntry.user;
+  let userCheckIfExist;
+
+  try {
+    userCheckIfExist = await User.findOne({
+      email
+    })
+  } catch (err) {
+    console.error("Error finding user with email to check if email exists: " + err);
+    res.redirect("/signup?err=Internal server error, please try again");
+    return;
+  }
+  
+  if (userCheckIfExist) {
+    res.redirect("/signup?err=Email already exists");
+    return;
+  }
+
+  const newUser = new User({
+    firstName: user.firstName,
+    lastName: user.lastName,
+    email: user.email,
+    password: user.password,
+    admin: user.admin
+  });
+
+  newUser.save()
+    .catch((err) => {
+      console.error("Error creating user: " + err);
+      res.redirect("/signup?err=Internal server error, please try again");
+    });
+  
+  if (comparePasswordHash(user.password, email)) {
+    const user = { email };
+
+    const accessToken = generateAccessToken(user);
+
+    res.cookie("authToken", accessToken, {
+      httpOnly: true,
+      maxAge: 3600000,
+    });
+    res.redirect("/");
   } else {
-    const users = require("../database/users.json");
-    const existingUser = users.find((userA) => userA.email == user.email);
-    const password = user.password;
-
-    if (existingUser) {
-      res.redirect("/signup?err=Email Already Exists");
-    } else {
-      users.push(user);
-      writeToJSON("./database/users.json", users);
-      if (comparePasswordHash(password, email, require("../database/users.json"))) {
-        const user = { email };
-
-        const accessToken = generateAccessToken(user);
-
-        res.cookie("authToken", accessToken, {
-          httpOnly: true,
-          maxAge: 3600000,
-        });
-        res.redirect("/");
-      } else {
-        res.redirect("/signin?err=Account created, error while signing in, please try to sign in");
-      }
-    }
+    res.redirect("/signin?err=Account created, error while signing in, please try to sign in");
   }
 });
 
 router.post("/auth/signin", (req, res) => {
   const { email, password } = req.body;
 
-  if (comparePassword(password, email, require("../database/users.json"))) {
+  if (comparePassword(password, email)) {
     const user = { email };
 
     const accessToken = generateAccessToken(user);
@@ -170,12 +202,24 @@ router.delete(
   (req, res) => {
     const { password } = req.body;
     const email = req.email;
-    if (comparePassword(password, email, require("../database/users.json"))) {
-      const users = require("../database/users.json");
-      const Changedusers = users.filter((user) => user.email != email);
-      writeToJSON("./database/users.json", Changedusers);
-      res.clearCookie("authToken");
-      res.redirect("/signin?message=Account Deleted Successfully");
+    res.clearCookie("authToken");
+    if (comparePassword(password, email)) {
+      User.findOneAndDelete({ email })
+        .then((user) => {
+          if (!user) {
+            console.error("Error finding user to delete: " + err);
+            res.redirect("/signin?err=Error deleting account, please sign in and try again");
+            return;
+          } else {
+            res.redirect("/signin?message=Account deleted successfully");
+            return;
+          }
+        })
+        .catch((err) => {
+          console.error("Error removing user: " + eer);
+          res.redirect("/signin?err=Error deleting account, please sign in and try again");
+          return;
+        });
     } else {
       res.redirect("/deleteAccount?err=Password Incorrect");
     }
