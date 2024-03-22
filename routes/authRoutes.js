@@ -151,6 +151,8 @@ router.post("/auth/signupConfirm", async (req, res) => {
     return;
   }
 
+  
+
   const newUser = new User({
     firstName: user.firstName,
     lastName: user.lastName,
@@ -180,10 +182,12 @@ router.post("/auth/signupConfirm", async (req, res) => {
   }
 });
 
-router.post("/auth/signin", (req, res) => {
+router.post("/auth/signin", async (req, res) => {
   const { email, password } = req.body;
 
-  if (comparePassword(password, email)) {
+  const comparePasswordBoolean = await comparePassword(password, email);
+
+  if (comparePasswordBoolean) {
     const user = { email };
 
     const accessToken = generateAccessToken(user);

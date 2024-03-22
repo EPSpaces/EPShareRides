@@ -86,7 +86,24 @@
                         <option value="other" >Other</option>
                      </select>
                     <span id="createEventButton">
-                     
+                     <% if (admin) { %>
+                       <button onclick="var create_event = document.getElementById('create_event'); create_event.style.marginBottom='50px'; create_event.innerHTML = `<form>
+                         <label for='name'>Event name:</label>
+                         <input type='text' id='ename' name='name'>
+                         <label for='location'>Location: </label>
+                         <input type='text' id='elocation' name='location'>
+                         <label for='date  '>Date and time:</label>
+                         <input type='datetime-local' id='edate' name='date'>
+                         <label for='category'>Category: </label>
+                         <select name='category' id='ecategory'>
+                         <option value='sports'>Sports</option>
+                         <option value='academic teams'>Academic teams</option>
+                         <option value='socials'>Socials</option>
+                         <option value='other'>Other</option>
+                         </select>
+                         <input type='submit' onclick='createevent()'>
+                         </form>`">Create event (admin only)</button>
+                      <% } %>
                     </span>
                   </div>
                   <!--Start here  -->
@@ -147,7 +164,10 @@
       <div class="modal " id="modal-js-example">
          <div class="modal-background" style="background-color: rgba(10,10,10,.50)"></div>
          <div class="modal-card" style="">
-            <p class="panel-heading has-text-centered" style="padding: 15px;">
+            <p class="panel-heading has-text-centered" style="padding: 15px; padding-left: 20px; display: table">
+              <span style=" display: table-cell;vertical-align: middle; text-align: center; position:absolute">
+                 <i class="fa-solid fa-car-side" style='float:left; transform:translate(0px,5px)'></i>
+                  </span>
                Offer to Carpool
                <button class="delete" aria-label="close" onclick="closeAllModals()" style="float: right"></button>
             </p>
@@ -196,13 +216,17 @@
       <div class="modal " id="modal-js-register">
          <div class="modal-background" style="background-color: rgba(10,10,10,.50)"></div>
          <div class="modal-card" style="">
-            <p class="panel-heading has-text-centered" style="padding: 15px;">
+            <p class="panel-heading has-text-centered" style="padding: 15px; display: table;padding-left: 20px">
+              <span style=" display: table-cell;vertical-align: middle; text-align: center;">
+               <i class="fa-solid fa-users" style='float:left; position: absolute; transform: translate(0px, -10px)'></i>
+                </span>
                Register to a Carpool
                <button class="delete" aria-label="close" onclick="closeAllModals()" style="float: right"></button>
             </p>
             <section class="modal-card-body">
                <div class="container">
-                  <label >Choose a carpool </label>
+                  <label id="registerTitle"></label>
+                
                   <div style="overflow: auto;">
                      <div id="registerJS">
                         <!-- <div class="notification" style="padding: 10px;   margin-bottom: 10px;">
@@ -227,7 +251,7 @@
             <footer class="modal-card-foot" style="background-color: white; border-width: 1px; padding: 10px; ">
                <var></var>
                <div class="buttons" style="margin-left: 0px;">
-                  <button class="button is-link " onclick="joinCarpool(); ">Join carpool</button>
+                  <button class="button is-link " onclick="joinCarpool(); window.location.href='/mycarpools'">Join carpool</button>
                   <button class="button" aria-label="close" onclick="closeAllModals()">Cancel</button>
                </div>
             </footer>
@@ -235,9 +259,60 @@
       </div>
       <!-- end here -->
       <script type="text/javascript">
-         console.error("418 I'm a teapot");
+         // console.error("418 I'm a teapot");
+
+
+        
+        
+        
 
         let carpoools;
+
+        var request = new Request("/api/carpools", {
+            method: "GET",
+            headers: new Headers({
+              Accept: 'application/json',
+              'Content-Type': 'application/json',
+            })
+          });
+          fetch(request)
+            .then((response) => response.json())
+            .then((data) => {
+              carpoools = data;
+            })
+         .catch((error) => {
+           console.error(error)
+         });
+        
+        let carpooledEvents = []
+        function checkIfRegistered(carpoools) {
+          
+          
+          for (var i = 0; i < carpoools.length; i++){
+            let carpoolPart = carpoools[i].carpoolers.find((x) => x.email === "<%= email %>")
+            if (carpoolPart != undefined) {
+              carpoolPart = carpoolPart.email
+            }
+            if (carpoolPart == "<%= email %>") {
+              let carpooledEvent = eventsW2.find((x) => x.id === carpoools[i].nameOfEvent)
+              if (carpooledEvent != undefined) {
+                carpooledEvents.push(carpooledEvent)
+              }
+            }
+          }
+         
+          turnRegistered(carpooledEvents)
+        }
+        
+        function turnRegistered(eventsToDisable) {
+        
+          for (var i = 0; i < eventsToDisable.length; i++){
+            
+     console.log(document.getElementById(eventsToDisable[i].id))       
+       document.getElementById(eventsToDisable[i].id).disabled = true;
+            document.getElementById(eventsToDisable[i].id).innerHTML = "Registered for this event"
+            }
+          }
 
          function getDayOfWeek(string) {
            const d = new Date(string);
@@ -275,6 +350,8 @@
                minute: 'numeric',
                hour12: true
            });
+
+           
            category=document.getElementById("ecategory").value
            const data = {
              firstName,
@@ -343,9 +420,9 @@
            </p>
           <div class="buttons upcoming-buttons" style="float: left; display: inline-block;">
 
-          <div class="button js-modal-trigger" style="margin-right: 5px;" data-target="modal-js-example" id="`+ obj["id"] + `" onclick=sendData('`+obj["id"]+`')>Offer to carpool</div>
+          <button class="button js-modal-trigger" style="margin-right: 5px;" data-target="modal-js-example" id="`+ obj["id"] + `_offer` +`" onclick=sendData('`+obj["id"]+`')>Offer to carpool</button>
 
-          <div class="button js-modal-trigger" data-target="modal-js-register" id="`+ obj["id"] + `" onclick=sendData('`+obj["id"]+`')>Register for this event</div>
+          <button class="button js-modal-trigger" data-target="modal-js-register" id="`+ obj["id"] + `" onclick=sendData('`+obj["id"]+`')>Register for this event</button>
            </div>
            </div>
 
@@ -355,6 +432,13 @@
          </article>`;
 
          }
+             checkIfRegistered(carpoools)
+           
+
+       
+
+
+             
          //sort events by date
              function sortJSON(arr, key, way) {
                  return arr.sort(function(a, b) {
@@ -406,9 +490,9 @@
                         </p>
                        <div class="buttons upcoming-buttons" style="float: left; display: inline-block;">
 
-                       <div class="button js-modal-trigger" style="margin-right: 5px;" data-target="modal-js-example" id="`+ obj["id"] + `" onclick=sendData('`+obj["id"]+`')>Offer to carpool</div>
+                       <button class="button js-modal-trigger" style="margin-right: 5px;" data-target="modal-js-example" id="`+ obj["id"] + `_offer` +`" onclick=sendData('`+obj["id"]+`')>Offer to carpool</button>
 
-                       <div class="button js-modal-trigger" data-target="modal-js-register" id="`+ obj["id"] + `" onclick=sendData('`+obj["id"]+`')>Register for this event</div>
+                       <button class="button js-modal-trigger" data-target="modal-js-register" id="`+ obj["id"] + `" onclick=sendData('`+obj["id"]+`')>Register for this event</button>
                         </div>
                         </div>
 
@@ -441,9 +525,9 @@
                    </p>
                   <div class="buttons upcoming-buttons" style="float: left; display: inline-block;">
 
-                  <div class="button js-modal-trigger" style="margin-right: 5px;" data-target="modal-js-example" id="`+ obj["id"] + `" onclick=sendData('`+obj["id"]+`')>Offer to carpool</div>
+                  <button class="button js-modal-trigger" style="margin-right: 5px;" data-target="modal-js-example" id="`+ obj["id"] + `_offer` + `" onclick=sendData('`+obj["id"]+`')>Offer to carpool</button>
 
-                  <div class="button js-modal-trigger" data-target="modal-js-register" id="`+ obj["id"] + `" onclick=sendData('`+obj["id"]+`')>Register for this event</div>
+                  <button class="button js-modal-trigger" data-target="modal-js-register" id="`+ obj["id"] + `" onclick=sendData('`+obj["id"]+`')>Register for this event</button>
                    </div>
                    </div>
 
@@ -452,11 +536,14 @@
 
                </article>`;
                   }
+                  
                  }
+
+               checkIfRegistered(carpoools)
                modalFunctions()
              }
 
-             
+         
              function modalFunctions(){
 
 
@@ -464,29 +551,37 @@
              $el.classList.add('is-active');
 
                
-               var request = new Request("/api/carpools", {
-                 method: "GET",
-                 headers: new Headers({
-                   Accept: 'application/json',
-                   'Content-Type': 'application/json',
-                 })
-               });
-               fetch(request)
-                 .then((response) => response.json())
-                 .then((data) => {
-                   carpoools = data;
-                   console.log(carpoools);
+               
+                
 
-               console.log(carpoools)
+             
                    document.getElementById("registerJS").innerHTML = ``;
 
                    //checks if the carpools id matches an events id
+                   
+                     for (var i = 0; i < eventsW2.length; i++){
+                       if (eventsW2[i].id == datarray[datarray.length - 1]) {
+                         eventTime = new Date(eventsW2[i].date);
+
+                         let dayOfWeek = eventTime.getDay();
+                          const weekdays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+                          let day = weekdays[dayOfWeek];
+                         
+                         eventTime = eventTime.toLocaleTimeString([], { hour: 'numeric', minute: 'numeric' });
+                         console.log(eventTime)
+
+
+                           document.getElementById("registerTitle").innerText = "Choose a carpool · " + day + " at " + eventTime
+                       }
+                     }
+                   
+                   
                 for (var i = 0; i < carpoools.length; i++){
                  var obj = carpoools[i];
 
                     if (obj["nameOfEvent"] == datarray[datarray.length - 1]) {
 
-
+                      
 
                   //datarray[datarray.length - 1]
 
@@ -504,14 +599,12 @@
                                                       <div class="button  selectCarpool" style=" margin-left: 10px; margin-top: 4px; background-color: transparent; float: right" onclick=" selectCarpool(this)" id="` + obj["id"] + `">Select</div>
                                                               <div style="float: right; margin-top: 3px;"  >` + obj["carpoolers"].length + `/`+ obj["seats"] +` signed up</div>
                                                                                         Organizer: <a style="color: #3273dc" href="mailto:` + obj["email"] + `">` + obj["email"] + `</a>
-                                                                <br> Driver name: ` + obj["firstName"] + ` ` + obj["lastName"].charAt(0) + `<br> Route type: ` + routeType + `
+                                                                <br> Driver name: ` + obj["firstName"] + ` ` + obj["lastName"] + `<br> Route type: ` + routeType + `
                        <br>                                                                                          </div>   `
                 }
                   }
-                  })
-                    .catch((error) => {
-                      console.error(error)
-                    });
+                 
+                 
              }
 
              function closeModal($el) {
@@ -573,7 +666,10 @@
              unfocus(); 
              selectedCarpool = null
            } else {
-             unfocus(); element.classList.add('is-focused');
+             unfocus(); 
+             element.classList.add('is-focused');
+             element.innerHTML = "Selected"
+             
              selectedCarpool = element.id;
            }; 
 
@@ -890,7 +986,7 @@
           url = "/api/joinCarpool"
 
           fetch(url, {
-             method: 'PUT',
+             method: 'POST',
              headers: {
                "Content-Type": "application/json",
              },
@@ -950,27 +1046,7 @@
          // Call the first function and then execute the second function using .then()
 
       </script>
-      <script>
-let isAdmin = "<%= admin %>"
-      if (isAdmin == "true") {
-        document.getElementById("createEventButton").innerHTML = `<button onclick="var create_event = document.getElementById('create_event'); create_event.style.marginBottom='50px'; create_event.innerHTML = \`<form>
-                        <label for='name'>Event name:</label>
-                        <input type='text' id='ename' name='name'>
-                        <label for='location'>Location: </label>
-                        <input type='text' id='elocation' name='location'>
-                        <label for='date'>Date and time:</label>
-                        <input type='datetime-local' id='edate' name='date'>
-                        <label for='category'>Category: </label>
-                        <select name='category' id='ecategory'>
-                        <option value='sports'>Sports</option>
-                        <option value='academic teams'>Academic teams</option>
-                        <option value='socials'>Socials</option>
-                        <option value='other'>Other</option>
-                        </select>
-                        <input type='submit' onclick='createevent()'>
-                        </form>\`">Create event (admin only)</button>`
-        
-      }
+      <script>     
 
         
          // tell the embed parent frame the height of the content
@@ -1017,6 +1093,7 @@ let isAdmin = "<%= admin %>"
          var selects = document.getElementsByClassName('selectCarpool')
          for (const element of selects) { // You can use `let` instead of `const` if you like
          element.classList.remove('is-focused');
+           element.innerHTML = "Select"
          }
          }
 

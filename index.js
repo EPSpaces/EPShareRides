@@ -68,7 +68,7 @@ app.get("/", getToken, authenticateToken, async (req, res) => {
 
   Event.find({ email: email })
     .then((eventsP) => {
-      res.render("index", { email, firstName, lastName, eventsP });
+      res.render("index", { email, firstName, lastName, eventsP, admin });
     })
     .catch((err) => {
       console.error("Error retrieving events:", err);
@@ -106,6 +106,12 @@ app.get("/updateSettings", getToken, authenticateToken, async (req, res) => {
 app.get("/friends", getToken, authenticateToken, async (req, res) => {
   let people = [];
   let i = 0;
+  let users;
+  try {
+    users = await User.find({}); 
+  } catch (err) {
+    res.status(500).send("Error retrieving users");
+  }
   users.forEach((u) => {
     let newPerson = {};
     newPerson.firstName = u.firstName;
@@ -134,6 +140,11 @@ app.get("/friends", getToken, authenticateToken, async (req, res) => {
   lastName = userInData['lastName'];
 
   res.render("friends", { people, email, firstName, lastName });
+});
+
+// Setup 404 page
+app.use((req, res) => {
+  res.status(404).render("404");
 });
 
 // Connect to the database

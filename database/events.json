@@ -79,5 +79,14 @@
     "date": "3/25/2024, 10:13 PM",
     "category": "other",
     "id": "2857e366-8e06-4295-af31-34cb8e39b115"
+  },
+  {
+    "firstName": "Ari",
+    "lastName": "Yamamoto",
+    "eventName": "Learn polynomials",
+    "wlocation": "TMAC 206-A",
+    "date": "3/27/2024, 8:44 AM",
+    "category": "other",
+    "id": "f04893d3-08dd-45cd-9082-393a24a84ec1"
   }
 ]

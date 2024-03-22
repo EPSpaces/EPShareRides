@@ -1,3 +1,12 @@
 {
-  "files": {}
+  "files": {
+    "views/404.ejs": [
+      {
+        "id": "608c03e3-6b76-4128-8486-2be65038cb5f",
+        "line": 1,
+        "version": 360,
+        "index": 0
+      }
+    ]
+  }
 }

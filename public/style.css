@@ -2,7 +2,6 @@
 /* General styling for the entire page */
 body {
     font-family: Arial, sans-serif;
-    background-color: white;
     margin: 0;
 }
 
@@ -141,7 +140,7 @@ body {
 }
 
 .see-event {
-    background: hsl(217, 71%, 53%);
+    background: #f97e30;/*hsl(217, 71%, 53%);*/
     color: white;
     border: none;
     padding: 5px 10px;
@@ -264,6 +263,24 @@ body {
   background-color: white;
 }
 
+@media only screen and (max-width: 386px) {
+  #topLogo {
+    display: block;
+  }
+  #bottomLogo {
+    display: none;
+  }
+}
+
+@media only screen and (min-width: 386px) {
+  #topLogo {
+    display: none;
+  }
+  #bottomLogo {
+    
+  }
+}
+
 /* mobile */
 @media only screen and (max-width: 768px) {
   #signup {
@@ -321,6 +338,7 @@ body {
   .upcoming-buttons {
     width: min-content !important;
   }
+
  
   
 }
@@ -359,6 +377,7 @@ body {
   #datez, #spanz {
     color: black;
   }
+
 
   
 }
