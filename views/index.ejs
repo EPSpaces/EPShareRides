@@ -275,6 +275,7 @@
         let datarray = [];
         let routeType;
          let arr = [];
+
         
         var request = new Request("/api/carpools", {
             method: "GET",
@@ -1031,19 +1032,7 @@
              //add first name + last name: address to the carpoolers list in correct carpool id (selectedCarpool) carpools database
            
 
-           function offer(id) {
-             let newArray = document.getElementById("address-input").value
-
-             console.log(newArray)
-             let DriverFName = document.getElementById("fname").value;
-             let DriverLName = document.getElementById("lname").value;
-             let Seats = document.getElementById("seats").value;
-             let route = document.getElementById("route-type").value;
-             let Carpoolers = []
-             // var personName = "<%= firstName %> <%= lastName %>";
-             console.log(newArray+ " " + DriverFName + " " + DriverLName + " " + Seats);
-             offerACar(DriverFName, DriverLName, Seats, route, newArray, Carpoolers, datarray[datarray.length - 1]);
-           }
+          
 
               
 
@@ -1110,6 +1099,20 @@
         function sendData(data){
            datarray.push(data);
            console.log(data);
+         }
+
+        function offer(id) {
+           let newArray = document.getElementById("address-input").value
+
+           console.log(newArray)
+           let DriverFName = document.getElementById("fname").value;
+           let DriverLName = document.getElementById("lname").value;
+           let Seats = document.getElementById("seats").value;
+           let route = document.getElementById("route-type").value;
+           let Carpoolers = []
+           // var personName = "<%= firstName %> <%= lastName %>";
+           console.log(newArray+ " " + DriverFName + " " + DriverLName + " " + Seats);
+           offerACar(DriverFName, DriverLName, Seats, route, newArray, Carpoolers, datarray[datarray.length - 1]);
          }
 
       </script>
