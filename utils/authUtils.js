@@ -55,7 +55,7 @@ function hashPassword(password) {
 async function comparePassword(password, email) {
   let hashedPassword;
   let user;
-  try {
+  try { 
     user = await User.findOne({ email })
   } catch (err) {
     console.error("Error getting passwords to compare passwords: " + eer);
