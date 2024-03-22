@@ -265,9 +265,17 @@
         
         
         
-
+        let carpooledEvents = []
         let carpoools;
-
+        let carpoolPart;
+        let carpooledEvent
+         let eventsW;
+        let selectedCarpool = null;
+         let eventsW2 = [];
+        let datarray = [];
+        let routeType;
+         let arr = [];
+        
         var request = new Request("/api/carpools", {
             method: "GET",
             headers: new Headers({
@@ -279,22 +287,18 @@
             .then((response) => response.json())
             .then((data) => {
               carpoools = data;
-            })
-         .catch((error) => {
-           console.error(error)
-         });
+           
         
-        let carpooledEvents = []
         function checkIfRegistered(carpoools) {
           
           
           for (var i = 0; i < carpoools.length; i++){
-            let carpoolPart = carpoools[i].carpoolers.find((x) => x.email === "<%= email %>")
+             carpoolPart = carpoools[i].carpoolers.find((x) => x.email === "<%= email %>")
             if (carpoolPart != undefined) {
               carpoolPart = carpoolPart.email
             }
             if (carpoolPart == "<%= email %>") {
-              let carpooledEvent = eventsW2.find((x) => x.id === carpoools[i].nameOfEvent)
+              carpooledEvent = eventsW2.find((x) => x.id === carpoools[i].nameOfEvent)
               if (carpooledEvent != undefined) {
                 carpooledEvents.push(carpooledEvent)
               }
@@ -324,13 +328,13 @@
            return(currentDay)
          }  
 
-         var eventsW2 = [];
+        
 
          function sendData(data){
            datarray.push(data);
            console.log(data);
          }
-         var datarray = [];
+         
          function createevent() {
            firstName="<%= firstName %> "
            lastName="<%= lastName %> "
@@ -375,7 +379,7 @@
              body: jsonData,
            })
          }
-         let eventsW;
+         
          var request = new Request("/api/events", {
            method: "GET",
            headers: new Headers({
@@ -586,7 +590,7 @@
                   //datarray[datarray.length - 1]
 
 
-                  var routeType;
+                  
                   if (obj["route"] == "route") {
                     routeType = "Home to home"
                   }
@@ -659,7 +663,7 @@
          });
 
 
-         let selectedCarpool = null;
+         
 
          function selectCarpool(element) {
            if (element.classList[2] == 'is-focused') {
@@ -731,7 +735,7 @@
              }
 
              }
-               var arr = [];
+              
 
 
              function addressAutocomplete(containerElement, idName, callback, options) {
@@ -1009,6 +1013,8 @@
         
         
       }
+              
+
              // var request = new Request("/api/carpools", {
              //    method: "GET",
              //    headers: new Headers({
@@ -1039,14 +1045,13 @@
              offerACar(DriverFName, DriverLName, Seats, route, newArray, Carpoolers, datarray[datarray.length - 1]);
            }
 
-
+              
 
 
 
          // Call the first function and then execute the second function using .then()
 
-      </script>
-      <script>     
+      
 
         
          // tell the embed parent frame the height of the content
@@ -1059,9 +1064,9 @@
 
          // always overwrite window.name, in case users try to set it manually
          window.name = "result"
-      </script>
+  
       <!-- Content ... -->
-      <script> 
+   
          function closeAllModals() {
          (document.querySelectorAll('.modal') || []).forEach(($modal) => {
          closeModal($modal);
@@ -1097,6 +1102,15 @@
          }
          }
 
+        })
+         .catch((error) => {
+           console.error(error)
+         });
+
+        function sendData(data){
+           datarray.push(data);
+           console.log(data);
+         }
 
       </script>
       <script defer>
