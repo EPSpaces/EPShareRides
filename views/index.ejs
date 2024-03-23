@@ -666,55 +666,10 @@
 
          
 
-         function selectCarpool(element) {
-           if (element.classList[2] == 'is-focused') {
-             unfocus(); 
-             selectedCarpool = null
-           } else {
-             unfocus(); 
-             element.classList.add('is-focused');
-             element.innerHTML = "Selected"
-             
-             selectedCarpool = element.id;
-           }; 
-
-         }
+        
 
 
-
-
-
-         function offerACar(firstName, lastName, seats, route, wlocation, carpoolers, nameOfEvent){
-           let email = "<%= email %>"
-           const newcarpools = {
-             firstName,
-             lastName,
-             seats,
-             route,
-             wlocation,//location is a used variable
-             carpoolers,
-             nameOfEvent,
-             email
-           };
-           console.log(newcarpools);
-
-           const jsonData = JSON.stringify(newcarpools);
-           const url = "/api/carpools";
-
-           
-           fetch(url, {
-             method: "POST",
-             headers: {
-               "Content-Type": "application/json",
-             },
-             body: jsonData,
-           })
-             .then((response) => {
-               console.log(response);
-               // Open verification checker
-             })
-             .catch((error) => console.error("Error:", error));
-         }
+         
 
          /* 
          The addressAutocomplete takes as parameters:
@@ -966,55 +921,7 @@
 
 
            // Code for the second function
-           function joinCarpool() {
-             let newArray = document.getElementById("address-input2").value
-             var personName = "<%= firstName %> <%= lastName %>";
-             var email = "<%= email %>";
-             var carpoool;
-             if (selectedCarpool != null){
-      for (var i = 0; i < carpoools.length; i++) {
-        carpoool = carpoools[i]
-        if (carpoool["id"] == selectedCarpool) {
-          carpoool["carpoolers"].push({
-            "address": newArray,
-            "carpool": selectedCarpool
-          })
-
-          const addNewMember = {
-            address: newArray,
-            carpool: selectedCarpool
-          }
           
-          console.log(carpoool)
-          jsonData = JSON.stringify(addNewMember)
-
-          url = "/api/joinCarpool"
-
-          fetch(url, {
-             method: 'POST',
-             headers: {
-               "Content-Type": "application/json",
-             },
-             body: jsonData,
-           })
-          .then((response) => {
-            if (response.redirected) {
-              window.location.href = response.url;
-            }
-          })
-          
-        
-           
-
-
-          
-           }
-        }
-      }
-        
-        
-      }
-              
 
              // var request = new Request("/api/carpools", {
              //    method: "GET",
@@ -1054,16 +961,8 @@
          // always overwrite window.name, in case users try to set it manually
          window.name = "result"
   
-      <!-- Content ... -->
+     
    
-         function closeAllModals() {
-         (document.querySelectorAll('.modal') || []).forEach(($modal) => {
-         closeModal($modal);
-         });
-         }
-         function closeModal($el) {
-         $el.classList.remove('is-active');
-         }
 
 
 
@@ -1083,13 +982,7 @@
          changeLabel();
 
 
-         function unfocus() {
-         var selects = document.getElementsByClassName('selectCarpool')
-         for (const element of selects) { // You can use `let` instead of `const` if you like
-         element.classList.remove('is-focused');
-           element.innerHTML = "Select"
-         }
-         }
+       
 
         })
          .catch((error) => {
@@ -1115,6 +1008,123 @@
            offerACar(DriverFName, DriverLName, Seats, route, newArray, Carpoolers, datarray[datarray.length - 1]);
          }
 
+
+        function offerACar(firstName, lastName, seats, route, wlocation, carpoolers, nameOfEvent){
+           let email = "<%= email %>"
+           const newcarpools = {
+             firstName,
+             lastName,
+             seats,
+             route,
+             wlocation,//location is a used variable
+             carpoolers,
+             nameOfEvent,
+             email
+           };
+           console.log(newcarpools);
+
+           const jsonData = JSON.stringify(newcarpools);
+           const url = "/api/carpools";
+
+
+           fetch(url, {
+             method: "POST",
+             headers: {
+               "Content-Type": "application/json",
+             },
+             body: jsonData,
+           })
+             .then((response) => {
+               console.log(response);
+               // Open verification checker
+             })
+             .catch((error) => console.error("Error:", error));
+         }
+
+
+        function selectCarpool(element) {
+           if (element.classList[2] == 'is-focused') {
+             unfocus(); 
+             selectedCarpool = null
+           } else {
+             unfocus(); 
+             element.classList.add('is-focused');
+             element.innerHTML = "Selected"
+
+             selectedCarpool = element.id;
+           }; 
+
+         }
+
+        function unfocus() {
+         var selects = document.getElementsByClassName('selectCarpool')
+         for (const element of selects) { // You can use `let` instead of `const` if you like
+         element.classList.remove('is-focused');
+           element.innerHTML = "Select"
+         }
+         }
+
+
+
+        function joinCarpool() {
+               let newArray = document.getElementById("address-input2").value
+               var personName = "<%= firstName %> <%= lastName %>";
+               var email = "<%= email %>";
+               var carpoool;
+               if (selectedCarpool != null){
+        for (var i = 0; i < carpoools.length; i++) {
+          carpoool = carpoools[i]
+          if (carpoool["id"] == selectedCarpool) {
+            carpoool["carpoolers"].push({
+              "address": newArray,
+              "carpool": selectedCarpool
+            })
+
+            const addNewMember = {
+              address: newArray,
+              carpool: selectedCarpool
+            }
+
+            console.log(carpoool)
+            jsonData = JSON.stringify(addNewMember)
+
+            url = "/api/joinCarpool"
+
+            fetch(url, {
+               method: 'POST',
+               headers: {
+                 "Content-Type": "application/json",
+               },
+               body: jsonData,
+             })
+            .then((response) => {
+              if (response.redirected) {
+                window.location.href = response.url;
+              }
+            })
+
+
+
+
+
+
+             }
+          }
+        }
+
+
+        }
+
+
+         function closeAllModals() {
+         (document.querySelectorAll('.modal') || []).forEach(($modal) => {
+         closeModal($modal);
+         });
+         }
+         function closeModal($el) {
+         $el.classList.remove('is-active');
+         }
+        
       </script>
       <script defer>
          function navBurger() {
