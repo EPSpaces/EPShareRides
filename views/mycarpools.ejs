@@ -452,7 +452,7 @@ let email
           }
            console.log(eventsW) 
           for (var j = 0; j < eventsW.length; j++) {
-            if (eventsW[j].id == offeredCarpools[i].nameOfEvent) {
+            if (eventsW[j]._id == offeredCarpools[i].nameOfEvent) {
               eventName = eventsW[j].eventName
               date = eventsW[j].date
             }
@@ -488,7 +488,7 @@ let email
                                  <div class="buttons" id="action-buttons" style="margin-right: -10px; display: inline-block">
                                     <div class="button upcoming-carpools-button is-link is-light" style="margin-right: 10px;" 
                                        onclick="add()">View >></div>
-                                    <div class="button js-modal-trigger upcoming-carpools-button" style="margin-right: 10px;" data-target="modal-js-edit" id="` + offeredCarpools[i].id + `">Edit</div>
+                                    <div class="button js-modal-trigger upcoming-carpools-button" style="margin-right: 10px;" data-target="modal-js-edit" id="` + offeredCarpools[i]._id + `">Edit</div>
                                  </div>
                               </div>
                            </article>`
@@ -510,7 +510,7 @@ let email
           }
            console.log(eventsW) 
           for (var j = 0; j < eventsW.length; j++) {
-            if (eventsW[j].id == joinedCarpools[i].nameOfEvent) {
+            if (eventsW[j]._id == joinedCarpools[i].nameOfEvent) {
               eventName = eventsW[j].eventName
               date = eventsW[j].date
             }
@@ -547,7 +547,7 @@ let email
                                     <div class="button upcoming-carpools-button is-link is-light" style="margin-right: 10px;" 
                                        onclick="add()">View >></div>
                                     <div class="button upcoming-carpools-button " style="margin-right: 10px;" id="` 
- + joinedCarpools[i].id + `">Unregister</div>
+ + joinedCarpools[i]._id + `">Unregister</div>
                                  </div>
                               </div>
                            </article>`

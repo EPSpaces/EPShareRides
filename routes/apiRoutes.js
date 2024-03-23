@@ -1,10 +1,11 @@
 const express = require("express");
-const { v4: uuidv4 } = require("uuid");
 const fs = require("fs");
 
 const { authenticateToken, getToken } = require("../utils/authUtils");
 
 const User = require("../schemas/User.model.js");
+const Event = require("../schemas/Event.model.js");
+const Carpool = require("../schemas/Carpool.model.js");
 
 const router = express.Router();
 
@@ -28,7 +29,14 @@ router.get("/offerToCarpool", getToken, authenticateToken, (req, res) => {
 });
 
 router.post("/joinCarpool", getToken, authenticateToken, async (req, res) => {
-  let carpools = require("../database/carpools.json");
+  let carpools;
+  try {
+    carpools = await Carpool.find({});
+  } catch (err) {
+    console.error("Error retrieving carpools: " + err);
+    res.status(500).send("Error retrieving carpools");
+    return;
+  }
   let { carpool, address } = req.body
   const email = req.email
   let userInData;
@@ -54,30 +62,49 @@ router.post("/joinCarpool", getToken, authenticateToken, async (req, res) => {
     address
   }
   
-  const carpoolIndex = carpools.findIndex(obj => obj.id == carpool);
+  try {
+    const carpool = await Carpool.findById(req.body.carpoolId);
 
-  if (carpoolIndex != -1) {
-    if (carpools[carpoolIndex].carpoolers.length >= carpools[carpoolIndex].seats) {
+    if (!carpool) {
+      res.status(404).send("Carpool not found");
+      return;
+    }
+
+    if (carpool.carpoolers.length >= carpool.seats) {
       res.status(400).send("Carpool is full");
       return;
     }
-    const alreadyCarpoolerExists = carpools[carpoolIndex].carpoolers.find(obj => obj.email == req.email);
+
+    const alreadyCarpoolerExists = carpool.carpoolers.some(carpooler => carpooler.email === req.email);
     if (alreadyCarpoolerExists) {
       res.status(409).send("You are already in this carpool");
       return;
     }
-    carpools[carpoolIndex].carpoolers.push(newUser);
-  } else {
-    res.status(404).send("Carpool not found");
-    return;
-  }
 
-  writeToJSON("./database/carpools.json", carpools);
+    carpool.carpoolers.push(newUser);
+    const updatedCarpool = await Carpool.findByIdAndUpdate(
+      req.body.carpoolId,
+      { $push: { carpoolers: newUser } },
+      { new: true }
+    );
+
+    res.status(200).send(updatedCarpool);
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).send("Internal Server Error");
+  }
   res.status(200);
 });
 
-router.get("/events", getToken, authenticateToken, (req, res) => {
-  let events = require("../database/events.json");
+router.get("/events", getToken, authenticateToken, async (req, res) => {
+  let events;
+  try {
+    events = await Event.find({});
+  } catch (err) {
+    console.error("Error getting events: " + err);
+    res.status(500).send("Error getting events");
+    return;
+  }
   res.json(events);
 });
 
@@ -100,31 +127,41 @@ router.post("/events", getToken, authenticateToken, async (req, res) => {
     return;
   }
   const { firstName, lastName, admin } = userInData;
-  if (!admin) {
+  if (true) {
     res.sendStatus(401);
     return;
   }
-  const id = uuidv4();
-  const newEvent = {
-    firstName,
-    lastName,
-    eventName,
-    wlocation,
-    date,
-    category,
-    id,
-  };
-  let events = require("../database/events.json");
-  events.push(newEvent);
-  writeToJSON("./database/events.json", events);
+  try {
+    const newEvent = new Event({
+      firstName,
+      lastName,
+      eventName,
+      wlocation,
+      date,
+      category
+    });
+
+    await newEvent.save();
+  } catch (err) {
+    console.error("Error saving event: " + err);
+    res.status(500).send("Error saving event");
+    return;
+  }
+  res.status(200).send("Event saved");
+  return;
 });
 
-router.get("/carpools", getToken, authenticateToken, (req, res) => {
-  let carpools = require("../database/carpools.json");
-  res.json(carpools);
+router.get("/carpools", getToken, authenticateToken, async (req, res) => {
+  try {
+    const carpools = await Carpool.find({});
+    res.json(carpools);
+  } catch (err) {
+    console.error("Error retrieving carpools: " + err);
+    res.status(500).send("Error retrieving carpools");
+  }
 });
 
-router.post("/carpools", getToken, authenticateToken, (req, res) => {
+router.post("/carpools", getToken, authenticateToken, async (req, res) => {
   const {
     firstName,
     lastName,
@@ -150,7 +187,7 @@ router.post("/carpools", getToken, authenticateToken, (req, res) => {
     return;
   }
 
-  const newcarpools = {
+  const newCarpool = new Carpool({
     firstName,
     lastName,
     seats,
@@ -158,12 +195,17 @@ router.post("/carpools", getToken, authenticateToken, (req, res) => {
     wlocation, //location is a used variable
     carpoolers,
     nameOfEvent,
-    email,
-    id: uuidv4(),
-  };
-  let carpools = require("../database/carpools.json");
-  carpools.push(newcarpools);
-  writeToJSON("./database/carpools.json", carpools);
+    email
+  });
+
+  try {
+    await newCarpool.save();
+  } catch (err) {
+    console.error("Error creating new carpool: " + err);
+    res.status(500).send("Error creating new carpool");
+    return;
+  }
+  res.status(200).send("Carpool created");
 });
 
 module.exports = router;

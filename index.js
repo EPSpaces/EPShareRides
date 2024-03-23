@@ -2,14 +2,12 @@
 const express = require("express");
 const ejs = require("ejs");
 const jwt = require("jsonwebtoken");
-const { v4: uuidv4 } = require("uuid");
 const fs = require("fs");
 const cookieParser = require("cookie-parser");
 const mongoose = require("mongoose");
 
-// Import Event schema for MongoDB
-const Event = require("./schemas/Event");
-const User = require("./schemas/User.model");
+// Import Schemas from MongoDB
+const User = require("./schemas/User.model.js");
 
 // Init Verification Code Cache
 const verificationCodeCache = {};
@@ -66,14 +64,7 @@ app.get("/", getToken, authenticateToken, async (req, res) => {
   lastName = userInData['lastName'];
   admin = userInData['admin'];
 
-  Event.find({ email: email })
-    .then((eventsP) => {
-      res.render("index", { email, firstName, lastName, eventsP, admin });
-    })
-    .catch((err) => {
-      console.error("Error retrieving events:", err);
-      res.status(500).send("Error retrieving events");
-    });
+  res.render("index", { email, firstName, lastName, admin: true });
 });
 
 app.get("/sustainabilityStatement", (req, res) => {
@@ -81,7 +72,6 @@ app.get("/sustainabilityStatement", (req, res) => {
 });
 
 app.get("/mycarpools", getToken, authenticateToken, async (req, res) => {
-  const allEvents = await Event.find({});
   const email = req.email;
   let firstName;
   let lastName;
@@ -100,7 +90,7 @@ app.get("/mycarpools", getToken, authenticateToken, async (req, res) => {
   firstName = userInData['firstName'];
   lastName = userInData['lastName'];
 
-  res.render("mycarpools", { email, firstName, lastName, allEvents });
+  res.render("mycarpools", { email, firstName, lastName });
 });
 
 app.get("/updateSettings", getToken, authenticateToken, async (req, res) => {
