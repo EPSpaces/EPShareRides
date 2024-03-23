@@ -76,6 +76,10 @@ app.get("/", getToken, authenticateToken, async (req, res) => {
     });
 });
 
+app.get("/sustainabilityStatement", (req, res) => {
+  res.render("sustainabilityStatement");
+});
+
 app.get("/mycarpools", getToken, authenticateToken, async (req, res) => {
   const allEvents = await Event.find({});
   const email = req.email;
