@@ -299,7 +299,7 @@
               carpoolPart = carpoolPart.email
             }
             if (carpoolPart == "<%= email %>") {
-              carpooledEvent = eventsW2.find((x) => x.id === carpoools[i].nameOfEvent)
+              carpooledEvent = eventsW2.find((x) => x._id === carpoools[i].nameOfEvent)
               if (carpooledEvent != undefined) {
                 carpooledEvents.push(carpooledEvent)
               }
@@ -313,9 +313,9 @@
         
           for (var i = 0; i < eventsToDisable.length; i++){
             
-     console.log(document.getElementById(eventsToDisable[i].id))       
-       document.getElementById(eventsToDisable[i].id).disabled = true;
-            document.getElementById(eventsToDisable[i].id).innerHTML = "Registered for this event"
+     console.log(document.getElementById(eventsToDisable[i]._id))       
+       document.getElementById(eventsToDisable[i]._id).disabled = true;
+            document.getElementById(eventsToDisable[i]._id).innerHTML = "Registered for this event"
             }
           }
 
@@ -425,9 +425,9 @@
            </p>
           <div class="buttons upcoming-buttons" style="float: left; display: inline-block;">
 
-          <button class="button js-modal-trigger" style="margin-right: 5px;" data-target="modal-js-example" id="`+ obj["id"] + `_offer` +`" onclick=sendData('`+obj["id"]+`')>Offer to carpool</button>
+          <button class="button js-modal-trigger" style="margin-right: 5px;" data-target="modal-js-example" id="`+ obj["_id"] + `_offer` +`" onclick=sendData('`+obj["_id"]+`')>Offer to carpool</button>
 
-          <button class="button js-modal-trigger" data-target="modal-js-register" id="`+ obj["id"] + `" onclick=sendData('`+obj["id"]+`')>Register for this event</button>
+          <button class="button js-modal-trigger" data-target="modal-js-register" id="`+ obj["_id"] + `" onclick=sendData('`+obj["_id"]+`')>Register for this event</button>
            </div>
            </div>
 
@@ -495,9 +495,9 @@
                         </p>
                        <div class="buttons upcoming-buttons" style="float: left; display: inline-block;">
 
-                       <button class="button js-modal-trigger" style="margin-right: 5px;" data-target="modal-js-example" id="`+ obj["id"] + `_offer` +`" onclick=sendData('`+obj["id"]+`')>Offer to carpool</button>
+                       <button class="button js-modal-trigger" style="margin-right: 5px;" data-target="modal-js-example" id="`+ obj["_id"] + `_offer` +`" onclick=sendData('`+obj["_id"]+`')>Offer to carpool</button>
 
-                       <button class="button js-modal-trigger" data-target="modal-js-register" id="`+ obj["id"] + `" onclick=sendData('`+obj["id"]+`')>Register for this event</button>
+                       <button class="button js-modal-trigger" data-target="modal-js-register" id="`+ obj["_id"] + `" onclick=sendData('`+obj["_id"]+`')>Register for this event</button>
                         </div>
                         </div>
 
@@ -530,9 +530,9 @@
                    </p>
                   <div class="buttons upcoming-buttons" style="float: left; display: inline-block;">
 
-                  <button class="button js-modal-trigger" style="margin-right: 5px;" data-target="modal-js-example" id="`+ obj["id"] + `_offer` + `" onclick=sendData('`+obj["id"]+`')>Offer to carpool</button>
+                  <button class="button js-modal-trigger" style="margin-right: 5px;" data-target="modal-js-example" id="`+ obj["_id"] + `_offer` + `" onclick=sendData('`+obj["_id"]+`')>Offer to carpool</button>
 
-                  <button class="button js-modal-trigger" data-target="modal-js-register" id="`+ obj["id"] + `" onclick=sendData('`+obj["id"]+`')>Register for this event</button>
+                  <button class="button js-modal-trigger" data-target="modal-js-register" id="`+ obj["_id"] + `" onclick=sendData('`+obj["_id"]+`')>Register for this event</button>
                    </div>
                    </div>
 
@@ -565,7 +565,7 @@
                    //checks if the carpools id matches an events id
                    
                      for (var i = 0; i < eventsW2.length; i++){
-                       if (eventsW2[i].id == datarray[datarray.length - 1]) {
+                       if (eventsW2[i]._id == datarray[datarray.length - 1]) {
                          eventTime = new Date(eventsW2[i].date);
 
                          let dayOfWeek = eventTime.getDay();
@@ -601,7 +601,7 @@
 
                document.getElementById("registerJS").innerHTML +=
                `<div class="notification"  style="padding: 10px;   margin-bottom: 10px;">
-                                                      <div class="button  selectCarpool" style=" margin-left: 10px; margin-top: 4px; background-color: transparent; float: right" onclick=" selectCarpool(this)" id="` + obj["id"] + `">Select</div>
+                                                      <div class="button  selectCarpool" style=" margin-left: 10px; margin-top: 4px; background-color: transparent; float: right" onclick=" selectCarpool(this)" id="` + obj["_id"] + `">Select</div>
                                                               <div style="float: right; margin-top: 3px;"  >` + obj["carpoolers"].length + `/`+ obj["seats"] +` signed up</div>
                                                                                         Organizer: <a style="color: #3273dc" href="mailto:` + obj["email"] + `">` + obj["email"] + `</a>
                                                                 <br> Driver name: ` + obj["firstName"] + ` ` + obj["lastName"] + `<br> Route type: ` + routeType + `
@@ -699,7 +699,7 @@
              var inputElement = document.createElement("input");
              inputElement.setAttribute("type", "text");
              inputElement.setAttribute("placeholder", options.placeholder);
-             inputElement.setAttribute("id", idName);
+             inputElement.setAttribute("_id", idName);
              inputElement.classList.add("input");
              containerElement.appendChild(inputElement);
 
@@ -1051,7 +1051,7 @@
              element.classList.add('is-focused');
              element.innerHTML = "Selected"
 
-             selectedCarpool = element.id;
+             selectedCarpool = element._id;
            }; 
 
          }
@@ -1074,7 +1074,7 @@
                if (selectedCarpool != null){
         for (var i = 0; i < carpoools.length; i++) {
           carpoool = carpoools[i]
-          if (carpoool["id"] == selectedCarpool) {
+          if (carpoool["_id"] == selectedCarpool) {
             carpoool["carpoolers"].push({
               "address": newArray,
               "carpool": selectedCarpool
