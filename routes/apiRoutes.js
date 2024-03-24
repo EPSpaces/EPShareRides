@@ -109,8 +109,13 @@ router.get("/events", getToken, authenticateToken, async (req, res) => {
 });
 
 router.post("/events", getToken, authenticateToken, async (req, res) => {
-  const { eventName, wlocation, date, category } =
-    req.body;
+  console.log('hello you tried posting');
+  const { eventName, wlocation, date, category } = req.body;
+
+  if (!eventName || !wlocation || !date || !category) {
+    res.status(400).send("Bad Request");
+    return;
+  }
   let userInData;
   const email = req.email;
   try {
@@ -127,7 +132,7 @@ router.post("/events", getToken, authenticateToken, async (req, res) => {
     return;
   }
   const { firstName, lastName, admin } = userInData;
-  if (true) {
+  if (false) {
     res.sendStatus(401);
     return;
   }
