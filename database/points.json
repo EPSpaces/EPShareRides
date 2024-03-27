@@ -5,6 +5,11 @@
     "text": "Ari's House"
   },
   {
+    "lat": 47.524558,
+    "lng": 237.60272949218753,
+    "text": "Praneel's House"
+  },
+  {
     "lat": 47.66677462110549,
     "lng": 237.86993086338046,
     "text": "Anmol's House"
@@ -15,18 +20,13 @@
     "text": "Nikhil's House"
   },
   {
-    "lat": 46.62130120406151034,
-    "lng": 211.89696129385243,
-    "text": "Praneel's House"
-  },
-  {
     "lat": 47.6441113460123,
     "lng": 238.08609008789065,
     "text": "Field for the Game"
   },
   {
-    "lat": 47.6441113460123,
-    "lng": 238.08609008789065,
-    "text": "Field for the Game"
+    "lat": 47.623752267682875, 
+    "lng": 237.82352590745487,
+    "text": "Gas station nearby"
   }
 ]

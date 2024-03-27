@@ -64,7 +64,7 @@ app.get("/", getToken, authenticateToken, async (req, res) => {
   lastName = userInData['lastName'];
   admin = userInData['admin'];
 
-  res.render("index", { email, firstName, lastName, admin: true });
+  res.render("index", { email, firstName, lastName, admin });
 });
 
 app.get("/sustainabilityStatement", (req, res) => {

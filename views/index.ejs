@@ -35,9 +35,9 @@
                         <div class="navbar-end">
                            <div class="is-button is-link">
                               <div class="navbar-item">
-                                 <span style="font-size: 1em; color: #30B700; float: right">
-                                 <i class="fa-solid fa-leaf"></i>
-                                 </span>
+                                <span style="font-size: 1em; color: #30B700; float: right">
+                                  <a class="fa-solid fa-leaf" href="/sustainabilityStatement" style="color: #30B700"></a>
+                                </span>
                                  <div class="buttons" style="margin: 10px;margin-right: 0px;">
                                     <a class="button is-link is-outlined " href="/logout">
                                     Log out
@@ -259,7 +259,7 @@
       </div>
       <!-- end here -->
       <script type="text/javascript">
-         // console.error("418 I'm a teapot");
+         console.error("418 I'm a teapot");
 
 
         
@@ -305,6 +305,7 @@
               }
             }
           }
+          
          
           turnRegistered(carpooledEvents)
         }
@@ -336,50 +337,7 @@
            console.log(data);
          }
          
-         function createevent() {
-           firstName="<%= firstName %> "
-           lastName="<%= lastName %> "
-           eventName=document.getElementById("ename").value
-           wlocation=document.getElementById("elocation").value
-           console.log(wlocation)
-           dateb=document.getElementById("edate").value//hotdogs
-           var components = dateb.split(/[-T:]/);
-           // Create a new Date object
-           var dateTimeObject = new Date(components[0], components[1] - 1, components[2], components[3], components[4]);
-           // Format the Date object as a string in the desired format
-           date = dateTimeObject.toLocaleString('en-US', {
-               month: 'numeric',
-               day: 'numeric',
-               year: 'numeric',
-               hour: 'numeric',
-               minute: 'numeric',
-               hour12: true
-           });
-
-           
-           category=document.getElementById("ecategory").value
-           const data = {
-             firstName,
-             lastName,
-             eventName,
-             wlocation,
-             date,
-             category
-           };
-           console.log(data);
-
-           const jsonData = JSON.stringify(data);
-
-           const url = "/api/events";
-
-           fetch(url, {
-             method: "POST",
-             headers: {
-               "Content-Type": "application/json",
-             },
-             body: jsonData,
-           })
-         }
+        
          
          var request = new Request("/api/events", {
            method: "GET",
@@ -699,7 +657,7 @@
              var inputElement = document.createElement("input");
              inputElement.setAttribute("type", "text");
              inputElement.setAttribute("placeholder", options.placeholder);
-             inputElement.setAttribute("_id", idName);
+             inputElement.setAttribute("id", idName);
              inputElement.classList.add("input");
              containerElement.appendChild(inputElement);
 
@@ -1051,7 +1009,7 @@
              element.classList.add('is-focused');
              element.innerHTML = "Selected"
 
-             selectedCarpool = element._id;
+             selectedCarpool = element.id;
            }; 
 
          }
@@ -1123,6 +1081,52 @@
          }
          function closeModal($el) {
          $el.classList.remove('is-active');
+         }
+
+
+        function createevent() {
+           firstName="<%= firstName %> "
+           lastName="<%= lastName %> "
+           eventName=document.getElementById("ename").value
+           wlocation=document.getElementById("elocation").value
+           console.log(wlocation)
+           dateb=document.getElementById("edate").value//hotdogs
+           var components = dateb.split(/[-T:]/);
+           // Create a new Date object
+           var dateTimeObject = new Date(components[0], components[1] - 1, components[2], components[3], components[4]);
+           // Format the Date object as a string in the desired format
+           date = dateTimeObject.toLocaleString('en-US', {
+               month: 'numeric',
+               day: 'numeric',
+               year: 'numeric',
+               hour: 'numeric',
+               minute: 'numeric',
+               hour12: true
+           });
+
+
+           category=document.getElementById("ecategory").value
+           const data = {
+             firstName,
+             lastName,
+             eventName,
+             wlocation,
+             date,
+             category
+           };
+           console.log(data);
+
+           const jsonData = JSON.stringify(data);
+
+           const url = "/api/events";
+
+           fetch(url, {
+             method: "POST",
+             headers: {
+               "Content-Type": "application/json",
+             },
+             body: jsonData,
+           })
          }
         
       </script>
