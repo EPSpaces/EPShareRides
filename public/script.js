@@ -1,7 +1,8 @@
 var MARKERS_MAX = 4;
 var markers = 0;
 
-var map = L.map("map").setView([47.64332055551951, 237.80129313468936], 11);
+var center = [47.64371189816165, -122.19894455582242]
+var map = L.map("map").setView(center, 11);
 L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {}).addTo(
   map,
 );
@@ -44,18 +45,108 @@ map.on("click", function (e) {
   return;*/
 });
 
-function add() {
-  let pointsP;
-  fetch("/api/points", {
-    method: "GET",
-  })
-    .then((response) => response.json())
-    .then((data) => {
-      pointsP = data;
-      console.log(pointsP);
-      addPointsFromDatabse(pointsP);
+// var latlngs = [
+//   [47.64332055551951, 237.80129313468936],
+//   [47.671123312785845, 237.80606227232607]
+// ];
+
+// var polyline = L.polyline(latlngs, {color: "#3273dc"}).addTo(map);
+
+
+
+
+let geocode = {};
+let carpools;
+
+fetch("/api/carpools", {
+  method: "GET",
+})
+  .then((response) => response.json())
+  .then((data) => {
+    carpools = data;
+    console.log(carpools);
+
+    for (let i = 0; i < carpools.length; i++) {
+      carpools[i].carpoolers.forEach((carpooler) => {
+        getAddressCoordinates(carpooler.address)
+      })
+    }
+ function getAddressCoordinates(address) {
+        const apiKey = "992ef3d60d434f2283ea8c6d70a4898d"; // Replace 'YOUR_API_KEY' with your actual API key
+        const url = `https://api.geoapify.com/v1/geocode/search?text=${encodeURIComponent(address)}&apiKey=${apiKey}`;
+        
+        var request = new Request(url, {
+          method: "GET",
+          headers: new Headers({
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+          })
+        });
+        fetch(request)
+          .then((response) => response.json())
+          .then((data) => {
+            console.log(data)
+            geocode[address] = [data.features[0].bbox[1], data.features[0].bbox[0]];
+            })
+             .catch((error) => {
+               console.error(error);
+             });
+    }
+    
     })
     .catch((error) => console.error("Error:", error));
+    
+
+function add(carpoolId) {
+  const carpool = carpools.find((carpool) => carpool._id === carpoolId);
+  carpool.carpoolers.forEach((carpooler) => {
+    addPoint(carpooler.firstName, carpooler.address, geocode[carpooler.address]);
+  })
+     
+
+     
+      
+     
+      
+      function distance(point1, point2) {
+          return Math.sqrt(Math.pow(point2[0] - point1[0], 2) + Math.pow(point2[1] - point1[1], 2));
+      }
+
+      function sortByProximity(arrays, target) {
+          return arrays.sort((arr1, arr2) => {
+              const distance1 = distance(arr1, target);
+              const distance2 = distance(arr2, target);
+              return distance2 - distance1;
+          });
+      }
+      
+      function commonPointLines(point, addresses, destination) {
+        for (var i = 0; i < addresses.length; i++) {
+          var latlngs = [point, addresses[i]];
+          var toPoint = L.polyline(latlngs, {color: "#3273dc", dashArray: "4 8"}).addTo(map);
+        }
+        var toDest = L.polyline([point, destination], {color: "#00d1b2"}).addTo(map);
+        map.fitBounds(toDest.getBounds());
+      }
+     // commonPointLines([47.64332055551951, 237.80129313468936], pointsP, [47.6441113460123, 238.08609008789065])
+
+      function homeHomeLines(addresses, destination) {
+        var addressesLatLng = []
+        for (var i = 0; i < addresses.length; i++) {
+          addressesLatLng.push([addresses[i].lat, addresses[i].lng])
+        }
+        console.log(addressesLatLng)
+        const sortedAddresses = sortByProximity(addressesLatLng, destination);
+        console.log(sortedAddresses)
+        var toAddresses = L.polyline(sortedAddresses, {color: "#3273dc", dashArray: "4 8"}).addTo(map);
+         var toDest = L.polyline([sortedAddresses[sortedAddresses.length - 1], destination], {color: "#00d1b2"}).addTo(map);
+        map.fitBounds(toAddresses.getBounds());
+      }
+      
+       // homeHomeLines(pointsP, [47.64332055551951, 237.80129313468936])
+
+      // zoom the map to the polyline
+
 }
 
 function stuff() {
@@ -64,14 +155,13 @@ function stuff() {
   }
 }
 
-function addPointsFromDatabse(pointsP) {
-  for (let i = 0; i < pointsP.length; i++) {
-    var marker = L.marker(pointsP[i]).addTo(markersGroup);
-    var popup = marker.bindPopup(pointsP[i].text);
-  }
+function addPoint(firstName, address, point) {
+console.log(point)
+    var marker = L.marker(point).addTo(markersGroup);
+    var popup = marker.bindPopup(firstName + "'s house<br /> " + address);
 }
 
-var marker = L.marker([47.64332055551951, 237.80129313468936]).addTo(map);
+var marker = L.marker(center).addTo(map);
 var popup = marker.bindPopup("Eastside Preparatory School<br />Go eagles!");
 
 window.addEventListener("click", function (e) {
@@ -83,304 +173,3 @@ window.addEventListener("click", function (e) {
     //the same code you've used to hide the menu
   }
 });
-
-//Amon Gus
-// .openPopup();
-// script.js
-/*
-// Define an array to store events
-let events = [];
-
-console.log(eventsP);
-
-// letiables to store event input fields and reminder list
-let eventDateInput = document.getElementById("eventDate");
-let eventTimeInput = document.getElementById("eventTime");
-let eventTitleInput = document.getElementById("eventTitle");
-let eventDescriptionInput = document.getElementById("eventDescription");
-let reminderList = document.getElementById("reminderList");
-
-// Counter to generate unique event IDs
-let eventIdCounter = 1;
-
-
-
-// Function to add events
-function addEvent() {
-  let date = eventDateInput.value;
-  let time = eventTimeInput.value;
-  let title = eventTitleInput.value;
-  let description = eventDescriptionInput.value;
-
-  if (date && title) {
-    // Create a unique event ID
-    let eventId = eventIdCounter++;
-    var hours = time.substring(0, 2);
-    var minutes = time.substring(3, 5);
-    if (hours > 12) {
-      hours -= 12;
-
-      time = hours + ":" + minutes + " PM";
-    } else {
-      time = time + " AM";
-    }
-    events.push({
-      id: eventId,
-      date: date,
-      time: time,
-      title: title,
-      description: description,
-    });
-
-    const event = {
-      id: eventId,
-      date: date,
-      time: time,
-      title: title,
-      description: description,
-    };
-
-    const url = "/event";
-
-    const jsonData = JSON.stringify(event);
-
-    fetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: jsonData,
-    })
-      .then((response) => {
-        if (response.redirected) {
-          window.location.href = response.url;
-        }
-      })
-      .catch((error) => console.log(error("Error:", error)));
-
-    showCalendar(currentMonth, currentYear, time);
-    eventDateInput.value = "";
-    eventTimeInput.value = "";
-    eventTitleInput.value = "";
-    eventDescriptionInput.value = "";
-    displayReminders();
-  }
-}
-
-// Function to delete an event by ID
-function deleteEvent(eventId) {
-  // Find the index of the event with the given ID
-  let eventIndex = events.findIndex((event) => event.id === eventId);
-
-  if (eventIndex !== -1) {
-    // Remove the event from the events array
-    events.splice(eventIndex, 1);
-    showCalendar(currentMonth, currentYear);
-    displayReminders();
-  }
-}
-
-// Function to display reminders
-function displayReminders() {
-  reminderList.innerHTML = "";
-  for (let i = 0; i < events.length; i++) {
-    let event = events[i];
-    let eventDate = new Date(event.date);
-    if (
-      eventDate.getMonth() === currentMonth &&
-      eventDate.getFullYear() === currentYear
-    ) {
-      let listItem = document.createElement("li");
-      listItem.innerHTML = `<strong>${event.title}</strong> - 
-            ${event.description} at ${event.time} on 
-            ${eventDate.toLocaleDateString()} `;
-
-      // Add a delete button for each reminder item
-      let deleteButton = document.createElement("button");
-      deleteButton.className = "delete-event";
-      deleteButton.textContent = "Delete";
-      deleteButton.onclick = function () {
-        deleteEvent(event.id);
-      };
-
-      let seeButton = document.createElement("button");
-      seeButton.className = "see-event";
-      seeButton.textContent = "See who's registered";
-      seeButton.onclick = function () {
-        // seeButton function
-      };
-
-      listItem.appendChild(deleteButton);
-      listItem.appendChild(seeButton);
-      reminderList.appendChild(listItem);
-    }
-  }
-}
-
-// Function to generate a range of
-// years for the year select input
-function generate_year_range(start, end) {
-  let years = "";
-  for (let year = start; year <= end; year++) {
-    years += "<option value='" + year + "'>" + year + "</option>";
-  }
-  return years;
-}
-
-// Initialize date-related letiables
-today = new Date();
-currentMonth = today.getMonth();
-currentYear = today.getFullYear();
-selectYear = document.getElementById("year");
-selectMonth = document.getElementById("month");
-
-createYear = generate_year_range(1970, 2050);
-
-document.getElementById("year").innerHTML = createYear;
-
-let calendar = document.getElementById("calendar");
-
-let months = [
-  "January",
-  "February",
-  "March",
-  "April",
-  "May",
-  "June",
-  "July",
-  "August",
-  "September",
-  "October",
-  "November",
-  "December",
-];
-let days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-
-$dataHead = "<tr>";
-for (dhead in days) {
-  $dataHead += "<th data-days='" + days[dhead] + "'>" + days[dhead] + "</th>";
-}
-$dataHead += "</tr>";
-
-document.getElementById("thead-month").innerHTML = $dataHead;
-
-monthAndYear = document.getElementById("monthAndYear");
-showCalendar(currentMonth, currentYear);
-
-// Function to navigate to the next month
-function next() {
-  currentYear = currentMonth === 11 ? currentYear + 1 : currentYear;
-  currentMonth = (currentMonth + 1) % 12;
-  showCalendar(currentMonth, currentYear);
-}
-
-// Function to navigate to the previous month
-function previous() {
-  currentYear = currentMonth === 0 ? currentYear - 1 : currentYear;
-  currentMonth = currentMonth === 0 ? 11 : currentMonth - 1;
-  showCalendar(currentMonth, currentYear);
-}
-
-// Function to jump to a specific month and year
-function jump() {
-  currentYear = parseInt(selectYear.value);
-  currentMonth = parseInt(selectMonth.value);
-  showCalendar(currentMonth, currentYear);
-}
-
-// Function to display the calendar
-function showCalendar(month, year) {
-  let firstDay = new Date(year, month, 1).getDay();
-  tbl = document.getElementById("calendar-body");
-  tbl.innerHTML = "";
-  monthAndYear.innerHTML = months[month] + " " + year;
-  selectYear.value = year;
-  selectMonth.value = month;
-
-  let date = 1;
-  for (let i = 0; i < 6; i++) {
-    let row = document.createElement("tr");
-    for (let j = 0; j < 7; j++) {
-      if (i === 0 && j < firstDay) {
-        cell = document.createElement("td");
-        cellText = document.createTextNode("");
-        cell.appendChild(cellText);
-        row.appendChild(cell);
-      } else if (date > daysInMonth(month, year)) {
-        break;
-      } else {
-        cell = document.createElement("td");
-        cell.setAttribute("data-date", date);
-        cell.setAttribute("data-month", month + 1);
-        cell.setAttribute("data-year", year);
-        cell.setAttribute("data-month_name", months[month]);
-        cell.className = "date-picker";
-        cell.innerHTML = "<span>" + date + "</span";
-
-        if (
-          date === today.getDate() &&
-          year === today.getFullYear() &&
-          month === today.getMonth()
-        ) {
-          cell.className = "date-picker selected";
-        }
-
-        // Check if there are events on this date
-        if (hasEventOnDate(date, month, year)) {
-          cell.classList.add("event-marker");
-          cell.appendChild(createEventTooltip(date, month, year, event.time));
-        }
-
-        row.appendChild(cell);
-        date++;
-      }
-    }
-    tbl.appendChild(row);
-  }
-
-  displayReminders();
-}
-
-// Function to create an event tooltip
-function createEventTooltip(date, month, year, time) {
-  let tooltip = document.createElement("div");
-  tooltip.className = "event-tooltip";
-  let eventsOnDate = getEventsOnDate(date, month, year, time);
-  for (let i = 0; i < eventsOnDate.length; i++) {
-    let event = eventsOnDate[i];
-    let eventDate = new Date(event.date);
-    let eventText = `<strong>${event.title}</strong> - 
-            ${event.description} at ${event.time} on 
-            ${eventDate.toLocaleDateString()}`;
-    let eventElement = document.createElement("p");
-    eventElement.innerHTML = eventText;
-    tooltip.appendChild(eventElement);
-  }
-  return tooltip;
-}
-
-// Function to get events on a specific date
-function getEventsOnDate(date, month, year, time) {
-  return events.filter(function (event) {
-    let eventDate = new Date(event.date);
-    return (
-      eventDate.getDate() === date &&
-      eventDate.getMonth() === month &&
-      eventDate.getFullYear() === year
-    );
-  });
-}
-
-// Function to check if there are events on a specific date
-function hasEventOnDate(date, month, year) {
-  return getEventsOnDate(date, month, year).length > 0;
-}
-
-// Function to get the number of days in a month
-function daysInMonth(iMonth, iYear) {
-  return 32 - new Date(iYear, iMonth, 32).getDate();
-}
-
-// Call the showCalendar function initially to display the calendar
-showCalendar(currentMonth, currentYear);
-*/

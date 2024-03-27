@@ -38,6 +38,11 @@ router.post("/joinCarpool", getToken, authenticateToken, async (req, res) => {
     return;
   }
   let { carpool, address } = req.body
+  let carpoolS = carpool;
+  if (!carpoolS || !address) {
+    res.status(400).send("Invalid request");
+    return;
+  }
   const email = req.email
   let userInData;
   try {
@@ -61,9 +66,10 @@ router.post("/joinCarpool", getToken, authenticateToken, async (req, res) => {
     lastName,
     address
   }
-  
   try {
-    const carpool = await Carpool.findById(req.body.carpoolId);
+    carpool = await Carpool.findById(carpoolS);
+
+    console.log(carpool);
 
     if (!carpool) {
       res.status(404).send("Carpool not found");
@@ -80,13 +86,13 @@ router.post("/joinCarpool", getToken, authenticateToken, async (req, res) => {
       res.status(409).send("You are already in this carpool");
       return;
     }
-
-    carpool.carpoolers.push(newUser);
     const updatedCarpool = await Carpool.findByIdAndUpdate(
-      req.body.carpoolId,
+      carpoolS,
       { $push: { carpoolers: newUser } },
       { new: true }
     );
+
+    console.log(updatedCarpool);
 
     res.status(200).send(updatedCarpool);
   } catch (error) {
@@ -132,7 +138,7 @@ router.post("/events", getToken, authenticateToken, async (req, res) => {
     return;
   }
   const { firstName, lastName, admin } = userInData;
-  if (false) {
+  if (!admin) {
     res.sendStatus(401);
     return;
   }

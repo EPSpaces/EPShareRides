@@ -230,4 +230,27 @@ router.delete(
   },
 );
 
+router.put('/changePassword', getToken, authenticateToken, async (req, res) => {
+  if (!currentPassword || !newPassword) {
+    res.redirect('/changePassword?err=Please fill in all fields');
+    return;
+  }
+  
+  if (!comparePassword(currentPassword, user.password)) {
+    res.redirect('/changePassword?err=Incorrect Password');
+    return;
+  }
+
+  const hashedPassword = hashPassword(newPassword);
+  try {
+    await User.findOneAndUpdate({ email: user.email }, { password: hashedPassword })
+  } catch (err) {
+    console.error("Error updating password: " + err);
+    res.redirect('/changePassword?err=Error updating password, please try again');
+    return;
+  }
+
+  res.sendStatus(200);
+});
+
 module.exports = router;

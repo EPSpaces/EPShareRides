@@ -11,6 +11,12 @@
     <link rel="icon" href="favicon.png" type="image/x-icon">
     <link rel="stylesheet" href="./style.css">
     <script src="./script.js"></script>
+    <link href="./bulma.min.css" rel="stylesheet" type="text/css" />
+    <link href="./style.css" rel="stylesheet" type="text/css" />
+    <script src="https://kit.fontawesome.com/16ae8e710d.js" crossorigin="anonymous"></script>
+    <link rel="icon" href="favicon.png" type="image/x-icon">
+    <link rel="stylesheet" href="./style.css">
+    <script src="./upcoming.js"></script>
   </head>
   <body>
     <main>
@@ -18,7 +24,7 @@
       <section class="hero is-fullheight">
         <!-- Hero head: will stick at the top -->
                            
-
+        
 
         <!-- Hero content: will be in the middle -->
         <div class="hero-body" style="">
@@ -38,19 +44,19 @@
             <!-- <p style="display: inline-block; font-size: 17px; transform: translate(0px,2px); float: left">Require an address when registering</p>
             <input class="switch-input" type="checkbox" id="switch2"  /><label class="switch-label" style="display: inline-block; margin-left: 5px; float: right" for="switch2">Toggle</label> -->
             <div class="field">
-              <input class="input" type="password" placeholder="Current password">
+              <input class="input" id="cp" type="password" placeholder="Current password">
               </div>
              <div class="field">
-              <input class="input" type="password" placeholder="New password">
+              <input class="input" id="np" type="password" placeholder="New password">
              </div>
              <div class="field">
-              <input class="input" type="password" placeholder="Confirm password">
+              <input class="input" id="np2" type="password" placeholder="Confirm password">
             </div>
            
            </div>
      
         <div class="buttons">
-        <div class="button is-link"style="background: linear-gradient(105deg, #3273DC, #275CBF);">
+        <div onclick="doIt()" class="button is-link"style="background: linear-gradient(105deg, #3273DC, #275CBF);">
           Apply
         </div>
           <div class="button" onclick="window.location.href = '/'">
@@ -71,3 +77,18 @@
            
   </body>
 </html>
+<script>
+  function doIt(){
+    var initial = document.getElementById("cp");
+    var initial = document.getElementById("np");
+    var initial = document.getElementById("np2");
+    console.log(cp.value + " " + np.value + " " + np2.value);
+
+    let email;
+    console.log(email)
+          
+    if(np.value == np2.value){
+      console.log("can change");
+    }
+  }
+</script>

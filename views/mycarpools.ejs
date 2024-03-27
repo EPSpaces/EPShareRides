@@ -39,9 +39,9 @@
                         <div class="navbar-end">
                            <div class="is-button is-link">
                               <div class="navbar-item">
-                                 <span style="font-size: 1em; color: #30B700; float: right">
-                                 <i class="fa-solid fa-leaf"></i>
-                                 </span>
+                                <span style="font-size: 1em; color: #30B700; float: right">
+                                  <a class="fa-solid fa-leaf" href="/sustainabilityStatement" style="color: #30B700"></a>
+                                </span>
                                  <div class="buttons" style="margin: 10px;margin-right: 0px;">
                                     <a class="button is-link is-outlined " href="/logout">
                                     Log out
@@ -311,7 +311,7 @@
             <div class="container">
              
                <label >Type of route </label>
-               <div class="field" style="margin-bottom: 15px;">
+               <div class="field" style="margin-bottom: 20px;">
                   <div class="control">
                      <div class="select" style="margin-right: 10px; " >
                         <form>
@@ -329,7 +329,7 @@
             </div>
             <label >Manage carpool</label>
            <div class="field">
-            <div class="button is-danger is-light" style="margin-bottom: 10px" onclick="alert('Are you sure? This action cannot be undone.')">Delete carpool</div>
+            <div class="button is-danger is-light" style="margin-bottom: 5px" onclick="alert('Are you sure? This action cannot be undone.')">Delete carpool</div>
             <table class="table " style="">
                <thead>
                   <tr>
@@ -487,7 +487,7 @@ let email
                                  </p>
                                  <div class="buttons" id="action-buttons" style="margin-right: -10px; display: inline-block">
                                     <div class="button upcoming-carpools-button is-link is-light" style="margin-right: 10px;" 
-                                       onclick="add()">View >></div>
+                                       onclick="add('` + offeredCarpools[i]._id + `')">View >></div>
                                     <div class="button js-modal-trigger upcoming-carpools-button" style="margin-right: 10px;" data-target="modal-js-edit" id="` + offeredCarpools[i]._id + `">Edit</div>
                                  </div>
                               </div>
@@ -545,7 +545,7 @@ let email
                                  </p>
                                  <div class="buttons" id="action-buttons" style="margin-right: -10px; display: inline-block">
                                     <div class="button upcoming-carpools-button is-link is-light" style="margin-right: 10px;" 
-                                       onclick="add()">View >></div>
+                                       onclick="add('` + joinedCarpools[i]._id + `')">View >></div>
                                     <div class="button upcoming-carpools-button " style="margin-right: 10px;" id="` 
  + joinedCarpools[i]._id + `">Unregister</div>
                                  </div>
