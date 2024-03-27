@@ -3,6 +3,7 @@ const { v4: uuidv4 } = require("uuid");
 const fs = require("fs");
 const VerificationCode = require('../schemas/VerificationCode.model');
 const User = require('../schemas/User.model');
+const UserSettings = require('../schemas/UserSettings.model');
 
 const router = express.Router();
 const {
@@ -165,6 +166,21 @@ router.post("/auth/signupConfirm", async (req, res) => {
     .catch((err) => {
       console.error("Error creating user: " + err);
       res.redirect("/signup?err=Internal server error, please try again");
+      return;
+    });
+
+  const newUserSettings = new UserSettings({ userEmail: user.email });
+
+  newUserSettings.save()
+    .catch((err) => {
+      console.error("Error creating user settings: " + err);
+      
+      newUser.deleteOne({ email: user.email })
+        .catch((err) => {
+          console.error("Error deleting newly created user: " + err);
+          res.redirect("/signin?err=Error creating user and concurrent exception while repairing, please report this as a bug");
+        });
+      res.redirect("/signup?err=Internal server error, please try again");
     });
   
   if (comparePasswordHash(user.password, email)) {
@@ -231,26 +247,48 @@ router.delete(
 );
 
 router.put('/changePassword', getToken, authenticateToken, async (req, res) => {
+  const { currentPassword, newPassword } = req.body;
   if (!currentPassword || !newPassword) {
-    res.redirect('/changePassword?err=Please fill in all fields');
+    res.redirect('/updateSettings?err=Please fill in all fields');
     return;
   }
+
+  const comparePWDBool = await comparePassword(currentPassword, req.email);
   
-  if (!comparePassword(currentPassword, user.password)) {
-    res.redirect('/changePassword?err=Incorrect Password');
+  if (!comparePWDBool) {
+    res.redirect('/updateSettings?err=Incorrect Password');
     return;
   }
 
   const hashedPassword = hashPassword(newPassword);
   try {
-    await User.findOneAndUpdate({ email: user.email }, { password: hashedPassword })
+    await User.findOneAndUpdate({ email: req.email }, { password: hashedPassword })
   } catch (err) {
     console.error("Error updating password: " + err);
-    res.redirect('/changePassword?err=Error updating password, please try again');
+    res.redirect('/updateSettings?err=Error updating password, please try again');
     return;
   }
 
-  res.sendStatus(200);
+  res.clearCookie("authToken");
+  res.redirect("/signin?message=Password updated successfully, please sign in again");
+});
+
+router.patch('/updateSettings', getToken, authenticateToken, async (req, res) => {
+  const { settingId, newStatus } = req.body;
+  if (!settingId || !newStatus) {
+    res.redirect('/updateSettings?err=Please fill in all fields');
+    return;
+  }
+
+  try {
+    await UserSettings.findOneAndUpdate({ userEmail: req.email }, { $set: { [settingId]: newStatus } }, { new: true });
+  } catch (err) {
+    console.error("Error updating settings: " + err);
+    res.redirect('/updateSettings?err=Error updating settings, please try again');
+    return;
+  }
+
+  res.redirect("/updateSettings?suc=Settings updated successfully");
 });
 
 module.exports = router;
