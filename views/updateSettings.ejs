@@ -17,9 +17,123 @@
     <link rel="icon" href="favicon.png" type="image/x-icon">
     <link rel="stylesheet" href="./style.css">
     <script src="./upcoming.js"></script>
+    <script>
+      function changePassword(){
+        document.getElementById("errorHolder").innerHTML = "";
+        // Code to update settings
+
+
+        const cp = document.getElementById("cp").value;
+        const np = document.getElementById("np").value;
+        const np2 = document.getElementById("np2").value;
+
+        if (!cp || !np || !np2) {
+          document.getElementById("errorHolder").innerHTML = `
+          <article class="message is-danger" id="error">
+            <div class="message-header">
+              <p>Warning</p>
+              <button class="delete" aria-label="delete" onclick="const element = document.getElementById('error');
+                element.remove();"></button>
+            </div>
+            <div class="message-body">
+              Please fill all of the fields required for changing your password
+            </div>
+          </article>
+          `;
+        } else {
+
+          if (np != np2) {
+            document.getElementById("errorHolder").innerHTML = `
+            <article class="message is-danger" id="error">
+              <div class="message-header">
+                <p>Warning</p>
+                <button class="delete" aria-label="delete" onclick="const element = document.getElementById('error');
+                  element.remove();"></button>
+              </div>
+              <div class="message-body">
+                New password confirmation does not match
+              </div>
+            </article>
+            `;
+          } else {
+            if (cp == np) {
+              document.getElementById("errorHolder").innerHTML = `
+              <article class="message is-danger" id="error">
+                <div class="message-header">
+                  <p>Warning</p>
+                  <button class="delete" aria-label="delete" onclick="const element = document.getElementById('error');
+                    element.remove();"></button>
+                </div>
+                <div class="message-body">
+                  Your new password should not match your old one
+                </div>
+              </article>
+              `;
+            } else {
+              fetch('/changePassword', {
+                method: 'PUT',
+                headers: {
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ currentPassword: cp, newPassword: np })
+              })
+              .then(response => {
+                if (response.redirected) {
+                  window.location.href = response.url;
+                }
+              })
+              .catch(error => {
+                document.getElementById("errorHolder").innerHTML = `
+                <article class="message is-danger" id="error">
+                  <div class="message-header">
+                    <p>Warning</p>
+                    <button class="delete" aria-label="delete" onclick="const element = document.getElementById('error');
+                      element.remove();"></button>
+                  </div>
+                  <div class="message-body">
+                    Error changing password, please try again
+                  </div>
+                </article>
+                `;
+              });
+            }
+          }
+        }
+      }
+    </script>
   </head>
   <body>
     <main>
+        <div id="errorHolder">
+          <% if (error) { %>
+            <article class="message is-danger" id="error">
+              <div class="message-header">
+                <p>Warning</p>
+                <button class="delete" aria-label="delete" onclick="const element = document.getElementById('error');
+                  element.remove();"></button>
+              </div>
+              <div class="message-body">
+                <%= error %>
+              </div>
+            </article>
+            <% } %>
+            </div>
+            
+            <div id="sucHolder">
+              <% if (suc) { %>
+                <article class="message is-success" id="error">
+                  <div class="message-header">
+                    <p>Success</p>
+                    <button class="delete" aria-label="delete" onclick="const element = document.getElementById('error');
+                      element.remove();"></button>
+                  </div>
+                  <div class="message-body">
+                    <%= suc %>
+                  </div>
+                </article>
+                <% } %>
+            </div>
+      
 
       <section class="hero is-fullheight">
         <!-- Hero head: will stick at the top -->
@@ -56,8 +170,8 @@
            </div>
      
         <div class="buttons">
-        <div onclick="doIt()" class="button is-link"style="background: linear-gradient(105deg, #3273DC, #275CBF);">
-          Apply
+        <div onclick="changePassword()" class="button is-link"style="background: linear-gradient(105deg, #3273DC, #275CBF);">
+          Change Password
         </div>
           <div class="button" onclick="window.location.href = '/'">
             Cancel
@@ -77,18 +191,3 @@
            
   </body>
 </html>
-<script>
-  function doIt(){
-    var initial = document.getElementById("cp");
-    var initial = document.getElementById("np");
-    var initial = document.getElementById("np2");
-    console.log(cp.value + " " + np.value + " " + np2.value);
-
-    let email;
-    console.log(email)
-          
-    if(np.value == np2.value){
-      console.log("can change");
-    }
-  }
-</script>

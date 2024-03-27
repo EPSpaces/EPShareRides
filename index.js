@@ -94,7 +94,7 @@ app.get("/mycarpools", getToken, authenticateToken, async (req, res) => {
 });
 
 app.get("/updateSettings", getToken, authenticateToken, async (req, res) => {
-  res.render("updateSettings", {});
+  res.render("updateSettings", { error: req.query.err, suc: req.query.suc });
 });
 
 app.get("/friends", getToken, authenticateToken, async (req, res) => {
