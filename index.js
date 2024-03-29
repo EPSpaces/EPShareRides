@@ -5,9 +5,13 @@ const jwt = require("jsonwebtoken");
 const fs = require("fs");
 const cookieParser = require("cookie-parser");
 const mongoose = require("mongoose");
+const { auth, requiresAuth } = require('express-openid-connect');
 
 // Import Schemas from MongoDB
 const User = require("./schemas/User.model.js");
+const Event = require("./schemas/Event.model.js");
+const Carpool = require("./schemas/Carpool.model.js");
+const UserSettings = require("./schemas/UserSettings.model.js");
 
 // Init Verification Code Cache
 const verificationCodeCache = {};
@@ -16,8 +20,18 @@ const verificationCodeCache = {};
 const {
   authenticateToken,
   getToken,
-  ensureNoToken,
+  ensureNoToken
 } = require("./utils/authUtils");
+
+// Init Auth0
+const config = {
+  authRequired: false,
+  auth0Logout: true,
+  secret: process.env['AUTH0_SECRET'],
+  baseURL: 'https://17445d00-b6ba-4500-8021-591d9fc17d41-00-32xkadr8p7bn1.kirk.replit.dev',
+  clientID: process.env['AUTH0_CLIENTID'],
+  issuerBaseURL: 'https://dev-tmyd13ne4me12fr8.us.auth0.com'
+};
 
 // Import Routes
 const authRoutes = require("./routes/authRoutes");
@@ -28,8 +42,11 @@ const app = express();
 
 // Configure Server
 
-app.set("trust proxy", true); // Trust the first proxy
+if (process.env['MODE'] == 'DEV') {
+  app.set("trust proxy", true); // Trust the first proxy
+}
 app.set("view engine", "ejs");
+app.use(auth(config)); // Use Auth0
 app.use(express.json());
 app.use(express.static(__dirname + "/public"));
 app.use(cookieParser());
@@ -87,7 +104,7 @@ app.get("/mycarpools", getToken, authenticateToken, async (req, res) => {
     return;
   }
 
-  firstName = userInData['firstName'];
+    firstName = userInData['firstName'];
   lastName = userInData['lastName'];
 
   res.render("mycarpools", { email, firstName, lastName });

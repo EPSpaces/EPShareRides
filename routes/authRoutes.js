@@ -25,7 +25,7 @@ router.get("/signin", ensureNoToken, (req, res) => {
   res.render("signin", { error: req.query.err, message: req.query.message });
 });
 
-router.get("/logout", (req, res) => {
+router.get("/signout", (req, res) => {
   res.clearCookie("authToken");
   res.redirect("/signin");
 });
@@ -246,32 +246,32 @@ router.delete(
   },
 );
 
-router.put('/changePassword', getToken, authenticateToken, async (req, res) => {
-  const { currentPassword, newPassword } = req.body;
-  if (!currentPassword || !newPassword) {
-    res.redirect('/updateSettings?err=Please fill in all fields');
-    return;
-  }
+// router.put('/changePassword', getToken, authenticateToken, async (req, res) => {
+//   const { currentPassword, newPassword } = req.body;
+//   if (!currentPassword || !newPassword) {
+//     res.redirect('/updateSettings?err=Please fill in all fields');
+//     return;
+//   }
 
-  const comparePWDBool = await comparePassword(currentPassword, req.email);
+//   const comparePWDBool = await comparePassword(currentPassword, req.email);
   
-  if (!comparePWDBool) {
-    res.redirect('/updateSettings?err=Incorrect Password');
-    return;
-  }
+//   if (!comparePWDBool) {
+//     res.redirect('/updateSettings?err=Incorrect Password');
+//     return;
+//   }
 
-  const hashedPassword = hashPassword(newPassword);
-  try {
-    await User.findOneAndUpdate({ email: req.email }, { password: hashedPassword })
-  } catch (err) {
-    console.error("Error updating password: " + err);
-    res.redirect('/updateSettings?err=Error updating password, please try again');
-    return;
-  }
+//   const hashedPassword = hashPassword(newPassword);
+//   try {
+//     await User.findOneAndUpdate({ email: req.email }, { password: hashedPassword })
+//   } catch (err) {
+//     console.error("Error updating password: " + err);
+//     res.redirect('/updateSettings?err=Error updating password, please try again');
+//     return;
+//   }
 
-  res.clearCookie("authToken");
-  res.redirect("/signin?message=Password updated successfully, please sign in again");
-});
+//   res.clearCookie("authToken");
+//   res.redirect("/signin?message=Password updated successfully, please sign in again");
+// });
 
 router.patch('/updateSettings', getToken, authenticateToken, async (req, res) => {
   const { settingId, newStatus } = req.body;
