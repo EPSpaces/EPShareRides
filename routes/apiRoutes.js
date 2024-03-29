@@ -69,8 +69,6 @@ router.post("/joinCarpool", getToken, authenticateToken, async (req, res) => {
   try {
     carpool = await Carpool.findById(carpoolS);
 
-    console.log(carpool);
-
     if (!carpool) {
       res.status(404).send("Carpool not found");
       return;
@@ -92,14 +90,31 @@ router.post("/joinCarpool", getToken, authenticateToken, async (req, res) => {
       { new: true }
     );
 
-    console.log(updatedCarpool);
-
     res.status(200).send(updatedCarpool);
   } catch (error) {
     console.error("Error:", error);
     res.status(500).send("Internal Server Error");
   }
   res.status(200);
+});
+
+router.delete("/leaveCarpool", getToken, authenticateToken, async (req, res) => {
+  const { carpoolId } = req.body;
+  const email = req.email;
+  if (!carpoolId || !userEmail) {
+    res.status(400).send("Invalid request");
+    return;
+  }
+
+  try {
+    await Carpool.findByIdAndUpdate(carpooId, { $pull: { carpoolers: { email } } });
+  } catch (err) {
+    console.error("Error while removing from carpool: " + err);
+    res.status(500).send("Internal Server Error");
+    return;
+  }
+
+  res.status(200).send("User removed from carpool");
 });
 
 router.get("/events", getToken, authenticateToken, async (req, res) => {
@@ -115,13 +130,13 @@ router.get("/events", getToken, authenticateToken, async (req, res) => {
 });
 
 router.post("/events", getToken, authenticateToken, async (req, res) => {
-  console.log('hello you tried posting');
-  const { eventName, wlocation, date, category } = req.body;
+  const { eventName, wlocation, date, category, address } = req.body;
 
-  if (!eventName || !wlocation || !date || !category) {
+  if (!eventName || !wlocation || !date || !category || !address) {
     res.status(400).send("Bad Request");
     return;
   }
+  
   let userInData;
   const email = req.email;
   try {
@@ -137,7 +152,7 @@ router.post("/events", getToken, authenticateToken, async (req, res) => {
     res.redirect("/signin?err=Internal server error, please sign in again");
     return;
   }
-  const { firstName, lastName, admin } = userInData;
+  const { firstName, lastName, admin } = userInData;  
   if (!admin) {
     res.sendStatus(401);
     return;
@@ -148,6 +163,7 @@ router.post("/events", getToken, authenticateToken, async (req, res) => {
       lastName,
       eventName,
       wlocation,
+      address,
       date,
       category
     });

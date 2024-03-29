@@ -58,9 +58,9 @@
                                           <a class="navbar-item" href="mailto:nmahesh@eastsideprep.org; ayamashita@eastsideprep.org; pjain27@eastsideprep.org; ajosan@eastsideprep.org">
                                           Report a bug
                                           </a>
-                                          <a class="navbar-item" href="/deleteAccount">
-                                          Delete account
-                                          </a>
+                                         <a class="navbar-item" href="/sustainabilityStatement">
+                                         Sustainability statement
+                                         </a>
                                           <hr class="navbar-divider">
                                           <div class="navbar-item">
                                              Version Beta 0.1.0
@@ -366,9 +366,8 @@
                                          
 </html>
 
-
+<script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>
 <script>
-
 
   let joinedCarpools = []
    let offeredCarpools = []
@@ -547,7 +546,8 @@ let email
                                     <div class="button upcoming-carpools-button is-link is-light" style="margin-right: 10px;" 
                                        onclick="add('` + joinedCarpools[i]._id + `')">View >></div>
                                     <div class="button upcoming-carpools-button " style="margin-right: 10px;" id="` 
- + joinedCarpools[i]._id + `">Unregister</div>
+ + joinedCarpools[i]._id + `" onclick="leaveIt()
+">Unregister</div>
                                  </div>
                               </div>
                            </article>`
@@ -670,6 +670,26 @@ let email
    closeAllModals();
    }
    });
+
+  function leaveIt(carpoolId) {
+
+  console.log(carpoolId);
+    
+   let eventToRemove = // ID of the event to be removed;
+   fetch(`/api/events/${eventToRemove}`, {
+      method: "DELETE",
+      headers: {
+         Accept: 'application/json',
+         'Content-Type': 'application/json',
+      }
+   })
+      .then(response => {
+         // Handle the response here
+      })
+      .catch(error => {
+         console.error(error);
+      });
+  }
    
    
 </script>

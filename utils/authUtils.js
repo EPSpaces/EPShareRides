@@ -131,5 +131,5 @@ module.exports = {
   hashPassword,
   comparePassword,
   comparePasswordHash,
-  sendVerificationCode,
+  sendVerificationCode
 };
