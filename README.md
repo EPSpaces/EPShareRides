@@ -1,2 +1,1 @@
 EPShareRides
-Turk emoji
