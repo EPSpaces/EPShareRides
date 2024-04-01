@@ -1,5 +1,13 @@
 {
   "files": {
+    "index.js": [
+      {
+        "id": "fa2221ff-d959-46c0-acc0-e1f919d10cb2",
+        "line": 42,
+        "version": 13487,
+        "index": 1215
+      }
+    ],
     "views/404.ejs": [
       {
         "id": "608c03e3-6b76-4128-8486-2be65038cb5f",

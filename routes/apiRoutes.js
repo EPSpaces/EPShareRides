@@ -1,5 +1,6 @@
 const express = require("express");
 const fs = require("fs");
+const { requiresAuth } = require('express-openid-connect');
 
 const { authenticateToken, getToken } = require("../utils/authUtils");
 
@@ -18,17 +19,17 @@ function writeToJSON(filepath, data) {
   });
 }
 
-router.get("/points", getToken, authenticateToken, (req, res) => {
+router.get("/points", requiresAuth(), (req, res) => {
   let points = require("../database/points.json");
   res.json(points);
 });
 
-router.get("/offerToCarpool", getToken, authenticateToken, (req, res) => {
+router.get("/offerToCarpool", requiresAuth(), (req, res) => {
   let offerToCarpool = require("../database/offerToCarpool.json");
   res.json(offerToCarpool);
 });
 
-router.post("/joinCarpool", getToken, authenticateToken, async (req, res) => {
+router.post("/joinCarpool", requiresAuth(), async (req, res) => {
   let carpools;
   try {
     carpools = await Carpool.find({});
@@ -98,7 +99,7 @@ router.post("/joinCarpool", getToken, authenticateToken, async (req, res) => {
   res.status(200);
 });
 
-router.delete("/leaveCarpool", getToken, authenticateToken, async (req, res) => {
+router.delete("/leaveCarpool", requiresAuth(), async (req, res) => {
   const { carpoolId } = req.body;
   const email = req.email;
   if (!carpoolId || !userEmail) {
@@ -117,7 +118,7 @@ router.delete("/leaveCarpool", getToken, authenticateToken, async (req, res) => 
   res.status(200).send("User removed from carpool");
 });
 
-router.get("/events", getToken, authenticateToken, async (req, res) => {
+router.get("/events", requiresAuth(), async (req, res) => {
   let events;
   try {
     events = await Event.find({});
@@ -129,7 +130,7 @@ router.get("/events", getToken, authenticateToken, async (req, res) => {
   res.json(events);
 });
 
-router.post("/events", getToken, authenticateToken, async (req, res) => {
+router.post("/events", requiresAuth(), async (req, res) => {
   const { eventName, wlocation, date, category, address } = req.body;
 
   if (!eventName || !wlocation || !date || !category || !address) {
@@ -178,7 +179,7 @@ router.post("/events", getToken, authenticateToken, async (req, res) => {
   return;
 });
 
-router.get("/carpools", getToken, authenticateToken, async (req, res) => {
+router.get("/carpools", requiresAuth(), async (req, res) => {
   try {
     const carpools = await Carpool.find({});
     res.json(carpools);
@@ -188,7 +189,7 @@ router.get("/carpools", getToken, authenticateToken, async (req, res) => {
   }
 });
 
-router.post("/carpools", getToken, authenticateToken, async (req, res) => {
+router.post("/carpools", requiresAuth(),async (req, res) => {
   const {
     firstName,
     lastName,

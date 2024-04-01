@@ -181,6 +181,7 @@ function add(carpoolId) {
     return arrays.sort((arr1, arr2) => {
       const distance1 = distance(arr1, target);
       const distance2 = distance(arr2, target);
+      console.log(distance1, distance2)
       return distance2 - distance1;
     });
   }

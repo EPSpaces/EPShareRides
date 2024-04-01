@@ -30,7 +30,10 @@ const config = {
   secret: process.env['AUTH0_SECRET'],
   baseURL: 'https://17445d00-b6ba-4500-8021-591d9fc17d41-00-32xkadr8p7bn1.kirk.replit.dev',
   clientID: process.env['AUTH0_CLIENTID'],
-  issuerBaseURL: 'https://dev-tmyd13ne4me12fr8.us.auth0.com'
+  issuerBaseURL: 'https://dev-tmyd13ne4me12fr8.us.auth0.com',
+  routes: {
+    login: '/auth-openid-login'
+  }
 };
 
 // Import Routes
@@ -45,6 +48,7 @@ const app = express();
 if (process.env['MODE'] == 'DEV') {
   app.set("trust proxy", true); // Trust the first proxy
 }
+
 app.set("view engine", "ejs");
 app.use(auth(config)); // Use Auth0
 app.use(express.json());
@@ -57,7 +61,7 @@ app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 app.use("/api", apiRoutes);
 app.use("/", authRoutes);
 
-app.get("/", getToken, authenticateToken, async (req, res) => {
+app.get("/", requiresAuth(), async (req, res) => {
   const email = req.email;
   let firstName;
   let lastName;
@@ -88,7 +92,7 @@ app.get("/sustainabilityStatement", (req, res) => {
   res.render("sustainabilityStatement");
 });
 
-app.get("/mycarpools", getToken, authenticateToken, async (req, res) => {
+app.get("/mycarpools", requiresAuth(), async (req, res) => {
   const email = req.email;
   let firstName;
   let lastName;
@@ -110,11 +114,11 @@ app.get("/mycarpools", getToken, authenticateToken, async (req, res) => {
   res.render("mycarpools", { email, firstName, lastName });
 });
 
-app.get("/updateSettings", getToken, authenticateToken, async (req, res) => {
+app.get("/updateSettings", requiresAuth(),async (req, res) => {
   res.render("updateSettings", { error: req.query.err, suc: req.query.suc });
 });
 
-app.get("/friends", getToken, authenticateToken, async (req, res) => {
+app.get("/friends", requiresAuth(), async (req, res) => {
   let people = [];
   let i = 0;
   let users;
@@ -151,6 +155,10 @@ app.get("/friends", getToken, authenticateToken, async (req, res) => {
   lastName = userInData['lastName'];
 
   res.render("friends", { people, email, firstName, lastName });
+});
+
+app.get('/callback', (req, res) => {
+  console.log('hola mis amigos');
 });
 
 // Setup 404 page
