@@ -1,6 +1,5 @@
 const express = require("express");
 const fs = require("fs");
-const { requiresAuth } = require('express-openid-connect');
 
 const { authenticateToken, getToken } = require("../utils/authUtils");
 
@@ -19,17 +18,17 @@ function writeToJSON(filepath, data) {
   });
 }
 
-router.get("/points", requiresAuth(), (req, res) => {
+router.get("/points", getToken, authenticateToken, (req, res) => {
   let points = require("../database/points.json");
   res.json(points);
 });
 
-router.get("/offerToCarpool", requiresAuth(), (req, res) => {
+router.get("/offerToCarpool", getToken, authenticateToken, (req, res) => {
   let offerToCarpool = require("../database/offerToCarpool.json");
   res.json(offerToCarpool);
 });
 
-router.post("/joinCarpool", requiresAuth(), async (req, res) => {
+router.post("/joinCarpool", getToken, authenticateToken, async (req, res) => {
   let carpools;
   try {
     carpools = await Carpool.find({});
@@ -99,26 +98,7 @@ router.post("/joinCarpool", requiresAuth(), async (req, res) => {
   res.status(200);
 });
 
-router.delete("/leaveCarpool", requiresAuth(), async (req, res) => {
-  const { carpoolId } = req.body;
-  const email = req.email;
-  if (!carpoolId || !userEmail) {
-    res.status(400).send("Invalid request");
-    return;
-  }
-
-  try {
-    await Carpool.findByIdAndUpdate(carpooId, { $pull: { carpoolers: { email } } });
-  } catch (err) {
-    console.error("Error while removing from carpool: " + err);
-    res.status(500).send("Internal Server Error");
-    return;
-  }
-
-  res.status(200).send("User removed from carpool");
-});
-
-router.get("/events", requiresAuth(), async (req, res) => {
+router.get("/events", getToken, authenticateToken, async (req, res) => {
   let events;
   try {
     events = await Event.find({});
@@ -130,14 +110,13 @@ router.get("/events", requiresAuth(), async (req, res) => {
   res.json(events);
 });
 
-router.post("/events", requiresAuth(), async (req, res) => {
-  const { eventName, wlocation, date, category, address } = req.body;
+router.post("/events", getToken, authenticateToken, async (req, res) => {
+  const { eventName, wlocation, date, category, addressS } = req.body;
 
-  if (!eventName || !wlocation || !date || !category || !address) {
+  if (!eventName || !wlocation || !date || !category || !addressS) {
     res.status(400).send("Bad Request");
     return;
   }
-  
   let userInData;
   const email = req.email;
   try {
@@ -164,7 +143,7 @@ router.post("/events", requiresAuth(), async (req, res) => {
       lastName,
       eventName,
       wlocation,
-      address,
+      addressS,
       date,
       category
     });
@@ -179,7 +158,7 @@ router.post("/events", requiresAuth(), async (req, res) => {
   return;
 });
 
-router.get("/carpools", requiresAuth(), async (req, res) => {
+router.get("/carpools", getToken, authenticateToken, async (req, res) => {
   try {
     const carpools = await Carpool.find({});
     res.json(carpools);
@@ -189,7 +168,7 @@ router.get("/carpools", requiresAuth(), async (req, res) => {
   }
 });
 
-router.post("/carpools", requiresAuth(),async (req, res) => {
+router.post("/carpools", getToken, authenticateToken, async (req, res) => {
   const {
     firstName,
     lastName,
