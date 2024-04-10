@@ -150,7 +150,7 @@ function add(carpoolId) {
     //the destination
     var marker = L.marker(geocode[result.address]).addTo(markersGroup);
     marker.options.shadowSize = [0, 0];
-    var popup = marker.bindPopup(result.wlocation + ": " + result.address);
+    var popup = marker.bindPopup(result.wlocation + "<br>" + result.address);
 
     carpoolPoints.push(geocode[carpool.wlocation])
     homeHomeLines(carpoolPoints, geocode[result.address])
@@ -161,12 +161,12 @@ function add(carpoolId) {
     //the meeting point address
     var marker = L.marker(geocode[carpool.wlocation]).addTo(markersGroup);
     marker.options.shadowSize = [0, 0];
-    var popup = marker.bindPopup("Meeting point: " + carpool.wlocation);
+    var popup = marker.bindPopup("Meeting point<br>" + carpool.wlocation);
 
     //the destination
     var marker = L.marker(geocode[result.address]).addTo(markersGroup);
     marker.options.shadowSize = [0, 0];
-    var popup = marker.bindPopup(result.wlocation + ": " + result.address);
+    var popup = marker.bindPopup(result.wlocation + "<br> " + result.address);
 
     commonPointLines(geocode[carpool.wlocation], carpoolPoints, geocode[result.address])
   }
@@ -235,7 +235,7 @@ function addPoint(firstName, address, point) {
   console.log(point);
   var marker = L.marker(point).addTo(markersGroup);
   marker.options.shadowSize = [0, 0];
-  var popup = marker.bindPopup(firstName + "'s house<br /> " + address);
+  var popup = marker.bindPopup(firstName + "'s house<br> " + address);
 }
 
 var marker = L.marker(center).addTo(markersGroup);

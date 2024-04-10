@@ -54,7 +54,9 @@ app.get("/", getToken, authenticateToken, async (req, res) => {
     userInData = await User.findOne({ email });
     if (!userInData) {
       res.clearCookie("authToken");
-      res.redirect("/signin?err=Error with system finding User, please try again");
+      res.redirect(
+        "/signin?err=Error with system finding User, please try again",
+      );
       return;
     }
   } catch (err) {
@@ -63,9 +65,9 @@ app.get("/", getToken, authenticateToken, async (req, res) => {
     res.redirect("/signin?err=Internal server error, please sign in again");
     return;
   }
-  firstName = userInData['firstName'];
-  lastName = userInData['lastName'];
-  admin = userInData['admin'];
+  firstName = userInData["firstName"];
+  lastName = userInData["lastName"];
+  admin = userInData["admin"];
 
   res.render("index", { email, firstName, lastName, admin });
 });
@@ -90,22 +92,48 @@ app.get("/mycarpools", getToken, authenticateToken, async (req, res) => {
     return;
   }
 
-    firstName = userInData['firstName'];
-  lastName = userInData['lastName'];
+  firstName = userInData["firstName"];
+  lastName = userInData["lastName"];
 
   res.render("mycarpools", { email, firstName, lastName });
 });
 
-app.get("/updateSettings", getToken, authenticateToken, async (req, res) => {
+/*app.get("/updateSettings", getToken, authenticateToken, async (req, res) => {
   res.render("updateSettings", { error: req.query.err, suc: req.query.suc });
+});*/
+
+app.get("/updateSettings", getToken, authenticateToken, async (req, res) => {
+  const email = req.email;
+  let firstName;
+  let lastName;
+
+  let userInData;
+
+  try {
+    userInData = await User.findOne({ email });
+  } catch (err) {
+    console.error("Error finding user: " + err);
+    res.clearCookie("authToken");
+    res.redirect("/signin?err=Internal server error, please sign in again");
+    return;
+  }
+
+  firstName = userInData["firstName"];
+  lastName = userInData["lastName"];
+
+  res.render("updateSettings", { email, firstName, lastName });
 });
+
+//app.get("/updateSettings", getToken, authenticateToken, async (req, res) => {
+//  res.render("updateSettings", { error: req.query.err, suc: req.query.suc });
+//});
 
 app.get("/friends", getToken, authenticateToken, async (req, res) => {
   let people = [];
   let i = 0;
   let users;
   try {
-    users = await User.find({}); 
+    users = await User.find({});
   } catch (err) {
     res.status(500).send("Error retrieving users");
   }
@@ -133,8 +161,8 @@ app.get("/friends", getToken, authenticateToken, async (req, res) => {
     return;
   }
 
-  firstName = userInData['firstName'];
-  lastName = userInData['lastName'];
+  firstName = userInData["firstName"];
+  lastName = userInData["lastName"];
 
   res.render("friends", { people, email, firstName, lastName });
 });
@@ -151,11 +179,12 @@ mongoose
     console.log("Connected to db");
 
     // Create the TTL index after the connection is established
-    mongoose.connection.once('open', () => {
-      const verificationCodeCollection = mongoose.connection.db.collection('VerificationCode');
+    mongoose.connection.once("open", () => {
+      const verificationCodeCollection =
+        mongoose.connection.db.collection("VerificationCode");
       verificationCodeCollection.createIndex(
         { createdAt: 1 },
-        { expireAfterSeconds: 300 }
+        { expireAfterSeconds: 300 },
       );
     });
 

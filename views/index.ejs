@@ -51,7 +51,7 @@
                                           <a class="navbar-item" href="/updateSettings">
                                           Update settings
                                           </a>
-                                          <a class="navbar-item" href="mailto:nmahesh@eastsideprep.org; ayamashita@eastsideprep.org; pjain27@eastsideprep.org; ajosan@eastsideprep.org">
+                                          <a class="navbar-item" href="https://forms.office.com/r/deCSjA7bCR">
                                           Report a bug
                                           </a>
                                           <a class="navbar-item" href="/sustainabilityStatement">
@@ -445,13 +445,13 @@
                         </div>
                      </div>
                   </div>
-                  <div class="field">
-                     <label id="address-label">Home address </label>
-                     <div class="autocomplete-container" id="">
-                        <div class='control' id="autocomplete-container">
-                        </div>
-                     </div>
-                  </div>
+                 <div class="field">
+                    <label id="address-label">Your home address</label>
+                    <div class="autocomplete-container" id="">
+                       <div class="control" id="autocomplete-container">
+                       <div class="clear-button"></div></div>
+                    </div>
+                 </div>
                </div>
             </section>
             <footer class="modal-card-foot" style="background-color: white; border-width: 1px; padding: 10px; ">
@@ -512,7 +512,29 @@
       <script type="text/javascript">
          console.error("418 I'm a teapot");
 
-
+        let value2;
+         let data1;
+         var request = new Request("/api/users", {
+           method: "GET",
+           headers: new Headers({
+             Accept: 'application/json',
+             'Content-Type': 'application/json',
+           })
+         });
+         fetch(request)
+           .then((response) => response.json())
+           .then((data) => {
+             data1 = data;
+             for (let k = 0; k < data1.length; k++) {
+               if(data1[k].email === "<%= email %>"){
+                  console.log(data1[k].address)
+                  value2 = data1[k].address;
+               }
+               else{
+                 continue;
+               }
+             }
+           })
         
         
         
@@ -818,7 +840,10 @@
                 }
                   }
                  
-                 
+                if(value2 != "none"){
+                  document.getElementById("address-input").value = value2;
+                  document.getElementById("address-input2").value = value2;
+                }
              }
 
              function closeModal($el) {
