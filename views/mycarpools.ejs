@@ -55,7 +55,7 @@
                                           <a class="navbar-item" href="/updateSettings">
                                           Update settings
                                           </a>
-                                          <a class="navbar-item" href="mailto:nmahesh@eastsideprep.org; ayamashita@eastsideprep.org; pjain27@eastsideprep.org; ajosan@eastsideprep.org">
+                                          <a class="navbar-item" href="https://forms.office.com/r/deCSjA7bCR">
                                           Report a bug
                                           </a>
                                          <a class="navbar-item" href="/sustainabilityStatement">
@@ -311,15 +311,14 @@
             <div class="container">
              
                <label >Type of route </label>
-               <div class="field" style="margin-bottom: 20px;">
+               <div class="field" style="margin-bottom: 10px;">
                   <div class="control">
                      <div class="select" style="margin-right: 10px; " >
                         <form>
                            <select id="route-type">
                               <option value="route" >Home to home</option>
                               <option value="point"  >Common meeting point</option>
-                           </select>
-                        
+                           </select>                       
                        
                           </form>
                      </div>
@@ -327,9 +326,37 @@
                   </div>
                </div>
             </div>
+
+            <div class="field" style="margin-bottom: 20px;">
+               <label id="address-label">Your home address </label>
+              <script>
+                const routeTypeSelect123 = document.getElementById('route-type');
+                const addressLabel123 = document.getElementById('address-label');
+
+                function updateAddressLabel123() {
+                  const selectedOption123 = routeTypeSelect123.value;
+                  if (selectedOption123 === 'route') {
+                    addressLabel123.innerHTML = 'Your home address';
+                  } else {
+                    addressLabel123.innerHTML = 'Common meeting point address';
+                  }
+                }
+
+                routeTypeSelect123.addEventListener('change', updateAddressLabel123);
+              </script>
+               <div class="autocomplete-container" id="">
+                  <div class='control' id="autocomplete-container">
+                  </div>
+               </div>
+            </div>
+            
             <label >Manage carpool</label>
            <div class="field">
-            <div class="button is-danger is-light" style="margin-bottom: 5px" onclick="alert('Are you sure? This action cannot be undone.')">Delete carpool</div>
+             <div id="deleteCarpoolBtn">
+               <div class="buttons" style="margin-bottom: 5px">
+              <div class="button is-danger is-light"  onclick="preperation();">Delete carpool</div>
+               </div>
+             </div>
             <table class="table " style="">
                <thead>
                   <tr>
@@ -337,8 +364,8 @@
                      <th>Remove</th>
                   </tr>
                </thead>
-               <tbody>
-                  <tr>
+               <tbody id="friendsInCarpool">
+                  <!--<tr>
                      <th ><a href="mailto:ajosan@eastsideprep.org">Anmol Josan</a></th>
                      <td><a style="color: black">X</a></td>
                   </tr>
@@ -350,13 +377,15 @@
                      <th ><a href="mailto:pjain@eastsideprep.org">Praneel Jain</a></th>
                      <td><a style="color: black">X</a></td>
                   </tr>
+                  -->
                </tbody>
             </table>
+              
              </div>
          </section>
          <footer class="modal-card-foot" style="background-color: white; border-width: 1px; padding: 10px; ">
             <div class="buttons" style="margin-left: 0px;">
-               <button class="button is-link ">Apply</button>
+               <button class="button is-link " style="background: linear-gradient(105deg, #3273DC, #275CBF);" onclick="test()">Apply</button>
                <button class="button" aria-label="close" onclick="closeAllModals()">Cancel</button>
             </div>
          </footer>
@@ -366,13 +395,138 @@
                                          
 </html>
 
-<script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>
 <script>
+   let value2;
+   let data1;
+   var request = new Request("/api/users", {
+     method: "GET",
+     headers: new Headers({
+       Accept: 'application/json',
+       'Content-Type': 'application/json',
+     })
+   });
+   fetch(request)
+     .then((response) => response.json())
+     .then((data) => {
+       data1 = data;
+       for (let k = 0; k < data1.length; k++) {
+         if(data1[k].email === "<%= email %>"){
+            console.log(data1[k].address)
+            value2 = data1[k].address;
+         }
+         else{
+           continue;
+         }
+       }
+     })
 
-  let joinedCarpools = []
-   let offeredCarpools = []
-  let eventsW;
-  let carpoools;
+
+
+   
+   let current;
+
+   function queGuay(id){
+      current = id;
+      console.log(current)
+      addPeople();
+      if(value2 != "none"){
+          document.getElementById("address-input").value = value2;
+      }
+   }
+
+   function preperation(){
+      // if (confirm("Are you sure you want to delete this carpool for all users? This action cannot be undone.")) {
+      //   deletion()
+      // }
+     document.getElementById("deleteCarpoolBtn").innerHTML = `   <div class="buttons" style="margin-bottom: 5px"><div class="button"  onclick="deletion();">Ok</div><div class="button is-link" onclick="returnBack();">Cancel</div></div>`
+     
+   }
+  function returnBack(){
+     document.getElementById("deleteCarpoolBtn").innerHTML = `     <div class="buttons" style="margin-bottom: 5px"><div class="button is-danger is-light" onclick="preperation();">Delete carpool</div></div>`
+  }
+
+   function deletion(){
+       console.log("Deleting " + current)
+       fetch(`/api/carpools/${current}`, { // Include the _id in the URL
+           method: "DELETE",
+           headers: {
+               Accept: 'application/json',
+               'Content-Type': 'application/json',
+           }
+       })
+       .then(response => {
+           if(response.ok) {
+               console.log('Successfully deleted the item.');
+               location.reload();
+           } else {
+               console.log('Failed to delete the item.');
+           }
+       })
+       .catch(error => {
+           console.error('A network error occurred:', error);
+           alert('A network error occurred. Please try again later.');
+       });
+   }
+
+   let joinedCarpools = []
+      let offeredCarpools = []
+     let eventsW;
+     let carpoools;
+   let i;
+
+   function addPeople(){
+      document.getElementById("friendsInCarpool").innerHTML = '';
+      
+      for (let index = 0; index < offeredCarpools.length; index++) {
+         if(offeredCarpools[index]._id == current){
+            i = index;
+            console.log(i);
+         }
+         continue;
+      }
+      for (let k = 0; k < offeredCarpools[i].carpoolers.length; k++) {
+         console.log(offeredCarpools[i].carpoolers.length)
+         console.log(k)
+         document.getElementById("friendsInCarpool").innerHTML += `<tr><th><a href="mailto:` + offeredCarpools[i].carpoolers[k].email + `">` + offeredCarpools[i].carpoolers[k].firstName + " " + offeredCarpools[i].carpoolers[k].lastName + `</a></th><td><a style="color: black" onclick="removePerson('` + offeredCarpools[i].carpoolers[k]._id + `')">X</a></td></tr>`
+         continue;
+      }
+   /*for (var i = 0; i < offeredCarpools.length; i++) {
+          for (var k = 0; k < offeredCarpools[i].carpoolers.length; k++) {
+             //document.getElementById("friendsInCarpool").innerHTML += `<tr><th><a href="mailto:` + offeredCarpools[i].carpoolers[k].email + `">` + offeredCarpools[i].carpoolers[k].firstName + " " + offeredCarpools[i].carpoolers[k].lastName + `</a></th><td><a style="color: black">X</a></td></tr>`
+             console.log(offeredCarpools[i].carpoolers[k].firstName)
+          }
+      }*/
+   }
+   
+   
+   function removePerson(id){
+      console.log("This id: " + id);
+
+      let theID = id;
+      
+      fetch(`/api/carpools/deleteCarpooler`, {
+          method: "PATCH",
+          headers: {
+              Accept: 'application/json',
+              'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ _id: theID, _id2: current })
+      })
+      .then(response => {
+          if(response.ok) {
+               console.log('Successfully deleted the item.');
+               location.reload();
+          } else {
+              console.log('Failed to delete the item.');
+          }
+      })
+      .catch(error => {
+          console.error('A network error occurred:', error);
+          alert('A network error occurred. Please try again later.');
+      });
+   }
+
+  
 
 
    var request = new Request("/api/events", {
@@ -446,7 +600,8 @@ let email
           offeredCarpools[i].carpoolers
           for (var k = 0; k < offeredCarpools[i].carpoolers.length; k++) {
 
-        carpoolers.push(offeredCarpools[i].carpoolers[k].firstName + " " + offeredCarpools[i].carpoolers[k].lastName.charAt(0))
+        carpoolers.push(offeredCarpools[i].carpoolers[k].firstName + " " + offeredCarpools[i].carpoolers[k].lastName.charAt(0));
+             
 
           }
            console.log(eventsW) 
@@ -457,47 +612,47 @@ let email
             }
           }
           document.getElementById('carpoolsJS').innerHTML += `<article class="panel is-link" style="position: relative" >
-                              <div class="panel-heading" style="padding: 0px; margin-bottom: 12px; border-radius: 6px 6px 0px 0px; line-height: 22px;background: linear-gradient(105deg, #3273DC, #275CBF);" >
-                                 <div class="columns is-mobile">
-                                    <div class="column" style=" padding: 0px; padding-left: 10px;">
-                                       <div class=" " style="float: left; margin: 7px; left:0px;" >
-                                          <span class="panel-icon" style='color: white; display: inline'>
-                                             <i class="fas fa-user" aria-hidden="true" style="margin: 13px; margin-left: 15px;"></i>
-                                             <p style="color: white; display: inline; font-size: 15px; font-weight: 300 ">Carpool with ` + driver + `<i class="fa-solid fa-crown" style="margin-left: 5px;"></i></p>
-                                          </span>
-                                       </div>
-                                    </div>
-                                    <div class="column" style="padding: 0px; padding-top: 0.75em; padding-bottom: 0.75em">
-                                       <p class="" style="color: white; display: inline; font-size: 20px;  font-weight: 700;  ">` + eventName + `</p>
-                                    </div>
-                                    <div class="column" style="padding: 0px; padding-right: 10px;">
-                                       <div class="white-background " style="float: right; margin: 7px; right:0px;  border-radius: 6px; " >
-                                          <span class="panel-icon " id="spanz" style=' display: inline ;  '>
-                                             <i class="fas fa-car " aria-hidden="true" style="margin: 13px; margin-left: 15px;"></i>
-                                             <p style=" display: inline; font-size: 15px;  font-weight: 300;" id="datez">` + date + `</p>
-                                          </span>
-                                       </div>
-                                    </div>
-                                 </div>
-                              </div>
-                              <div class="panel-block">
-                                 <p class="control has-icons-left" id="registered-carpoolers" style=" margin-right: 10px; width: 40%">
-                                    Registered carpoolers: ` + carpoolers.join(", ") + `
-                                 </p>
-                                 <div class="buttons" id="action-buttons" style="margin-right: -10px; display: inline-block">
-                                    <div class="button upcoming-carpools-button is-link is-light" style="margin-right: 10px;" 
-                                       onclick="add('` + offeredCarpools[i]._id + `')">View >></div>
-                                    <div class="button js-modal-trigger upcoming-carpools-button" style="margin-right: 10px;" data-target="modal-js-edit" id="` + offeredCarpools[i]._id + `">Edit</div>
-                                 </div>
-                              </div>
-                           </article>`
+   <div class="panel-heading" style="padding: 0px; margin-bottom: 12px; border-radius: 6px 6px 0px 0px; line-height: 22px;background: linear-gradient(105deg, #3273DC, #275CBF);" >
+      <div class="columns is-mobile">
+         <div class="column" style=" padding: 0px; padding-left: 10px;">
+            <div class=" " style="float: left; margin: 7px; left:0px;" >
+               <span class="panel-icon" style='color: white; display: inline'>
+                  <i class="fas fa-user" aria-hidden="true" style="margin: 13px; margin-left: 15px;"></i>
+                  <p style="color: white; display: inline; font-size: 15px; font-weight: 300 ">Carpool with ` + driver + `<i class="fa-solid fa-crown" style="margin-left: 5px;"></i></p>
+               </span>
+            </div>
+         </div>
+         <div class="column" style="padding: 0px; padding-top: 0.75em; padding-bottom: 0.75em">
+            <p class="" style="color: white; display: inline; font-size: 20px;  font-weight: 700;  ">` + eventName + `</p>
+         </div>
+         <div class="column" style="padding: 0px; padding-right: 10px;">
+            <div class="white-background " style="float: right; margin: 7px; right:0px;  border-radius: 6px; " >
+               <span class="panel-icon " id="spanz" style=' display: inline ;  '>
+                  <i class="fas fa-car " aria-hidden="true" style="margin: 13px; margin-left: 15px;"></i>
+                  <p style=" display: inline; font-size: 15px;  font-weight: 300;" id="datez">` + date + `</p>
+               </span>
+            </div>
+         </div>
+      </div>
+   </div>
+   <div class="panel-block">
+      <p class="control has-icons-left" id="registered-carpoolers" style=" margin-right: 10px; width: 40%">
+         Registered carpoolers: ` + carpoolers.join(", ") + `
+      </p>
+      <div class="buttons" id="action-buttons" style="margin-right: -10px; display: inline-block">
+         <div class="button upcoming-carpools-button is-link is-light" style="margin-right: 10px;" 
+            onclick="add('` + offeredCarpools[i]._id + `')">View >></div>
+         <div class="button js-modal-trigger upcoming-carpools-button" style="margin-right: 10px;" data-target="modal-js-edit" id="` + offeredCarpools[i]._id + `" onclick="queGuay('` + offeredCarpools[i]._id + `')">Edit</div>
+      </div>
+   </div>
+</article>`
         }
         
 
 
         //joined carpools
         for (var i = 0; i < joinedCarpools.length; i++) {
-          console.log(joinedCarpools[i])
+          console.log("joinedCarpools[i]")
         driver = joinedCarpools[i].firstName + " " + joinedCarpools[i].lastName
            carpoolers = []
           joinedCarpools[i].carpoolers
@@ -545,9 +700,7 @@ let email
                                  <div class="buttons" id="action-buttons" style="margin-right: -10px; display: inline-block">
                                     <div class="button upcoming-carpools-button is-link is-light" style="margin-right: 10px;" 
                                        onclick="add('` + joinedCarpools[i]._id + `')">View >></div>
-                                    <div class="button upcoming-carpools-button " style="margin-right: 10px;" id="` 
- + joinedCarpools[i]._id + `" onclick="leaveIt()
-">Unregister</div>
+                                    <div class="button upcoming-carpools-button " style="margin-right: 10px;" id="` + joinedCarpools[i]._id + `" onclick="leaveIt('` + i +`')">Unregister</div>
                                  </div>
                               </div>
                            </article>`
@@ -577,6 +730,7 @@ let email
    
    function closeModal($el) {
    $el.classList.remove('is-active');
+     returnBack()
    }
    
    function closeAllModals() {
@@ -635,6 +789,7 @@ let email
 
    function closeModal($el) {
    $el.classList.remove('is-active');
+     returnBack()
    }
 
    function closeAllModals() {
@@ -671,25 +826,299 @@ let email
    }
    });
 
-  function leaveIt(carpoolId) {
+   var input = [];
+   var input2 = [];
+   
+  function leaveIt(i) {
+  var answer;
 
-  console.log(carpoolId);
-    
-   let eventToRemove = // ID of the event to be removed;
-   fetch(`/api/events/${eventToRemove}`, {
-      method: "DELETE",
-      headers: {
-         Accept: 'application/json',
-         'Content-Type': 'application/json',
+
+   console.log(joinedCarpools[i].carpoolers + " " + i);
+   console.log(joinedCarpools[i]); 
+     
+   input = joinedCarpools[i].carpoolers;
+   input2 = joinedCarpools[i];
+
+   for (let j = 0; j < joinedCarpools[i].carpoolers.length; j++) {
+      if(input[j].email === "<%= email %>"){
+         answer = input[j]._id;
+         console.log(input[j])
+         break;
       }
+   }
+
+     
+
+   fetch(`/api/carpools/deleteCarpooler`, {
+       method: "PATCH",
+       headers: {
+           Accept: 'application/json',
+           'Content-Type': 'application/json',
+       },
+       body: JSON.stringify({ _id: answer, _id2: input2._id })
    })
-      .then(response => {
-         // Handle the response here
-      })
-      .catch(error => {
-         console.error(error);
-      });
+   .then(response => {
+       if(response.ok) {
+            console.log('Successfully deleted the item.');
+          location.reload();
+       } else {
+           console.log('Failed to delete the item.');
+       }
+   })
+   .catch(error => {
+       console.error('A network error occurred:', error);
+       alert('A network error occurred. Please try again later.');
+   });
   }
    
+
+   function test(){
+      let newData = document.getElementById("address-input").value
+      
+      let value3 = document.getElementById("route-type").value
+      console.log("yay " + current + " " + value3 + " " + newData)
+
+      console.log("Updating route to " + value3)
+       fetch(`/api/carpools/updateRoute`, {
+           method: "PATCH",
+           headers: {
+               Accept: 'application/json',
+               'Content-Type': 'application/json',
+           },
+           body: JSON.stringify({ _id: current, route: value3, wlocation: newData })
+       })
+       .then(response => {
+           if(response.ok) {
+               console.log('Successfully updated the route.');
+               location.reload();
+           } else {
+               console.log('Failed to update the route.');
+           }
+       })
+       .catch(error => {
+           console.error('A network error occurred:', error);
+           alert('A network error occurred. Please try again later.');
+       });
+   }
+
+
+
+
+   document.body.onmousedown = function() {
+          if (document.getElementById('address-input') != null) {
+             document.getElementById("autocomplete-container").classList.remove("is-loading");
+          }
+
+          }
+
+          function addressAutocomplete(containerElement, idName, callback, options) {
+          // create input element
+          var inputElement = document.createElement("input");
+          inputElement.setAttribute("type", "text");
+          inputElement.setAttribute("placeholder", options.placeholder);
+          inputElement.setAttribute("id", idName);
+          inputElement.classList.add("input");
+          containerElement.appendChild(inputElement);
+
+
+
+          // add input field clear button
+          var clearButton = document.createElement("div");
+          clearButton.classList.add("clear-button");
+          addIcon(clearButton);
+          clearButton.addEventListener("click", (e) => {
+          e.stopPropagation();
+          inputElement.value = '';
+          callback(null);
+          clearButton.classList.remove("visible");
+          closeDropDownList();
+          });
+          containerElement.appendChild(clearButton);
+
+          /* Current autocomplete items data (GeoJSON.Feature) */
+          var currentItems;
+
+          /* Active request promise reject function. To be able to cancel the promise when a new request comes */
+          var currentPromiseReject;
+
+          /* Focused item in the autocomplete list. This variable is used to navigate with buttons */
+          var focusedItemIndex;
+
+          /* Execute a function when someone writes in the text field: */
+          inputElement.addEventListener("input", function(e) {
+          var currentValue = this.value;
+
+          document.getElementById("autocomplete-container").classList.add("is-loading");
+
+          /* Close any already open dropdown list */
+          closeDropDownList();
+
+          // Cancel previous request promise
+          if (currentPromiseReject) {
+          currentPromiseReject({
+          canceled: true
+          });
+          }
+
+          if (!currentValue) {
+          clearButton.classList.remove("visible");
+          return false;
+          }
+
+          // Show clearButton when there is a text
+          clearButton.classList.add("visible");
+
+          /* Create a new promise and send geocoding request */
+          var promise = new Promise((resolve, reject) => {
+          currentPromiseReject = reject;
+
+          var apiKey = "992ef3d60d434f2283ea8c6d70a4898d";
+          var url = `https://api.geoapify.com/v1/geocode/autocomplete?text=${encodeURIComponent(currentValue)}&limit=5&apiKey=${apiKey}`;
+
+          if (options.type) {
+          url += `&type=${options.type}`;
+          }
+
+          fetch(url)
+          .then(response => {
+           // check if the call was successful
+           if (response.ok) {
+             response.json().then(data => resolve(data));
+
+           } else {
+             response.json().then(data => reject(data));
+           }
+          });
+          });
+
+          promise.then((data) => {
+          document.getElementById("autocomplete-container").classList.remove("is-loading");
+          currentItems = data.features;
+
+          /*create a DIV element that will contain the items (values):*/
+          var autocompleteItemsElement = document.createElement("div");
+          autocompleteItemsElement.setAttribute("class", "autocomplete-items");
+          containerElement.appendChild(autocompleteItemsElement);
+
+          /* For each item in the results */
+          data.features.forEach((feature, index) => {
+          /* Create a DIV element for each element: */
+          var itemElement = document.createElement("DIV");
+          /* Set formatted address as item value */
+          itemElement.innerHTML = feature.properties.formatted;
+          itemElement.classList.add("hoverAddress");
+          /* Set the value for the autocomplete text field and notify: */
+          itemElement.addEventListener("click", function(e) {
+           inputElement.value = currentItems[index].properties.formatted;
+
+
+
+           callback(currentItems[index]);
+
+           /* Close the list of autocompleted values: */
+           closeDropDownList();
+          });
+
+          autocompleteItemsElement.appendChild(itemElement);
+          });
+          }, (err) => {
+          if (!err.canceled) {
+          console.log(err);
+          }
+          });
+          });
+
+          /* Add support for keyboard navigation */
+          inputElement.addEventListener("keydown", function(e) {
+          var autocompleteItemsElement = containerElement.querySelector(".autocomplete-items");
+          if (autocompleteItemsElement) {
+          var itemElements = autocompleteItemsElement.getElementsByTagName("div");
+          if (e.keyCode == 40) {
+          e.preventDefault();
+          /*If the arrow DOWN key is pressed, increase the focusedItemIndex variable:*/
+          focusedItemIndex = focusedItemIndex !== itemElements.length - 1 ? focusedItemIndex + 1 : 0;
+          /*and and make the current item more visible:*/-
+          setActive(itemElements, focusedItemIndex);
+          } else if (e.keyCode == 38) {
+          e.preventDefault();
+
+          /*If the arrow UP key is pressed, decrease the focusedItemIndex variable:*/
+          focusedItemIndex = focusedItemIndex !== 0 ? focusedItemIndex - 1 : focusedItemIndex = (itemElements.length - 1);
+          /*and and make the current item more visible:*/
+          setActive(itemElements, focusedItemIndex);
+          } else if (e.keyCode == 13) {
+          /* If the ENTER key is pressed and value as selected, close the list*/
+          e.preventDefault();
+          if (focusedItemIndex > -1) {
+           closeDropDownList();
+          }
+          }
+          } else {
+          if (e.keyCode == 40) {
+          /* Open dropdown list again */
+          var event = document.createEvent('Event');
+          event.initEvent('input', true, true);
+          inputElement.dispatchEvent(event);
+          }
+          }
+          });
+
+          function setActive(items, index) {
+          if (!items || !items.length) return false;
+
+          for (var i = 0; i < items.length; i++) {
+          items[i].classList.remove("autocomplete-active");
+          }
+
+          /* Add class "autocomplete-active" to the active element*/
+          items[index].classList.add("autocomplete-active");
+
+          // Change input value and notify
+          inputElement.value = currentItems[index].properties.formatted;
+          callback(currentItems[index]);
+          }
+
+          function closeDropDownList() {
+          var autocompleteItemsElement = containerElement.querySelector(".autocomplete-items");
+          if (autocompleteItemsElement) {
+          containerElement.removeChild(autocompleteItemsElement);
+          }
+
+          focusedItemIndex = -1;
+          }
+
+          function addIcon(buttonElement) {
+          var svgElement = document.createElementNS("", 'svg');
+          svgElement.setAttribute('viewBox', "0 0 24 24");
+          svgElement.setAttribute('height', "24");
+
+
+          }
+
+          /* Close the autocomplete dropdown when the document is clicked. 
+          Skip, when a user clicks on the input field */
+          document.addEventListener("click", function(e) {
+          if (e.target !== inputElement) {
+          closeDropDownList();
+          } else if (!containerElement.querySelector(".autocomplete-items")) {
+          // open dropdown list again
+          var event = document.createEvent('Event');
+          event.initEvent('input', true, true);
+          inputElement.dispatchEvent(event);
+          }
+          });
+
+          }
+          addressAutocomplete(document.getElementById("autocomplete-container"), "address-input", (data) => {
+          console.log("Selected option: ");
+          console.log(data);
+          console.log(data.properties.formatted);
+          arr.push(data.properties.formatted);
+            
+          }, {
+
+          placeholder: "Enter Address Here"
+
+          });
    
 </script>

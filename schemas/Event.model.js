@@ -21,6 +21,10 @@ const eventSchema = new mongoose.Schema({
     required: true,
     trim: true
   },
+  route: {
+    type: String,
+    required: true
+  },
   address: {
     type: String,
     required: true

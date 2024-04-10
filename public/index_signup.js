@@ -92,10 +92,12 @@ function signup() {
   const firstName = document.getElementById("first_name").value;
   const lastName = document.getElementById("last_name").value;
   const admin = false;
+  const privacy = false;
+  const address = "none";
 
   if (password !== confirm_password) {
     confirm_password = "";
-    window.location.href="/signup?err=Passwords do not match";
+    window.location.href = "/signup?err=Passwords do not match";
     return;
   }
 
@@ -104,10 +106,10 @@ function signup() {
     lastName,
     email,
     password,
-    admin
+    admin,
+    address,
+    privacy,
   };
-
-  const jsonData = JSON.stringify(data);
 
   const url = "/auth/signup";
 
@@ -116,7 +118,7 @@ function signup() {
     headers: {
       "Content-Type": "application/json",
     },
-    body: jsonData,
+    body: JSON.stringify(data),
   })
     .then((response) => {
       if (response.redirected) {

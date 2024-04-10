@@ -5,6 +5,8 @@ const { authenticateToken, getToken } = require("../utils/authUtils");
 
 const User = require("../schemas/User.model.js");
 const Event = require("../schemas/Event.model.js");
+const ObjectId = require("mongodb").ObjectId;
+
 const Carpool = require("../schemas/Carpool.model.js");
 
 const router = express.Router();
@@ -37,19 +39,21 @@ router.post("/joinCarpool", getToken, authenticateToken, async (req, res) => {
     res.status(500).send("Error retrieving carpools");
     return;
   }
-  let { carpool, address } = req.body
+  let { carpool, address } = req.body;
   let carpoolS = carpool;
   if (!carpoolS || !address) {
     res.status(400).send("Invalid request");
     return;
   }
-  const email = req.email
+  const email = req.email;
   let userInData;
   try {
     userInData = await User.findOne({ email });
     if (!userInData) {
       res.clearCookie("authToken");
-      res.redirect("/signin?err=Error with system finding User, please try again");
+      res.redirect(
+        "/signin?err=Error with system finding User, please try again",
+      );
       return;
     }
   } catch (err) {
@@ -58,14 +62,14 @@ router.post("/joinCarpool", getToken, authenticateToken, async (req, res) => {
     res.redirect("/signin?err=Internal server error, please sign in again");
     return;
   }
-  firstName = userInData['firstName'];
-  lastName = userInData['lastName'];
+  firstName = userInData["firstName"];
+  lastName = userInData["lastName"];
   const newUser = {
     email: req.email,
     firstName,
     lastName,
-    address
-  }
+    address,
+  };
   try {
     carpool = await Carpool.findById(carpoolS);
 
@@ -79,7 +83,9 @@ router.post("/joinCarpool", getToken, authenticateToken, async (req, res) => {
       return;
     }
 
-    const alreadyCarpoolerExists = carpool.carpoolers.some(carpooler => carpooler.email === req.email);
+    const alreadyCarpoolerExists = carpool.carpoolers.some(
+      (carpooler) => carpooler.email === req.email,
+    );
     if (alreadyCarpoolerExists) {
       res.status(409).send("You are already in this carpool");
       return;
@@ -87,7 +93,7 @@ router.post("/joinCarpool", getToken, authenticateToken, async (req, res) => {
     const updatedCarpool = await Carpool.findByIdAndUpdate(
       carpoolS,
       { $push: { carpoolers: newUser } },
-      { new: true }
+      { new: true },
     );
 
     res.status(200).send(updatedCarpool);
@@ -123,7 +129,9 @@ router.post("/events", getToken, authenticateToken, async (req, res) => {
     userInData = await User.findOne({ email });
     if (!userInData) {
       res.clearCookie("authToken");
-      res.redirect("/signin?err=Error with verifing privileges, please try again");
+      res.redirect(
+        "/signin?err=Error with verifing privileges, please try again",
+      );
       return;
     }
   } catch (err) {
@@ -132,7 +140,7 @@ router.post("/events", getToken, authenticateToken, async (req, res) => {
     res.redirect("/signin?err=Internal server error, please sign in again");
     return;
   }
-  const { firstName, lastName, admin } = userInData;  
+  const { firstName, lastName, admin } = userInData;
   if (!admin) {
     res.sendStatus(401);
     return;
@@ -145,7 +153,7 @@ router.post("/events", getToken, authenticateToken, async (req, res) => {
       wlocation,
       addressS,
       date,
-      category
+      category,
     });
 
     await newEvent.save();
@@ -167,6 +175,83 @@ router.get("/carpools", getToken, authenticateToken, async (req, res) => {
     res.status(500).send("Error retrieving carpools");
   }
 });
+
+router.delete(
+  "/carpools/:id",
+  getToken,
+  authenticateToken,
+  async (req, res) => {
+    try {
+      const { id } = req.params;
+      const carpools = await Carpool.deleteOne({
+        _id: new ObjectId(id),
+      });
+      res.json(carpools);
+    } catch (err) {
+      console.error("Error retrieving carpools: " + err);
+      res.status(500).send("Error retrieving carpools");
+    }
+  },
+);
+
+// Route for deleting a carpooler
+router.patch(
+  "/carpools/deleteCarpooler",
+  getToken,
+  authenticateToken,
+  async (req, res) => {
+    try {
+      const { _id, _id2 } = req.body;
+      const carpools = await Carpool.updateOne(
+        { _id: new ObjectId(_id2) },
+        { $pull: { carpoolers: { _id: new ObjectId(_id) } } },
+      );
+      res.json(carpools);
+    } catch (err) {
+      console.error("Error updating carpools: " + err);
+      res.status(500).send("Error updating carpools");
+    }
+  },
+);
+
+// Route for updating the route
+router.patch(
+  "/carpools/:id",
+  getToken,
+  authenticateToken,
+  async (req, res) => {
+    try {
+      const { id } = req.params
+      const { route, wlocation } = req.body;
+      const carpools = await Carpool.updateOne(
+        { _id: new ObjectId(id) },
+        { $set: { route: route } },
+        { $set: { wlocation: wlocation } },
+      );
+      res.json(carpools);
+    } catch (err) {
+      console.error("Error updating carpools: " + err);
+      res.status(500).send("Error updating carpools");
+    }
+  },
+);
+
+router.patch(
+  "/users/update",
+  async (req, res) => {
+    try {
+      const { _id, address, privacy } = req.body;
+      const users = await User.updateOne(
+        { _id: new ObjectId(_id) },
+        { $set: { address: address, privacy: privacy } },
+      );
+      res.json(users);
+    } catch (err) {
+      console.error("Error updating user: " + err);
+      res.status(500).send("Error updating user");
+    }
+  },
+);
 
 router.post("/carpools", getToken, authenticateToken, async (req, res) => {
   const {
@@ -202,7 +287,7 @@ router.post("/carpools", getToken, authenticateToken, async (req, res) => {
     wlocation, //location is a used variable
     carpoolers,
     nameOfEvent,
-    email
+    email,
   });
 
   try {
@@ -213,6 +298,18 @@ router.post("/carpools", getToken, authenticateToken, async (req, res) => {
     return;
   }
   res.status(200).send("Carpool created");
+});
+
+router.get("/users", getToken, authenticateToken, async (req, res) => {
+  let users;
+  try {
+    users = await User.find({});
+  } catch (err) {
+    console.error("Error getting users: " + err);
+    res.status(500).send("Error getting users");
+    return;
+  }
+  res.json(users);
 });
 
 module.exports = router;

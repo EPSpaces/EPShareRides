@@ -61,7 +61,7 @@
                                                                    <a class="navbar-item" href="/updateSettings">
                                                                     Update settings
                                                                    </a>
-                                                                   <a class="navbar-item" href="mailto:nmahesh@eastsideprep.org; ayamashita@eastsideprep.org; pjain27@eastsideprep.org; ajosan@eastsideprep.org">
+                                                                   <a class="navbar-item" href="https://forms.office.com/r/deCSjA7bCR">
                                                                      Report a bug
                                                                    </a>
                                                                    <a class="navbar-item" href="/sustainabilityStatement">
@@ -107,13 +107,13 @@
                 </tr>
               </thead>
               
-              <tbody>
-                <% people.forEach((p) => { %>
+              <tbody id="people">
+                <!--<% people.forEach((p) => { %>
                   <tr>
                     <th><%= p.firstName %> <%= p.lastName %></th>
                     <td><a><%= p.email %></a></td>
                   </tr>
-                <% }) %>
+                <% }) %>-->
                 
               </tbody>
             </table>
@@ -143,18 +143,47 @@
       
     </main>
   <script src="index.js"></script>
-                  <script defer>
-                    function navBurger() {
-                        var burger = document.getElementById('nav-toggle');
-                        var menu = document.getElementById('navbarMenuHeroC');
-                        burger.addEventListener('click', function() {
-                            burger.classList.toggle('is-active');
-                            menu.classList.toggle('is-active');
-                        });
-                    }
-                    navBurger()
+  <script defer>
+    function navBurger() {
+        var burger = document.getElementById('nav-toggle');
+        var menu = document.getElementById('navbarMenuHeroC');
+        burger.addEventListener('click', function() {
+            burger.classList.toggle('is-active');
+            menu.classList.toggle('is-active');
+        });
+    }
+    navBurger()
 
 
-                  </script>
+  </script>
+  <script>
+    let carpoools;
+
+
+    var request = new Request("/api/users", {
+        method: "GET",
+        headers: new Headers({
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        })
+      });
+      fetch(request)
+        .then((response) => response.json())
+        .then((data) => {
+          carpoools = data;
+          for (let k = 0; k < carpoools.length; k++) {
+            console.log(carpoools[k])
+            console.log(k)
+            if(carpoools[k].privacy == false){
+              document.getElementById("people").innerHTML += `<tr><th>` + carpoools[k].firstName + ``+ ' ' + ``+ carpoools[k].lastName + `</th><td><a href="mailto:` + carpoools[k].email + `">` + carpoools[k].email + `</a></td></tr>`
+            }
+            else{
+              continue;
+            }
+          }
+        })
+    
+    
+  </script>
   </body>
 </html>
