@@ -1,5 +1,6 @@
 const express = require("express");
 const fs = require("fs");
+const mongoose = require('mongoose');
 
 const { authenticateToken, getToken } = require("../utils/authUtils");
 
@@ -27,7 +28,7 @@ router.get("/points", getToken, authenticateToken, (req, res) => {
 
 router.get("/offerToCarpool", getToken, authenticateToken, (req, res) => {
   let offerToCarpool = require("../database/offerToCarpool.json");
-  res.json(offerToCarpool);
+  res.json(offerToCarpool); 
 });
 
 router.post("/joinCarpool", getToken, authenticateToken, async (req, res) => {
@@ -174,6 +175,72 @@ router.get("/carpools", getToken, authenticateToken, async (req, res) => {
     console.error("Error retrieving carpools: " + err);
     res.status(500).send("Error retrieving carpools");
   }
+});
+
+router.get("/mapRoute/:id", getToken, authenticateToken, async (req, res) => {
+  const { id } = req.params;
+  if (!id) {
+    res.status(400).send("Bad Request");
+    return;
+  }
+
+  let carpool;
+
+  try {
+    carpool = await Carpool.findById(id);
+  } catch (err) {
+    console.error("Error retrieving carpool: " + err);
+    res.status(500).send("Error retrieving carpool");
+    return;
+  }
+
+  let final;
+
+  try {
+    final = await Event.findById(new mongoose.Types.ObjectId(carpool.nameOfEvent));
+    final = final.address;
+  } catch (err) {
+    console.error("Error retrieving event: " + err);
+    res.status(500).send("Error retrieving event");
+    return;
+  }
+  
+
+  if (carpool.route == "point") {
+    res.json({
+      final,
+      stops: [carpool.wlocation]
+    });
+  } else {
+    let addresses = [];
+    carpool.carpoolers.forEach((carpooler) => {
+      addresses.push(carpooler.address);
+    });
+    res.json({
+      final,
+      stops: addresses
+    });
+  }
+});
+
+router.patch("/carpools/updateRoute/:id", getToken, authenticateToken, async (req, res) => {
+  const { id } = req.params;
+  const objectId = new mongoose.Types.ObjectId(id);
+  const { route, wlocation } = req.body;
+  if (!route || !wlocation || !id) {
+    res.status(400).send("Bad Request");
+    return;
+  }
+
+  try {
+    await Carpool.findByIdAndUpdate(objectId, { route, wlocation }, { new: true })
+  } catch (err) {
+    console.error("Error updating carpool: " + err);
+    res.status(500).send("Error updating carpool");
+    return;
+  }
+
+  res.status(200).send("Carpool updated");
 });
 
 router.delete(

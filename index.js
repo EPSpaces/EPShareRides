@@ -95,7 +95,7 @@ app.get("/mycarpools", getToken, authenticateToken, async (req, res) => {
   firstName = userInData["firstName"];
   lastName = userInData["lastName"];
 
-  res.render("mycarpools", { email, firstName, lastName });
+  res.render("mycarpools", { email, firstName, lastName, message: req.query.message, error: req.query.error });
 });
 
 /*app.get("/updateSettings", getToken, authenticateToken, async (req, res) => {

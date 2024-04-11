@@ -18,6 +18,31 @@
    </head>
    <body>
       <main>
+        <% if (error) { %>
+          <article class="message is-danger" id="error">
+            <div class="message-header">
+              <p>Warning</p>
+              <button class="delete" aria-label="delete" onclick="const element = document.getElementById('error');
+                element.remove();"></button>
+            </div>
+            <div class="message-body">
+              <%= error %>
+            </div>
+          </article>
+          <% } %>
+
+            <% if (message) { %>
+            <article class="message is-success" id="error">
+              <div class="message-header">
+                <p>Success</p>
+                <button class="delete" aria-label="delete" onclick="const element = document.getElementById('error');
+                  element.remove();"></button>
+              </div>
+              <div class="message-body">
+                <%= message %>
+              </div>
+            </article>
+            <% } %>
          <section class="hero is-fullheight" id="hero">
             <!-- Hero head: will stick at the top -->
             <div class="hero-head">
@@ -327,18 +352,19 @@
                </div>
             </div>
 
-            <div class="field" style="margin-bottom: 20px;">
+            <div class="field" style="margin-bottom: 18px;">
                <label id="address-label">Your home address </label>
               <script>
                 const routeTypeSelect123 = document.getElementById('route-type');
                 const addressLabel123 = document.getElementById('address-label');
 
                 function updateAddressLabel123() {
+                  
                   const selectedOption123 = routeTypeSelect123.value;
                   if (selectedOption123 === 'route') {
                     addressLabel123.innerHTML = 'Your home address';
                   } else {
-                    addressLabel123.innerHTML = 'Common meeting point address';
+                    addressLabel123.innerHTML = 'Meeting point';
                   }
                 }
 
@@ -349,14 +375,15 @@
                   </div>
                </div>
             </div>
-            
+            <div class="field">
             <label >Manage carpool</label>
-           <div class="field">
+         
              <div id="deleteCarpoolBtn">
-               <div class="buttons" style="margin-bottom: 5px">
-              <div class="button is-danger is-light"  onclick="preperation();">Delete carpool</div>
+               <div class="buttons" style="margin-bottom: 0px">
+              <div class="button is-danger is-light" style="margin-bottom: 10px"  onclick="preperation();">Delete carpool</div>
                </div>
              </div>
+              
             <table class="table " style="">
                <thead>
                   <tr>
@@ -428,11 +455,63 @@
    function queGuay(id){
       current = id;
       console.log(current)
-      addPeople();
-      if(value2 != "none"){
-          document.getElementById("address-input").value = value2;
-      }
+      addPeople()
+      updateAddressLabel123()
    }
+
+  function generateMapsLink(finalDestination, waypoints) {
+    const startAddress = ''; // Leave this empty if you want to use the user's current location as the start address
+
+    // Encode the addresses for use in URLs
+    const encodedFinalDestination = encodeURIComponent(finalDestination);
+    const encodedWaypoints = waypoints.map(waypoint => encodeURIComponent(waypoint));
+
+    // Construct the URLs for Google Maps and Apple Maps
+    const googleMapsUrl = `https://www.google.com/maps/dir/?api=1&origin=${startAddress}&destination=${encodedFinalDestination}&waypoints=${encodedWaypoints.join('|')}&travelmode=driving`;
+    const appleMapsUrl = `https://maps.apple.com/?saddr=${startAddress}&daddr=${encodedFinalDestination}&${encodedWaypoints.map(waypoint => `address=${waypoint}`).join('&')}&dirflg=d`;
+
+    // Detect the user's operating system
+    const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+    const isIOS = /iPad|iPhone|iPod/.test(userAgent) && !window.MSStream;
+
+    // Open the appropriate maps URL in a new tab based on the operating system
+    let mapsUrl;
+    if (isIOS) {
+      mapsUrl = appleMapsUrl;
+    } else if (/Android|webOS|BlackBerry|IEMobile|Opera Mini/i.test(userAgent)) {
+      // For other mobile platforms, use Google Maps
+      mapsUrl = googleMapsUrl;
+    } else {
+      // For desktop or unrecognized platforms, use a Google Maps URL with a route
+      mapsUrl = `https://www.google.com/maps/dir/?api=1&origin=${startAddress}&destination=${encodedFinalDestination}&waypoints=${encodedWaypoints.join('|')}&travelmode=driving`;
+    }
+
+    window.open(mapsUrl, '_blank');
+  }
+
+  function getPhoneRoute(carpoolId) {
+     fetch(`/api/mapRoute/${carpoolId}`, {
+         method: "GET",
+         headers: {
+             'Content-Type': 'application/json',
+         }
+     })
+     .then(response => {
+        if (response.ok) {
+          return response.json();
+        } else {
+          console.error('A network error occurred:', error);
+           alert('A network error occurred. Please try again.');
+        }
+     })
+      .then (data => {
+        generateMapsLink(data.final, data.stops);
+      })
+     .catch(error => {
+         console.error('A network error occurred:', error);
+         alert('A network error occurred. Please try again.');
+     });
+  }
 
    function preperation(){
       // if (confirm("Are you sure you want to delete this carpool for all users? This action cannot be undone.")) {
@@ -490,6 +569,16 @@
          document.getElementById("friendsInCarpool").innerHTML += `<tr><th><a href="mailto:` + offeredCarpools[i].carpoolers[k].email + `">` + offeredCarpools[i].carpoolers[k].firstName + " " + offeredCarpools[i].carpoolers[k].lastName + `</a></th><td><a style="color: black" onclick="removePerson('` + offeredCarpools[i].carpoolers[k]._id + `')">X</a></td></tr>`
          continue;
       }
+     if (offeredCarpools[i].route === "route") {
+       document.getElementById("route-type").value = "route"
+     }
+     else {
+       document.getElementById("route-type").value = "point"
+     }
+
+     document.getElementById("address-input").value = offeredCarpools[i].wlocation
+     
+     
    /*for (var i = 0; i < offeredCarpools.length; i++) {
           for (var k = 0; k < offeredCarpools[i].carpoolers.length; k++) {
              //document.getElementById("friendsInCarpool").innerHTML += `<tr><th><a href="mailto:` + offeredCarpools[i].carpoolers[k].email + `">` + offeredCarpools[i].carpoolers[k].firstName + " " + offeredCarpools[i].carpoolers[k].lastName + `</a></th><td><a style="color: black">X</a></td></tr>`
@@ -643,6 +732,7 @@ let email
          <div class="button upcoming-carpools-button is-link is-light" style="margin-right: 10px;" 
             onclick="add('` + offeredCarpools[i]._id + `')">View >></div>
          <div class="button js-modal-trigger upcoming-carpools-button" style="margin-right: 10px;" data-target="modal-js-edit" id="` + offeredCarpools[i]._id + `" onclick="queGuay('` + offeredCarpools[i]._id + `')">Edit</div>
+         <div class="button" style="margin-right: 10px;" onclick="getPhoneRoute('` + offeredCarpools[i]._id + `')">Get on smartphone</div>
       </div>
    </div>
 </article>`
@@ -876,28 +966,27 @@ let email
       let newData = document.getElementById("address-input").value
       
       let value3 = document.getElementById("route-type").value
-      console.log("yay " + current + " " + value3 + " " + newData)
+      console.log("Current ID:");
+     
 
       console.log("Updating route to " + value3)
-       fetch(`/api/carpools/updateRoute`, {
+       fetch(`/api/carpools/updateRoute/${current}`, {
            method: "PATCH",
            headers: {
-               Accept: 'application/json',
                'Content-Type': 'application/json',
            },
-           body: JSON.stringify({ _id: current, route: value3, wlocation: newData })
+           body: JSON.stringify({ route: value3, wlocation: newData })
        })
        .then(response => {
-           if(response.ok) {
-               console.log('Successfully updated the route.');
-               location.reload();
-           } else {
-               console.log('Failed to update the route.');
-           }
+         if (!response.ok) {
+             window.location.href = "/mycarpools?error=Error updating carpool, please try again";
+          } else {
+            window.location.href = "/mycarpools?message=Carpool updated successfully";
+          }
        })
        .catch(error => {
            console.error('A network error occurred:', error);
-           alert('A network error occurred. Please try again later.');
+           console.error('A network error occurred. Please try again later.');
        });
    }
 
