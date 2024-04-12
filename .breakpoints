@@ -11,9 +11,9 @@
     "routes/apiRoutes.js": [
       {
         "id": "f7ab6c2e-4ce5-45c8-a9fc-364550ab2126",
-        "line": 200,
-        "version": 6271,
-        "index": 5270
+        "line": 260,
+        "version": 7452,
+        "index": 6740
       }
     ],
     "views/404.ejs": [
