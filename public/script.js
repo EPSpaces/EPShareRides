@@ -63,7 +63,7 @@ fetch("/api/events", {
   .then((data) => {
     events = data;
 
-fetch("/api/carpools", {
+fetch("/api/userCarpools", {
   method: "GET",
 })
   .then((response) => response.json())

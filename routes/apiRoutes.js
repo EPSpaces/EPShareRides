@@ -177,6 +177,20 @@ router.get("/carpools", getToken, authenticateToken, async (req, res) => {
   }
 });
 
+router.get("/userCarpools", getToken, authenticateToken, async (req, res) => {
+  let carpools = [];
+  try {
+    const carpoolsCreated = await Carpool.find({ email: req.email }).exec();
+    const carpoolsJoined = await Carpool.find({ 'carpoolers.email': req.email }).exec();
+    carpools = [...carpoolsCreated, ...carpoolsJoined];
+  } catch (err) {
+    console.error("Error retrieving carpools: " + err);
+    res.status(500).send("Error retrieving carpools");
+    return;
+  }
+  res.json(carpools);
+});
+
 router.get("/mapRoute/:id", getToken, authenticateToken, async (req, res) => {
   const { id } = req.params;
   if (!id) {
