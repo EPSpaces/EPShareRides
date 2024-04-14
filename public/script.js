@@ -3,10 +3,14 @@ var markers = 0;
 
 var center = [47.64371189816165, -122.19894455582242];
 var map = L.map("map").setView(center, 11);
-L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {}).addTo(
+L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", ).addTo(
   map,
 );
 map.attributionControl.setPrefix(false);
+
+
+
+
 
 // a layer group, used here like a container for markers
 var markersGroup = L.layerGroup();
@@ -118,6 +122,7 @@ var polylines = [];
 
 
 function add(carpoolId) {
+  addDirectionsButton(carpoolId);
   polylines.forEach(function (item) {
       map.removeLayer(item)
   });
@@ -145,7 +150,7 @@ function add(carpoolId) {
     //the creator's address
     var marker = L.marker(geocode[carpool.wlocation]).addTo(markersGroup);
     marker.options.shadowSize = [0, 0];
-    var popup = marker.bindPopup(carpool.firstName + "'s house: " + carpool.wlocation);
+    var popup = marker.bindPopup(carpool.firstName + "'s house<br> " + carpool.wlocation);
 
     //the destination
     var marker = L.marker(geocode[result.address]).addTo(markersGroup);

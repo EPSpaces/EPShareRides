@@ -448,16 +448,37 @@
      })
 
 
+  function distance(point1, point2) {
+    return Math.sqrt(
+      Math.pow(point2[0] - point1[0], 2) + Math.pow(point2[1] - point1[1], 2),
+    );
+  }
 
+  function sortByProximity(arrays, target) {
+    return arrays.sort((arr1, arr2) => {
+      const distance1 = distance(arr1, target);
+      const distance2 = distance(arr2, target);
+      console.log(distance1, distance2)
+      return distance2 - distance1;
+    });
+  }
    
    let current;
-
+let newCarpoolers = [];
    function queGuay(id){
+     
       current = id;
+     
       console.log(current)
       addPeople()
       updateAddressLabel123()
    }
+
+  function addDirectionsButton(id) {
+    var topRight = document.getElementsByClassName("leaflet-top leaflet-right");
+    topRight[0].innerHTML = `
+  <div class="leaflet-control-attribution leaflet-control"><a style="font-size: 13px;" onclick="getPhoneRoute('` + id + `')">Get route directions <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i></a></div>`
+  }
 
   function generateMapsLink(finalDestination, waypoints) {
     const startAddress = ''; // Leave this empty if you want to use the user's current location as the start address
@@ -505,7 +526,11 @@
         }
      })
       .then (data => {
-        generateMapsLink(data.final, data.stops);
+        console.log(data.final)
+          console.log(data.stops)
+        stops = data.stops
+        stops = sortByProximity(stops, data.final);
+        generateMapsLink(data.final, stops);
       })
      .catch(error => {
          console.error('A network error occurred:', error);
@@ -563,10 +588,17 @@
          }
          continue;
       }
+
+    newCarpoolers = []
+     for (k = 0; k < offeredCarpools[i].carpoolers.length; k++) {
+       newCarpoolers.push(offeredCarpools[i].carpoolers[k])
+     }
+     
+     
       for (let k = 0; k < offeredCarpools[i].carpoolers.length; k++) {
          console.log(offeredCarpools[i].carpoolers.length)
          console.log(k)
-         document.getElementById("friendsInCarpool").innerHTML += `<tr><th><a href="mailto:` + offeredCarpools[i].carpoolers[k].email + `">` + offeredCarpools[i].carpoolers[k].firstName + " " + offeredCarpools[i].carpoolers[k].lastName + `</a></th><td><a style="color: black" onclick="removePerson('` + offeredCarpools[i].carpoolers[k]._id + `')">X</a></td></tr>`
+         document.getElementById("friendsInCarpool").innerHTML += `<tr id="person_` + offeredCarpools[i].carpoolers[k]._id + `"><th><a href="mailto:` + offeredCarpools[i].carpoolers[k].email + `">` + offeredCarpools[i].carpoolers[k].firstName + " " + offeredCarpools[i].carpoolers[k].lastName + `</a></th><td><a style="color: black" onclick="removePerson('` + offeredCarpools[i].carpoolers[k]._id + `')">X</a></td></tr>`
          continue;
       }
      if (offeredCarpools[i].route === "route") {
@@ -589,30 +621,12 @@
    
    
    function removePerson(id){
-      console.log("This id: " + id);
-
-      let theID = id;
-      
-      fetch(`/api/carpools/deleteCarpooler`, {
-          method: "PATCH",
-          headers: {
-              Accept: 'application/json',
-              'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ _id: theID, _id2: current })
-      })
-      .then(response => {
-          if(response.ok) {
-               console.log('Successfully deleted the item.');
-               location.reload();
-          } else {
-              console.log('Failed to delete the item.');
-          }
-      })
-      .catch(error => {
-          console.error('A network error occurred:', error);
-          alert('A network error occurred. Please try again later.');
-      });
+       for (let i = 0; i < newCarpoolers.length; i++) {
+         if (newCarpoolers[i]._id == id) {
+           newCarpoolers.splice(i, 1)
+           document.getElementById("person_" + id).remove()
+         }
+       }
    }
 
   
@@ -641,7 +655,8 @@
       .then((response) => response.json())
       .then((data) => {
         carpoools = data;
-     
+
+      
 
         for (var i = 0; i < carpoools.length; i++){
           
@@ -686,7 +701,7 @@ let email
           console.log(offeredCarpools[i])
         driver = offeredCarpools[i].firstName + " " + offeredCarpools[i].lastName
            carpoolers = []
-          offeredCarpools[i].carpoolers
+          
           for (var k = 0; k < offeredCarpools[i].carpoolers.length; k++) {
 
         carpoolers.push(offeredCarpools[i].carpoolers[k].firstName + " " + offeredCarpools[i].carpoolers[k].lastName.charAt(0));
@@ -732,7 +747,7 @@ let email
          <div class="button upcoming-carpools-button is-link is-light" style="margin-right: 10px;" 
             onclick="add('` + offeredCarpools[i]._id + `')">View >></div>
          <div class="button js-modal-trigger upcoming-carpools-button" style="margin-right: 10px;" data-target="modal-js-edit" id="` + offeredCarpools[i]._id + `" onclick="queGuay('` + offeredCarpools[i]._id + `')">Edit</div>
-         <div class="button" style="margin-right: 10px;" onclick="getPhoneRoute('` + offeredCarpools[i]._id + `')">Get on smartphone</div>
+        
       </div>
    </div>
 </article>`
@@ -967,7 +982,8 @@ let email
       
       let value3 = document.getElementById("route-type").value
       console.log("Current ID:");
-     
+
+     let cutCarpoolers = newCarpoolers;
 
       console.log("Updating route to " + value3)
        fetch(`/api/carpools/updateRoute/${current}`, {
@@ -975,7 +991,7 @@ let email
            headers: {
                'Content-Type': 'application/json',
            },
-           body: JSON.stringify({ route: value3, wlocation: newData })
+           body: JSON.stringify({ route: value3, wlocation: newData, carpoolers: cutCarpoolers })
        })
        .then(response => {
          if (!response.ok) {
