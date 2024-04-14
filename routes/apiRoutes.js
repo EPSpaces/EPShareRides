@@ -240,14 +240,14 @@ router.get("/mapRoute/:id", getToken, authenticateToken, async (req, res) => {
 router.patch("/carpools/updateRoute/:id", getToken, authenticateToken, async (req, res) => {
   const { id } = req.params;
   const objectId = new mongoose.Types.ObjectId(id);
-  const { route, wlocation } = req.body;
-  if (!route || !wlocation || !id) {
+  const { route, wlocation, carpoolers } = req.body;
+  if (!route || !wlocation || !carpoolers || !id) {
     res.status(400).send("Bad Request");
     return;
   }
 
   try {
-    await Carpool.findByIdAndUpdate(objectId, { route, wlocation }, { new: true })
+    await Carpool.findByIdAndUpdate(objectId, { route, wlocation, carpoolers }, { new: true })
   } catch (err) {
     console.error("Error updating carpool: " + err);
     res.status(500).send("Error updating carpool");

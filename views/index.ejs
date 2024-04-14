@@ -85,6 +85,25 @@
                         <option value="socials" >Socials</option>
                         <option value="other" >Other</option>
                      </select>
+                    <!-- <div class="dropdown is-hoverable" id="filter" style="margin-bottom: 10px">
+                      <div class="dropdown-trigger">
+                        <button class="button" aria-haspopup="true" aria-controls="dropdown-menu4">
+                          <span>Filter by</span>
+                          <span class="icon is-small">
+                            <i class="fas fa-angle-down" aria-hidden="true"></i>
+                          </span>
+                        </button>
+                      </div>
+                      <div class="dropdown-menu" id="dropdown-menu4" role="menu">
+                        <div class="dropdown-content">
+                          <a href="#" class="dropdown-item"> All </a>
+                          <a class="dropdown-item">Sports </a>
+                          <a href="#" class="dropdown-item is-active"> Academic teams</a>
+                          <a href="#" class="dropdown-item">Socials</a>
+                          <a href="#" class="dropdown-item"> Other </a>
+                        </div>
+                      </div>
+                    </div> -->
                     <span id="createEventButton">
                      <% if (admin) { %>
                        <button onclick="var create_event = document.getElementById('create_event'); create_event.style.marginBottom='50px'; create_event.innerHTML = `<form>
@@ -456,7 +475,7 @@
             </section>
             <footer class="modal-card-foot" style="background-color: white; border-width: 1px; padding: 10px; ">
                <div class="buttons" style="margin-left: 0px;">
-                  <button class="button is-link " onclick="offer();window.location.href='/mycarpools'">Create carpool</button>
+                  <button class="button is-link " style="background: linear-gradient(105deg, #3273DC, #275CBF);" onclick="offer();window.location.href='/mycarpools'">Create carpool</button>
                   <button class="button" aria-label="close" onclick="closeAllModals()">Cancel</button>
                </div>
             </footer>
@@ -502,7 +521,7 @@
             <footer class="modal-card-foot" style="background-color: white; border-width: 1px; padding: 10px; ">
                <var></var>
                <div class="buttons" style="margin-left: 0px;">
-                  <button class="button is-link " onclick="joinCarpool(); window.location.href='/mycarpools'">Join carpool</button>
+                  <button class="button is-link " style="background: linear-gradient(105deg, #3273DC, #275CBF);" onclick="joinCarpool(); window.location.href='/mycarpools'">Join carpool</button>
                   <button class="button" aria-label="close" onclick="closeAllModals()">Cancel</button>
                </div>
             </footer>

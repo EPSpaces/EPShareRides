@@ -3,17 +3,17 @@
     "index.js": [
       {
         "id": "fa2221ff-d959-46c0-acc0-e1f919d10cb2",
-        "line": 28,
-        "version": 13614,
-        "index": 787
+        "line": 8,
+        "version": 14127,
+        "index": 232
       }
     ],
     "routes/apiRoutes.js": [
       {
         "id": "f7ab6c2e-4ce5-45c8-a9fc-364550ab2126",
         "line": 260,
-        "version": 7452,
-        "index": 6740
+        "version": 7493,
+        "index": 6779
       }
     ],
     "views/404.ejs": [
