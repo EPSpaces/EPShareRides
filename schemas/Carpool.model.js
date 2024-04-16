@@ -16,7 +16,7 @@ const carpoolSchema = new mongoose.Schema({
   carpoolers: [carpoolerSchema],
   nameOfEvent: String,
   email: String,
-  id: String
+  id: String,
 });
 
 const Carpool = mongoose.model('Carpool', carpoolSchema);

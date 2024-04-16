@@ -94,6 +94,7 @@ function signup() {
   const admin = false;
   const privacy = false;
   const address = "none";
+  const dark = false;
 
   if (password !== confirm_password) {
     confirm_password = "";
@@ -109,6 +110,7 @@ function signup() {
     admin,
     address,
     privacy,
+    dark,
   };
 
   const url = "/auth/signup";

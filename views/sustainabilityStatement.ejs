@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" id="head">
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -37,4 +37,36 @@
 
 
   </body>
+  <script>
+    var request = new Request("/api/users", {
+      method: "GET",
+      headers: new Headers({
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      })
+    });
+    fetch(request)
+      .then((response) => response.json())
+      .then((data) => {
+        carpoools = data;
+          for (let k = 0; k < carpoools.length; k++) {
+            if(carpoools[k].dark == true){
+            document.getElementById("head").style.background = "#1c1c1c";
+            let temp = document.getElementsByClassName("title");
+            for (let i = 0; i < temp.length; i++) {
+              temp[i].style.color = "white"
+            }
+            let Cont = document.getElementsByClassName("container");
+            for (let i = 0; i < Cont.length; i++) {
+              Cont[i].style.color = "white"
+            }
+            let sub = document.getElementsByClassName("subtitle");
+            for (let i = 0; i < sub.length; i++) {
+              sub[i].style.color = "white"
+            }
+          }
+
+        }
+        })
+  </script>
 </html>

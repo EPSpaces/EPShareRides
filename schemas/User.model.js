@@ -8,7 +8,9 @@ const userSchema = new Schema({
   password: { type: String, required: true },
   admin: { type: Boolean, default: false },
   address: { type: String, default: "none" },
-  privacy: { type: Boolean, default: false }
+  cell: { type: String, default: "none" },
+  privacy: { type: Boolean, default: false },
+  dark: { type: Boolean, default: false },
 });
 
 module.exports = mongoose.model("User", userSchema);
