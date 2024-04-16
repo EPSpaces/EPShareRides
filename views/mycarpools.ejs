@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" id="head">
    <head>
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -311,9 +311,9 @@
                  <nav class="tabs is-boxed is-fullwidth">
                     <div class="container">
                        <ul>
-                          <li ><a href="/">Upcoming Events</a></li>
-                          <li class="is-active"><a href="/mycarpools" >My Carpools</a></li>
-                          <li  ><a href="/friends">Friends</a></li>
+                          <li ><a href="/" class="white">Upcoming Events</a></li>
+                          <li class="is-active" class="white"><a href="/mycarpools" >My Carpools</a></li>
+                          <li  ><a href="/friends" class="white">Friends</a></li>
                        </ul>
                     </div>
                  </nav>
@@ -751,6 +751,7 @@ let email
       </div>
    </div>
 </article>`
+           
         }
         
 
@@ -814,6 +815,9 @@ let email
         //generation here
          modalFunctions()
 
+         
+                
+
         })
          .catch((error) => {
            console.error(error)
@@ -822,7 +826,7 @@ let email
 
      
 
-
+         
      
       
      })
@@ -1225,5 +1229,64 @@ let email
           placeholder: "Enter Address Here"
 
           });
+
    
+   let carpooolss
+
+   var request = new Request("/api/users", {
+      method: "GET",
+      headers: new Headers({
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      })
+    });
+    fetch(request)
+      .then((response) => response.json())
+      .then((data) => {
+        carpooolss = data;
+          for (let k = 0; k < carpooolss.length; k++) {
+            if(carpooolss[k].dark == true){
+               document.getElementById("head").style.background = "#1c1c1c";
+               let temp = document.getElementsByClassName("title");
+               for (let i = 0; i < temp.length; i++) {
+                 temp[i].style.color = "white"
+               }
+               let Cont = document.getElementsByClassName("container");
+               for (let i = 0; i < Cont.length; i++) {
+                 Cont[i].style.color = "white"
+               }
+               let sub = document.getElementsByClassName("subtitle");
+               for (let i = 0; i < sub.length; i++) {
+                 sub[i].style.color = "white"
+               }
+               setInterval(myTimer, 1, k);
+               let control = document.getElementsByClassName("hero-foot");
+               for (let i = 0; i < control.length; i++) {
+                 control[i].style.background = "#1c1c1c";
+               }
+               let tabs = document.getElementsByClassName("tabs");
+               for (let i = 0; i < tabs.length; i++) {
+                  tabs[i].style.background = "black";
+                  tabs[i].style.color = "white";
+               }
+               let white = document.getElementsByClassName("white");
+               for (let i = 0; i < white.length; i++) {
+                  white[i].style.color = "white";
+               }
+          }
+
+        }
+        })
+
+
+</script>
+<script>
+   function myTimer(i) {
+      let control = document.getElementsByClassName("control");
+      for (let i = 0; i < control.length; i++) {
+
+        control[i].style.color = "white"
+      }
+      clearInterval(myTimer);
+   }
 </script>

@@ -75,6 +75,7 @@ router.post("/auth/signup", async (req, res) => {
       admin: false,
       address: req.body.address,
       privacy: req.body.privacy,
+      dark: req.body.dark,
     },
   });
 

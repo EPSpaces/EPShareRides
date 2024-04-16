@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" id="head">
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,82 +10,82 @@
     <script src="https://kit.fontawesome.com/16ae8e710d.js" crossorigin="anonymous"></script>
     <link rel="icon" href="favicon.png" type="image/x-icon">
     <link rel="stylesheet" href="./style.css">
-    <script src="./script.js"></script>
+
   </head>
   <body>
     <main>
      
       <section class="hero is-fullheight">
         <!-- Hero head: will stick at the top -->
-                             <div class="hero-head">
-                                              <header class="navbar">
-                                                <div class="container">
-                                                  <div class="navbar-brand">
-                                                    <a class="navbar-item">
-                                                      <img src="EPS Logo - Transparent-4.png" alt="Logo">
-                                                      <h1 class="title is-3" style="margin-left: 10px" >EPShare Rides
-                                                      </h1>
-                                                    </a>
-                                                    <span class="navbar-burger " data-target="navbarMenuHeroC" id="nav-toggle">
-                                                      <span></span>
-                                                      <span></span>
-                                                      <span></span>
-                                                    </span>
-                                                  </div>
-                                                  <div id="navbarMenuHeroC" class="navbar-menu ">
-                                                    <div class="navbar-end">
+     <div class="hero-head">
+      <header class="navbar">
+        <div class="container">
+          <div class="navbar-brand">
+            <a class="navbar-item">
+              <img src="EPS Logo - Transparent-4.png" alt="Logo">
+              <h1 class="title is-3" style="margin-left: 10px" >EPShare Rides
+              </h1>
+            </a>
+            <span class="navbar-burger " data-target="navbarMenuHeroC" id="nav-toggle">
+              <span></span>
+              <span></span>
+              <span></span>
+            </span>
+          </div>
+          <div id="navbarMenuHeroC" class="navbar-menu ">
+            <div class="navbar-end">
 
-                                                      <div class="is-button is-link">
+              <div class="is-button is-link">
 
-                                                        <div class="navbar-item">
-                                                          <span style="font-size: 1em; color: #30B700; float: right">
-                                                            <a class="fa-solid fa-leaf" href="/sustainabilityStatement" style="color: #30B700"></a>
-                                                          </span>
-                                                          <div class="buttons" style="margin: 10px;margin-right: 0px;">
+                <div class="navbar-item">
+                  <span style="font-size: 1em; color: #30B700; float: right">
+                    <a class="fa-solid fa-leaf" href="/sustainabilityStatement" style="color: #30B700"></a>
+                  </span>
+                  <div class="buttons" style="margin: 10px;margin-right: 0px;">
 
-                                                            <a class="button is-link is-outlined " href="/logout">
-                                                             Log out
-                                                            </a>
+                    <a class="button is-link is-outlined " href="/logout">
+                     Log out
+                    </a>
 
-                                                             <div class="navbar-item has-dropdown is-hoverable " onclick="document.getElementById('navbar-dropdown').style.visibility = 'visible';">
-
-
-                                                            <a class="button is-link" id="name_button"style="background: linear-gradient(105deg, #3273DC, #275CBF);">
-                                                           <%= firstName %> <%= lastName %>
-                                                            </a>
+                     <div class="navbar-item has-dropdown is-hoverable " onclick="document.getElementById('navbar-dropdown').style.visibility = 'visible';">
 
 
+                    <a class="button is-link" id="name_button"style="background: linear-gradient(105deg, #3273DC, #275CBF);">
+                   <%= firstName %> <%= lastName %>
+                    </a>
 
-                                                             <div id="filler" style="width: 130px; background-color: transparent; height: 20px; position: absolute; margin-top: -15px;"></div>
-                                                                 <div class="navbar-dropdown" id="navbar-dropdown">
-                                                                   <a class="navbar-item" href="/updateSettings">
-                                                                    Update settings
-                                                                   </a>
-                                                                   <a class="navbar-item" href="https://forms.office.com/r/deCSjA7bCR">
-                                                                     Report a bug
-                                                                   </a>
-                                                                   <a class="navbar-item" href="/sustainabilityStatement">
-                                                                   Sustainability statement
-                                                                   </a>
-                                                                   <hr class="navbar-divider">
-                                                                   <div class="navbar-item">
-                                                                     Version Beta 0.1.0
-                                                                   </div>
 
-                                                                 </div>
 
-                                                               </div>
-                                                             </nav>
+                     <div id="filler" style="width: 130px; background-color: transparent; height: 20px; position: absolute; margin-top: -15px;"></div>
+                         <div class="navbar-dropdown" id="navbar-dropdown">
+                           <a class="navbar-item" href="/updateSettings">
+                            Update settings
+                           </a>
+                           <a class="navbar-item" href="https://forms.office.com/r/deCSjA7bCR">
+                             Report a bug
+                           </a>
+                           <a class="navbar-item" href="/sustainabilityStatement">
+                           Sustainability statement
+                           </a>
+                           <hr class="navbar-divider">
+                           <div class="navbar-item">
+                             Version Beta 0.1.0
+                           </div>
 
-                                                          </div>
-                                                        </div>
+                         </div>
 
-                                                        </div>
-                                                    </div>
-                                                  </div>
-                                                </div>
-                                              </header>
-                             </div>
+                       </div>
+                     </nav>
+
+                  </div>
+                </div>
+
+                </div>
+            </div>
+          </div>
+        </div>
+      </header>
+     </div>
 
 
         <!-- Hero content: will be in the middle -->
@@ -98,11 +98,11 @@
               Subtitle
             </p> -->
             
-            <table class="table " style="margin-left: auto; margin-right: auto; margin-top: -60px; margin-bottom: 30px;">
+            <table id="table" class="table " style="margin-left: auto; margin-right: auto; margin-top: -60px; margin-bottom: 30px;">
               <thead>
                 <tr>
-                  <th><abbr title="Friend">Friend</abbr></th>
-                  <th>Email</th>
+                  <th><abbr title="Friend" class="white">Friend</abbr></th>
+                  <th class="white"> Email</th>
                   
                 </tr>
               </thead>
@@ -129,10 +129,10 @@
           <nav class="tabs is-boxed is-fullwidth">
             <div class="container">
               <ul>
-                <li ><a href="/">Upcoming Events</a></li>
-                <li  "><a href="/mycarpools" >My Carpools</a></li>
+                <li ><a href="/" class="white">Upcoming Events</a></li>
+                <li  "><a href="/mycarpools" class="white">My Carpools</a></li>
 
-                <li  class="is-active"><a href="/friends">Friends</a></li>
+                <li  class="is-active"><a href="/friends" id="">Friends</a></li>
                
               </ul>
             </div>
@@ -142,7 +142,6 @@
       </section>
       
     </main>
-  <script src="index.js"></script>
   <script defer>
     function navBurger() {
         var burger = document.getElementById('nav-toggle');
@@ -175,7 +174,7 @@
             console.log(carpoools[k])
             console.log(k)
             if(carpoools[k].privacy == false){
-              document.getElementById("people").innerHTML += `<tr><th>` + carpoools[k].firstName + ``+ ' ' + ``+ carpoools[k].lastName + `</th><td><a href="mailto:` + carpoools[k].email + `">` + carpoools[k].email + `</a></td></tr>`
+              document.getElementById("people").innerHTML += `<tr><th class="white">` + carpoools[k].firstName + ``+ ' ' + ``+ carpoools[k].lastName + `</th><td><a href="mailto:` + carpoools[k].email + `">` + carpoools[k].email + `</a></td></tr>`
             }
             else{
               continue;
@@ -184,6 +183,66 @@
         })
     
     
+  let idkWhatItDoesButItWorks
+
+     var request = new Request("/api/users", {
+        method: "GET",
+        headers: new Headers({
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        })
+      });
+      fetch(request)
+        .then((response) => response.json())
+        .then((data) => {
+          idkWhatItDoesButItWorks = data;
+            for (let k = 0; k < idkWhatItDoesButItWorks.length; k++) {
+              if(idkWhatItDoesButItWorks[k].dark == true){
+                document.getElementById("head").style.background = "#1c1c1c";
+                document.getElementById("table").style.background = "#1c1c1c";
+                document.getElementById("table").style.color = "white";
+                 let temp = document.getElementsByClassName("title");
+                 for (let i = 0; i < temp.length; i++) {
+                   temp[i].style.color = "white"
+                 }
+                 let Cont = document.getElementsByClassName("container");
+                 for (let i = 0; i < Cont.length; i++) {
+                   Cont[i].style.color = "white"
+                 }
+                 let sub = document.getElementsByClassName("subtitle");
+                 for (let i = 0; i < sub.length; i++) {
+                   sub[i].style.color = "white"
+                 }
+                 setInterval(myTimer, 1, k);
+                 let control = document.getElementsByClassName("hero-foot");
+                 for (let i = 0; i < control.length; i++) {
+                   control[i].style.background = "#1c1c1c";
+                 }
+                 let tabs = document.getElementsByClassName("tabs");
+                 for (let i = 0; i < tabs.length; i++) {
+                    tabs[i].style.background = "black";
+                    tabs[i].style.color = "white";
+                 }
+                 let white = document.getElementsByClassName("white");
+                 for (let i = 0; i < white.length; i++) {
+                    white[i].style.color = "white";
+                 }
+            }
+
+          }
+          })
+
+
+  </script>
+  <script>
+     function myTimer(i) {
+        let control = document.getElementsByClassName("control");
+        for (let i = 0; i < control.length; i++) {
+
+          control[i].style.color = "white"
+        }
+        clearInterval(myTimer);
+     }
   </script>
   </body>
 </html>
