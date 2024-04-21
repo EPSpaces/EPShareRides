@@ -3,14 +3,8 @@ var markers = 0;
 
 var center = [47.64371189816165, -122.19894455582242];
 var map = L.map("map").setView(center, 11);
-L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", ).addTo(
-  map,
-);
+L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(map);
 map.attributionControl.setPrefix(false);
-
-
-
-
 
 // a layer group, used here like a container for markers
 var markersGroup = L.layerGroup();
@@ -59,7 +53,6 @@ map.on("click", function (e) {
 let geocode = {};
 let carpools;
 
-
 fetch("/api/events", {
   method: "GET",
 })
@@ -67,64 +60,62 @@ fetch("/api/events", {
   .then((data) => {
     events = data;
 
-fetch("/api/userCarpools", {
-  method: "GET",
-})
-  .then((response) => response.json())
-  .then((data) => {
-    carpools = data;
-    console.log(carpools);
+    fetch("/api/userCarpools", {
+      method: "GET",
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        carpools = data;
+        console.log(carpools);
 
-    for (let i = 0; i < carpools.length; i++) {
-      
-      carpools[i].carpoolers.forEach((carpooler) => {
-        getAddressCoordinates(carpooler.address);
-      });
-      var result = events.find(obj => {
-        return obj._id === carpools[i].nameOfEvent
+        for (let i = 0; i < carpools.length; i++) {
+          carpools[i].carpoolers.forEach((carpooler) => {
+            getAddressCoordinates(carpooler.address);
+          });
+          var result = events.find((obj) => {
+            return obj._id === carpools[i].nameOfEvent;
+          });
+          getAddressCoordinates(result.address);
+          getAddressCoordinates(carpools[i].wlocation);
+        }
+
+        function getAddressCoordinates(address) {
+          const apiKey = "992ef3d60d434f2283ea8c6d70a4898d"; // Replace 'YOUR_API_KEY' with your actual API key
+          const url = `https://api.geoapify.com/v1/geocode/search?text=${encodeURIComponent(
+            address,
+          )}&apiKey=${apiKey}`;
+
+          var request = new Request(url, {
+            method: "GET",
+            headers: new Headers({
+              Accept: "application/json",
+              "Content-Type": "application/json",
+            }),
+          });
+          fetch(request)
+            .then((response) => response.json())
+            .then((data) => {
+              console.log(data);
+              geocode[address] = [
+                data.features[0].bbox[1],
+                data.features[0].bbox[0],
+              ];
+            })
+            .catch((error) => {
+              console.error(error);
+            });
+        }
       })
-      getAddressCoordinates(result.address);
-      getAddressCoordinates(carpools[i].wlocation);
-    }
-    
-    function getAddressCoordinates(address) {
-      const apiKey = "992ef3d60d434f2283ea8c6d70a4898d"; // Replace 'YOUR_API_KEY' with your actual API key
-      const url = `https://api.geoapify.com/v1/geocode/search?text=${encodeURIComponent(
-        address,
-      )}&apiKey=${apiKey}`;
-
-      var request = new Request(url, {
-        method: "GET",
-        headers: new Headers({
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        }),
-      });
-      fetch(request)
-        .then((response) => response.json())
-        .then((data) => {
-          console.log(data);
-          geocode[address] = [
-            data.features[0].bbox[1],
-            data.features[0].bbox[0],
-          ];
-        })
-        .catch((error) => {
-          console.error(error);
-        });
-    }
+      .catch((error) => console.error("Error:", error));
   })
   .catch((error) => console.error("Error:", error));
-    })
-    .catch((error) => console.error("Error:", error));
 
 var polylines = [];
-
 
 function add(carpoolId) {
   addDirectionsButton(carpoolId);
   polylines.forEach(function (item) {
-      map.removeLayer(item)
+    map.removeLayer(item);
   });
   markersGroup.clearLayers();
   // var marker = L.marker(center).addTo(markersGroup);
@@ -132,37 +123,37 @@ function add(carpoolId) {
   // var popup = marker.bindPopup("Eastside Preparatory School<br />Go eagles!");
 
   const carpool = carpools.find((carpool) => carpool._id === carpoolId);
-  var carpoolPoints = []
+  var carpoolPoints = [];
   carpool.carpoolers.forEach((carpooler) => {
     addPoint(
       carpooler.firstName,
       carpooler.address,
       geocode[carpooler.address],
     );
-    carpoolPoints.push(geocode[carpooler.address])
+    carpoolPoints.push(geocode[carpooler.address]);
   });
-  var result = events.find(obj => {
-    return obj._id === carpool.nameOfEvent
-  })
- 
+  var result = events.find((obj) => {
+    return obj._id === carpool.nameOfEvent;
+  });
+
   if (carpool.route == "route") {
-    console.log("route")
+    console.log("route");
     //the creator's address
     var marker = L.marker(geocode[carpool.wlocation]).addTo(markersGroup);
     marker.options.shadowSize = [0, 0];
-    var popup = marker.bindPopup(carpool.firstName + "'s house<br> " + carpool.wlocation);
+    var popup = marker.bindPopup(
+      carpool.firstName + "'s house<br> " + carpool.wlocation,
+    );
 
     //the destination
     var marker = L.marker(geocode[result.address]).addTo(markersGroup);
     marker.options.shadowSize = [0, 0];
     var popup = marker.bindPopup(result.wlocation + "<br>" + result.address);
 
-    carpoolPoints.push(geocode[carpool.wlocation])
-    homeHomeLines(carpoolPoints, geocode[result.address])
-  }
-    
-  else if (carpool.route == "point") {
-    console.log("point")
+    carpoolPoints.push(geocode[carpool.wlocation]);
+    homeHomeLines(carpoolPoints, geocode[result.address]);
+  } else if (carpool.route == "point") {
+    console.log("point");
     //the meeting point address
     var marker = L.marker(geocode[carpool.wlocation]).addTo(markersGroup);
     marker.options.shadowSize = [0, 0];
@@ -173,7 +164,11 @@ function add(carpoolId) {
     marker.options.shadowSize = [0, 0];
     var popup = marker.bindPopup(result.wlocation + "<br> " + result.address);
 
-    commonPointLines(geocode[carpool.wlocation], carpoolPoints, geocode[result.address])
+    commonPointLines(
+      geocode[carpool.wlocation],
+      carpoolPoints,
+      geocode[result.address],
+    );
   }
 
   function distance(point1, point2) {
@@ -186,7 +181,7 @@ function add(carpoolId) {
     return arrays.sort((arr1, arr2) => {
       const distance1 = distance(arr1, target);
       const distance2 = distance(arr2, target);
-      console.log(distance1, distance2)
+      console.log(distance1, distance2);
       return distance2 - distance1;
     });
   }
@@ -198,7 +193,7 @@ function add(carpoolId) {
         color: "#3273dc",
         dashArray: "4 8",
       }).addTo(map);
-       polylines.push(toPoint);
+      polylines.push(toPoint);
     }
     var toDest = L.polyline([point, destination], { color: "#00d1b2" }).addTo(
       map,

@@ -1,4 +1,4 @@
-let carpoools;
+let userData1;
 
 var request = new Request("/api/carpools", {
   method: "GET",
@@ -10,16 +10,16 @@ var request = new Request("/api/carpools", {
 fetch(request)
   .then((response) => response.json())
   .then((data) => {
-    carpoools = data;
+    userData1 = data;
   })
   .catch((error) => {
     console.error(error);
   });
 
 let carpooledEvents = [];
-function checkIfRegistered(carpoools) {
-  for (var i = 0; i < carpoools.length; i++) {
-    let carpoolPart = carpoools[i].carpoolers.find(
+function checkIfRegistered(userData1) {
+  for (var i = 0; i < userData1.length; i++) {
+    let carpoolPart = userData1[i].carpoolers.find(
       (x) => x.email === "<%= email %>",
     );
     if (carpoolPart != undefined) {
@@ -27,7 +27,7 @@ function checkIfRegistered(carpoools) {
     }
     if (carpoolPart == "<%= email %>") {
       let carpooledEvent = eventsW2.find(
-        (x) => x.id === carpoools[i].nameOfEvent,
+        (x) => x.id === userData1[i].nameOfEvent,
       );
       if (carpooledEvent != undefined) {
         carpooledEvents.push(carpooledEvent);
@@ -197,7 +197,7 @@ fetch(request)
 
      </article>`;
     }
-    checkIfRegistered(carpoools);
+    checkIfRegistered(userData1);
 
     //sort events by date
     function sortJSON(arr, key, way) {
@@ -342,7 +342,7 @@ fetch(request)
         }
       }
 
-      checkIfRegistered(carpoools);
+      checkIfRegistered(userData1);
       modalFunctions();
     }
 
@@ -381,8 +381,8 @@ fetch(request)
           }
         }
 
-        for (var i = 0; i < carpoools.length; i++) {
-          var obj = carpoools[i];
+        for (var i = 0; i < userData1.length; i++) {
+          var obj = userData1[i];
 
           if (obj["nameOfEvent"] == datarray[datarray.length - 1]) {
             //datarray[datarray.length - 1]
@@ -797,8 +797,8 @@ function joinCarpool() {
   var email = "<%= email %>";
   var carpoool;
   if (selectedCarpool != null) {
-    for (var i = 0; i < carpoools.length; i++) {
-      carpoool = carpoools[i];
+    for (var i = 0; i < userData1.length; i++) {
+      carpoool = userData1[i];
       if (carpoool["id"] == selectedCarpool) {
         carpoool["carpoolers"].push({
           address: newArray,

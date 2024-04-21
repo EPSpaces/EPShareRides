@@ -118,9 +118,9 @@ router.get("/events", getToken, authenticateToken, async (req, res) => {
 });
 
 router.post("/events", getToken, authenticateToken, async (req, res) => {
-  const { eventName, wlocation, date, category, addressS } = req.body;
+  const { eventName, wlocation, date, category, address1234567890 } = req.body;
 
-  if (!eventName || !wlocation || !date || !category || !addressS) {
+  if (!eventName || !wlocation || !date || !category || !address1234567890) {
     res.status(400).send("Bad Request");
     return;
   }
@@ -152,7 +152,7 @@ router.post("/events", getToken, authenticateToken, async (req, res) => {
       lastName,
       eventName,
       wlocation,
-      addressS,
+      address1234567890,
       date,
       category,
     });
@@ -263,11 +263,14 @@ router.get(
     let userCommunication = [];
 
     try {
-      const carpoolOwnerEmail = await Carpool.findById(carpoolId).email;
-      console.log(carpoolOwnerEmail);
-      userCommunication.push(
-        await User.findOne({ email: carpoolOwnerEmail }).cell,
-      );
+      const carpoolOwnerEmailE = await Carpool.findById(carpoolId);
+      const carpoolOwnerEmail = carpoolOwnerEmailE.email;
+
+      const carpoolOwnerCell = await User.findOne({ email: carpoolOwnerEmail }).cell;
+
+      if (carpoolOwnerCell == undefined || carpoolOwnerCell == "none") {
+        userCommunication.push(carpoolOwnerEmail)
+      } else { userCommunication.push(carpoolOwnerCell) }
 
       const carpoolersInfoO = await Carpool.findById(carpoolId).exec();
 
@@ -377,12 +380,12 @@ router.patch("/carpools/:id", getToken, authenticateToken, async (req, res) => {
 
 router.patch("/users/update", async (req, res) => {
   try {
-    const { _id, address, privacy, dark } = req.body;
+    const { _id, address, privacy } = req.body;
     const users = await User.updateOne(
       { _id: new ObjectId(_id) },
-      { $set: { address: address, privacy: privacy, dark: dark } },
+      { $set: { address: address, privacy: privacy } },
     );
-    console.log(dark);
+
     res.json(users);
   } catch (err) {
     console.error("Error updating user: " + err);

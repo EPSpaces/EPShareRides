@@ -560,3 +560,19 @@ body {
 .code-inputs input:nth-child(3n) {
   margin-right: 24px;
 }
+
+#filter {
+  background-color: #EFEFEF;
+  border: none;
+  border-radius: 5px;
+  padding: 2px;
+  padding-top: 1px;
+}
+
+#filter:hover {
+  background-color: #E5E5E5;
+  cursor: pointer;
+}
+#filter:focus {
+  outline: 0;
+}

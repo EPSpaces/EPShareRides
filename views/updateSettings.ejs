@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" id=head>
+<html lang="en">
   <head>
     <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -134,6 +134,7 @@
                         <div class="navbar-item has-dropdown is-hoverable " onclick="document.getElementById('navbar-dropdown').style.visibility = 'visible';">
                            <a class="button is-link" id="name_button"style="background: linear-gradient(105deg, #3273DC, #275CBF);">
                            <%= firstName %> <%= lastName %>
+                             <i style="margin-left: 5px;" class="fas fa-angle-down" aria-hidden="true"></i>
                            </a>
                            <div id="filler" style="width: 130px; background-color: transparent; height: 20px; position: absolute; margin-top: -15px;"></div>
                            <div class="navbar-dropdown" id="navbar-dropdown">
@@ -174,21 +175,15 @@
            
             <h1 class="title is-3 " style="margin-top: 5px; margin-bottom: 30px">Settings</h1>
 
-            <p class="subtitle is-6" style=" width: 100%; margin-bottom: 0px; text-align: left"><strong class="sub">Privacy</strong></p>
+            <p class="subtitle is-6" style=" width: 100%; margin-bottom: 0px; text-align: left"><strong>Privacy</strong></p>
             <div class="container" style="margin-top: 10px;margin-bottom: 30px">
             
 <p style="display: inline-block; font-size: 17px; transform: translate(0px,2px); float: left">Don't show my account to other EPS students</p>
             <input class="switch-input" type="checkbox" id="switch" ><label class="switch-label" style="display: inline-block; margin-left: 5px; float:right" for="switch" checked="false">Toggle</label>
             </div>
-            <p class="subtitle is-6" style=" width: 100%; margin-bottom: 0px; text-align: left"><strong class="sub">Dark Mode</strong></p>
-            <div class="container" style="margin-top: 10px;margin-bottom: 30px">
-
-<p style="display: inline-block; font-size: 17px; transform: translate(0px,2px); float: left">Turn on or off dark mode</p>
-            <input class="switch-input" type="checkbox" id="dark" ><label class="switch-label" style="display: inline-block; margin-left: 5px; float:right" for="dark" checked="false">Toggle</label>
-            </div>
             
            <div class="container" style="margin-bottom: 30px;margin-top: 10px">
-              <p class="subtitle is-6" style=" width: 100%;  text-align: left; margin-bottom: 10px"><strong class="sub">Save my address</strong></p>
+              <p class="subtitle is-6" style=" width: 100%;  text-align: left; margin-bottom: 10px"><strong>Save my address</strong></p>
             <!-- <p style="display: inline-block; font-size: 17px; transform: translate(0px,2px); float: left">Require an address when registering</p>
             <input class="switch-input" type="checkbox" id="switch2"  /><label class="switch-label" style="display: inline-block; margin-left: 5px; float: right" for="switch2">Toggle</label> -->
             <!-- <div class="field">
@@ -231,10 +226,6 @@
                   </html>
 <script>
 
-  let dk = false;
-  
-
-  
   let carpoools;
   let num;
 
@@ -255,28 +246,11 @@
                 document.getElementById("address-input").value = carpoools[k].address;
               }
               document.getElementById("switch").checked = carpoools[k].privacy;
-              document.getElementById("dark").checked = carpoools[k].dark;
             }
             else{
               continue;
             }
-            if(carpoools[k].dark == true){
-            document.getElementById("head").style.background = "#1c1c1c";
-            let temp = document.getElementsByClassName("title");
-            for (let i = 0; i < temp.length; i++) {
-              temp[i].style.color = "white"
-            }
-            let Cont = document.getElementsByClassName("container");
-            for (let i = 0; i < Cont.length; i++) {
-              Cont[i].style.color = "white"
-            }
-            let sub = document.getElementsByClassName("sub");
-            for (let i = 0; i < sub.length; i++) {
-              sub[i].style.color = "white"
-            }
           }
-        
-        }
         })
   
  /* 
@@ -534,12 +508,9 @@
                    
 function update(){
   let privacy = document.getElementById("switch").checked;
-  let dark = document.getElementById("dark").checked;
   let address = document.getElementById("address-input").value;
   let _id;
 
-  console.log(dark)
-  
   
   console.log(carpoools)
   
@@ -559,7 +530,7 @@ function update(){
     }
   }
 
-  console.log(_id + " " + address + " " + privacy + " " + dark)
+  console.log(_id + " " + address + " " + privacy)
 
   
   fetch(`/api/users/update`, {
@@ -568,7 +539,7 @@ function update(){
           Accept: 'application/json',
           'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ _id: _id, address: address, privacy: privacy, dark: dark })
+      body: JSON.stringify({ _id: _id, address: address, privacy: privacy })
   })
   .then(response => {
       if(response.ok) {
