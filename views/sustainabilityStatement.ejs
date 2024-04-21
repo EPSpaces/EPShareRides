@@ -16,7 +16,7 @@
       
       <section class="hero is-fullheight">
         <div class="hero-body">
-          <div class="container has-text-centered vertical-center" style="width: 700px;">
+          <div class="container has-text-centered" id="deleteaccount">
             
             <span class="flex-center " style="font-size: 2em; color: #30B700">
               <i class="fa-solid fa-leaf"></i>
@@ -26,7 +26,7 @@
             <h2 class="subtitle" style="font-size: 20px;margin-bottom: 10px">There are many ways we could approach this topic: We could build a website to raise awareness or we could greenify a component of EPS, but we decided to focus on the student life aspect of sustainability. How can students at EPS engage in climate-friendly actions, and how can they integrate it into a convenient lifestyle?</h2>
             <h2 class="subtitle" style="font-size: 20px">EPShare Rides is a place that allows students to engage directly in lowering the footprint from transportation for school events: socials, sports, academic teams, and more. It allows us to work together to make EPS extracurriculars a more sustainable part of our culture and to promote greener ways of transportation. We see the value in carpooling, and we hope you do as well.</h2>
             <div class="buttons">
-            <div class="button center is-link" onclick="window.location.href='/'" style="margin-top: 15px; margin-bottom: 0px; background: linear-gradient(105deg, #3273DC, #275CBF);">Go back</div>
+            <div class="button center is-link" onclick="window.location.href='/'" style="margin-top: 20px; margin-bottom: 0px; background: linear-gradient(105deg, #3273DC, #275CBF);">Go back</div>
             </div>
           </div>
         </div>
@@ -38,7 +38,7 @@
 
   </body>
   <script>
-    var request = new Request("/api/users", {
+    /*var request = new Request("/api/users", {
       method: "GET",
       headers: new Headers({
         Accept: 'application/json',
@@ -48,9 +48,9 @@
     fetch(request)
       .then((response) => response.json())
       .then((data) => {
-        carpoools = data;
-          for (let k = 0; k < carpoools.length; k++) {
-            if(carpoools[k].dark == true){
+        userData1 = data;
+          for (let k = 0; k < userData1.length; k++) {
+            if(userData1[k].dark == true){
             document.getElementById("head").style.background = "#1c1c1c";
             let temp = document.getElementsByClassName("title");
             for (let i = 0; i < temp.length; i++) {
@@ -67,6 +67,6 @@
           }
 
         }
-        })
+        })*/
   </script>
 </html>

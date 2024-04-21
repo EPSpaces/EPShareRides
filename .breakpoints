@@ -3,24 +3,24 @@
     "index.js": [
       {
         "id": "fa2221ff-d959-46c0-acc0-e1f919d10cb2",
-        "line": 8,
-        "version": 14127,
-        "index": 232
+        "line": 10,
+        "version": 14436,
+        "index": 322
       }
     ],
     "routes/apiRoutes.js": [
       {
         "id": "f7ab6c2e-4ce5-45c8-a9fc-364550ab2126",
-        "line": 322,
-        "version": 8670,
-        "index": 8161
+        "line": 325,
+        "version": 8935,
+        "index": 8370
       }
     ],
     "views/404.ejs": [
       {
         "id": "608c03e3-6b76-4128-8486-2be65038cb5f",
         "line": 1,
-        "version": 360,
+        "version": 469,
         "index": 0
       }
     ]

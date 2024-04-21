@@ -74,6 +74,7 @@
                                     <div class="navbar-item has-dropdown is-hoverable " onclick="document.getElementById('navbar-dropdown').style.visibility = 'visible';">
                                        <a class="button is-link" id="name_button"style="background: linear-gradient(105deg, #3273DC, #275CBF);">
                                        <%= firstName %> <%= lastName %>
+                                          <i style="margin-left: 5px;" class="fas fa-angle-down" aria-hidden="true"></i>
                                        </a>
                                        <div id="filler" style="width: 130px; background-color: transparent; height: 20px; position: absolute; margin-top: -15px;"></div>
                                        <div class="navbar-dropdown" id="navbar-dropdown">
@@ -227,7 +228,7 @@
                                        <div class="white-background " style="float: right; margin: 7px; right:0px;  border-radius: 6px; " >
                                           <span class="panel-icon " id="spanz" style=' display: inline ;  '>
                                              <i class="fas fa-car " aria-hidden="true" style="margin: 13px; margin-left: 15px;"></i>
-                                             <p style=" display: inline; font-size: 15px;  font-weight: 300;" id="datez">4/28/24 2:00 PM</p>
+                                             <p style=" display: inline; font-size: 15px;  font-weight: 300;" id="datez" class="datew">4/28/24 2:00 PM</p>
                                           </span>
                                        </div>
                                     </div>
@@ -268,7 +269,7 @@
                                        <div class="white-background " style="float: right; margin: 7px; right:0px;  border-radius: 6px; " >
                                           <span class="panel-icon " id="spanz" style=' display: inline ;  '>
                                              <i class="fas fa-car " aria-hidden="true" style="margin: 13px; margin-left: 15px;"></i>
-                                             <p style=" display: inline; font-size: 15px;  font-weight: 300;" id="datez">3/3/24 5:30 PM</p>
+                                             <p style=" display: inline; font-size: 15px;  font-weight: 300;" id="datez" class="datew">3/3/24 5:30 PM</p>
                                           </span>
                                        </div>
                                     </div>
@@ -312,7 +313,7 @@
                     <div class="container">
                        <ul>
                           <li ><a href="/" class="white">Upcoming Events</a></li>
-                          <li class="is-active" class="white"><a href="/mycarpools" >My Carpools</a></li>
+                          <li class="is-active" class="white"><a href="/mycarpools" class="is-active1">My Carpools</a></li>
                           <li  ><a href="/friends" class="white">Friends</a></li>
                        </ul>
                     </div>
@@ -575,7 +576,7 @@ let newCarpoolers = [];
    let joinedCarpools = []
       let offeredCarpools = []
      let eventsW;
-     let carpoools;
+     let userData1;
    let i;
 
    function addPeople(){
@@ -654,17 +655,17 @@ let newCarpoolers = [];
     fetch(request)
       .then((response) => response.json())
       .then((data) => {
-        carpoools = data;
+        userData1 = data;
 
       
 
-        for (var i = 0; i < carpoools.length; i++){
+        for (var i = 0; i < userData1.length; i++){
           
-          let carpoolPart = carpoools[i].carpoolers.find((x) => x.email === "<%= email %>")
+          let carpoolPart = userData1[i].carpoolers.find((x) => x.email === "<%= email %>")
           
            
             if (carpoolPart != undefined){
-              joinedCarpools.push(carpoools[i])
+              joinedCarpools.push(userData1[i])
               
             }  
             
@@ -675,11 +676,11 @@ let newCarpoolers = [];
       
 
  
-  for (var i = 0; i < carpoools.length; i++){
+  for (var i = 0; i < userData1.length; i++){
 
-      if (carpoools[i].email === "<%= email %>") {
+      if (userData1[i].email === "<%= email %>") {
 
-          offeredCarpools.push(carpoools[i])
+          offeredCarpools.push(userData1[i])
 
       }
     }
@@ -733,7 +734,7 @@ let email
             <div class="white-background " style="float: right; margin: 7px; right:0px;  border-radius: 6px; " >
                <span class="panel-icon " id="spanz" style=' display: inline ;  '>
                   <i class="fas fa-car " aria-hidden="true" style="margin: 13px; margin-left: 15px;"></i>
-                  <p style=" display: inline; font-size: 15px;  font-weight: 300;" id="datez">` + date + `</p>
+                  <p style=" display: inline; font-size: 15px;  font-weight: 300;" id="datez" class="datew">` + date + `</p>
                </span>
             </div>
          </div>
@@ -793,7 +794,7 @@ let email
                                        <div class="white-background " style="float: right; margin: 7px; right:0px;  border-radius: 6px; " >
                                           <span class="panel-icon " id="spanz" style=' display: inline ;  '>
                                              <i class="fas fa-car " aria-hidden="true" style="margin: 13px; margin-left: 15px;"></i>
-                                             <p style=" display: inline; font-size: 15px;  font-weight: 300;" id="datez">` + date + `</p>
+                                             <p style=" display: inline; font-size: 15px;  font-weight: 300;" id="datez" class="datew">` + date + `</p>
                                           </span>
                                        </div>
                                     </div>
@@ -1231,9 +1232,9 @@ let email
           });
 
    
-   let carpooolss
+   let userData1s
 
-   var request = new Request("/api/users", {
+   /*var request = new Request("/api/users", {
       method: "GET",
       headers: new Headers({
         Accept: 'application/json',
@@ -1243,9 +1244,9 @@ let email
     fetch(request)
       .then((response) => response.json())
       .then((data) => {
-        carpooolss = data;
-          for (let k = 0; k < carpooolss.length; k++) {
-            if(carpooolss[k].dark == true){
+        userData1s = data;
+          for (let k = 0; k < userData1s.length; k++) {
+            if(userData1s[k].dark === true){
                document.getElementById("head").style.background = "#1c1c1c";
                let temp = document.getElementsByClassName("title");
                for (let i = 0; i < temp.length; i++) {
@@ -1273,20 +1274,58 @@ let email
                for (let i = 0; i < white.length; i++) {
                   white[i].style.color = "white";
                }
-          }
+               let isactive = document.getElementsByClassName("is-active");
+              for (let i = 0; i < isactive.length; i++) {
+                  isactive[i].style.color = "white";
+                  isactive[i].style.bordercolor = "#3e3e3e";
+              }
+              let isactive1 = document.getElementsByClassName("is-active1");
+              for (let i = 0; i < isactive1.length; i++) {
+                  isactive1[i].style.background = "#3e3e3e";
+                  isactive1[i].style.border = "#3e3e3e";
+                  isactive1[i].style.color = "white";
+              }
+              let leafletcontrolzoomin = document.getElementsByClassName("leaflet-control-zoom-in");
+              for (let i = 0; i < leafletcontrolzoomin.length; i++) {
+                  leafletcontrolzoomin[i].style.background = "rgb(0 0 0)";
+                  leafletcontrolzoomin[i].style.color = "white";
+              }
+              let leafletcontrolzoomin1 = document.getElementsByClassName("leaflet-control-zoom-out");
+              for (let i = 0; i < leafletcontrolzoomin1.length; i++) {
+                  leafletcontrolzoomin1[i].style.background = "rgb(0 0 0)";
+                  leafletcontrolzoomin1[i].style.color = "white";
+              }
+         }
 
-        }
-        })
-
+       }
+       })*/
 
 </script>
 <script>
-   function myTimer(i) {
-      let control = document.getElementsByClassName("control");
-      for (let i = 0; i < control.length; i++) {
+  function myTimer(i) {
+     let control = document.getElementsByClassName("control");
+     for (let i = 0; i < control.length; i++) {
 
-        control[i].style.color = "white"
+       control[i].style.color = "white"
+     }
+    let button = document.getElementsByClassName("button");
+     for (let i = 0; i < button.length; i++) {
+        button[i].style.color = "#ffffff";
+        button[i].style.background = "#3c3c3c";
+        button[i].style.border = "#bcae98";
+     }
+     let whitebackground = document.getElementsByClassName("white-background");
+       for (let i = 0; i < whitebackground.length; i++) {
+           whitebackground[i].style.background = "black";
+       }
+     let icons = document.getElementsByClassName("panel-icon ");
+     for (let i = 0; i < icons.length; i++) {
+       icons[i].style.color = "white";
       }
-      clearInterval(myTimer);
-   }
+     let dates = document.getElementsByClassName("datew")
+     for (let i = 0; i < dates.length; i++) {
+         dates[i].style.color = "white";
+     }
+     clearInterval(myTimer);
+  }
 </script>

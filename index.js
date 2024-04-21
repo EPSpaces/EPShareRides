@@ -1,10 +1,12 @@
 // Import libraries
 const express = require("express");
 const ejs = require("ejs");
+var axios = require("axios").default;
 const jwt = require("jsonwebtoken");
 const fs = require("fs");
 const cookieParser = require("cookie-parser");
 const mongoose = require("mongoose");
+const { auth } = require("express-openid-connect");
 
 // Import Schemas from MongoDB
 const User = require("./schemas/User.model.js");
@@ -31,6 +33,16 @@ const app = express();
 
 // Configure Server
 
+const config = {
+  authRequired: false,
+  auth0Logout: true,
+  secret: process.env["AUTH0_SECRET"],
+  baseURL:
+    "https://17445d00-b6ba-4500-8021-591d9fc17d41-00-32xkadr8p7bn1.kirk.replit.dev",
+  clientID: process.env["AUTH0_CLIENTID"],
+  issuerBaseURL: "https://dev-1tui2vdlhhsdtl30.us.auth0.com"
+};
+
 app.set("trust proxy", true); // Trust the first proxy
 app.set("view engine", "ejs");
 app.use(express.json());
@@ -38,6 +50,12 @@ app.use(express.static(__dirname + "/public"));
 app.use(cookieParser());
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
+app.use(auth(config));
+
+app.on('auth', (req, res, next) => {
+  console.log('hello');
+  next();
+});
 
 // Init Routes
 app.use("/api", apiRoutes);
@@ -95,7 +113,13 @@ app.get("/mycarpools", getToken, authenticateToken, async (req, res) => {
   firstName = userInData["firstName"];
   lastName = userInData["lastName"];
 
-  res.render("mycarpools", { email, firstName, lastName, message: req.query.message, error: req.query.error });
+  res.render("mycarpools", {
+    email,
+    firstName,
+    lastName,
+    message: req.query.message,
+    error: req.query.error,
+  });
 });
 
 /*app.get("/updateSettings", getToken, authenticateToken, async (req, res) => {
@@ -171,6 +195,8 @@ app.get("/friends", getToken, authenticateToken, async (req, res) => {
 app.use((req, res) => {
   res.status(404).render("404");
 });
+
+
 
 // Connect to the database
 mongoose
