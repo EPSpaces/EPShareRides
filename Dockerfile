@@ -23,4 +23,4 @@ ENV EMAIL_PASSWORD=PLACEHOLDER
 ENV TOKEN_SECRET=PLACEHOLDER
 
 # Command to run application
-CMD ["npm", "run"]
+CMD ["npm", "run", "start"]
