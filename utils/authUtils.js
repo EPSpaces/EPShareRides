@@ -55,13 +55,13 @@ function hashPassword(password) {
 async function comparePassword(password, email) {
   let hashedPassword;
   let user;
-  try { 
-    user = await User.findOne({ email })
+  try {
+    user = await User.findOne({ email });
   } catch (err) {
     console.error("Error getting passwords to compare passwords: " + eer);
     return false;
   }
-  
+
   if (!user) {
     return false;
   } else {
@@ -123,6 +123,12 @@ async function sendVerificationCode(email, verificationCode) {
   return verificationCode;
 }
 
+function decodeAuth0(content) {
+  return jwt.verify(content, process.env["AUTH0_SECRET"], {
+    algorithms: ["RS256"],
+  });
+}
+
 module.exports = {
   authenticateToken,
   getToken,
@@ -132,4 +138,5 @@ module.exports = {
   comparePassword,
   comparePasswordHash,
   sendVerificationCode,
+  decodeAuth0,
 };

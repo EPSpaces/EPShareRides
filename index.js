@@ -1,9 +1,9 @@
 // Import libraries
 const express = require("express");
 const ejs = require("ejs");
-var axios = require("axios").default;
-const jwt = require("jsonwebtoken");
+const axios = require("axios").default;
 const fs = require("fs");
+const jwt = require("jsonwebtoken");
 const cookieParser = require("cookie-parser");
 const mongoose = require("mongoose");
 const { auth } = require("express-openid-connect");
@@ -40,7 +40,7 @@ const config = {
   baseURL:
     "https://17445d00-b6ba-4500-8021-591d9fc17d41-00-32xkadr8p7bn1.kirk.replit.dev",
   clientID: process.env["AUTH0_CLIENTID"],
-  issuerBaseURL: "https://dev-1tui2vdlhhsdtl30.us.auth0.com"
+  issuerBaseURL: "https://dev-1tui2vdlhhsdtl30.us.auth0.com",
 };
 
 app.set("trust proxy", true); // Trust the first proxy
@@ -48,14 +48,24 @@ app.set("view engine", "ejs");
 app.use(express.json());
 app.use(express.static(__dirname + "/public"));
 app.use(cookieParser());
-app.use(express.json({ limit: "10mb" }));
-app.use(express.urlencoded({ extended: true, limit: "10mb" }));
-app.use(auth(config));
+app.use(express.json({ limit: "100mb" }));
+app.use(express.urlencoded({ extended: true, limit: "100mb" }));
 
-app.on('auth', (req, res, next) => {
-  console.log('hello');
-  next();
+app.post("/callback", (req, res) => {
+  console.log("heahahahaha it got called back");
+  console.log(req.body);
+  res.send(
+    "Ba Ba Black Sheep Have You Any Wool? Yes sir Yes sir 3 bags full. One for the master, one for the dame, and one for the little boy who lives down the lane.",
+  );
+  //const anmolestonto = jwt.verify(req.body, process.env["AUTH0_SECRET"], {algorithms: ["RS256"],});
+  console.log(
+    jwt.verify(req.body.id_token, process.env["AUTH0_SECRET"], {
+      algorithms: ["HS256"],
+    }),
+  );
 });
+
+app.use(auth(config));
 
 // Init Routes
 app.use("/api", apiRoutes);
@@ -195,8 +205,6 @@ app.get("/friends", getToken, authenticateToken, async (req, res) => {
 app.use((req, res) => {
   res.status(404).render("404");
 });
-
-
 
 // Connect to the database
 mongoose
