@@ -51,25 +51,11 @@ app.use(cookieParser());
 app.use(express.json({ limit: "100mb" }));
 app.use(express.urlencoded({ extended: true, limit: "100mb" }));
 
-app.post("/callback", (req, res) => {
-  console.log("heahahahaha it got called back");
-  console.log(req.body);
-  res.send(
-    "Ba Ba Black Sheep Have You Any Wool? Yes sir Yes sir 3 bags full. One for the master, one for the dame, and one for the little boy who lives down the lane.",
-  );
-  //const anmolestonto = jwt.verify(req.body, process.env["AUTH0_SECRET"], {algorithms: ["RS256"],});
-  console.log(
-    jwt.verify(req.body.id_token, process.env["AUTH0_SECRET"], {
-      algorithms: ["HS256"],
-    }),
-  );
-});
-
-app.use(auth(config));
-
 // Init Routes
 app.use("/api", apiRoutes);
 app.use("/", authRoutes);
+
+app.use(auth(config));
 
 app.get("/", getToken, authenticateToken, async (req, res) => {
   const email = req.email;
@@ -211,16 +197,6 @@ mongoose
   .connect(process.env["MONGO_URI"])
   .then(() => {
     console.log("Connected to db");
-
-    // Create the TTL index after the connection is established
-    mongoose.connection.once("open", () => {
-      const verificationCodeCollection =
-        mongoose.connection.db.collection("VerificationCode");
-      verificationCodeCollection.createIndex(
-        { createdAt: 1 },
-        { expireAfterSeconds: 300 },
-      );
-    });
 
     app.listen(process.env["PORT"], () => {
       console.log("Server started on port " + process.env["PORT"]);

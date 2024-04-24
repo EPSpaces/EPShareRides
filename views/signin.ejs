@@ -58,35 +58,8 @@
           
         </div>
        
-        <a class="">
-           <div class="field">
-             <p class="control has-icons-left has-icons-right">
-               <input class="input is-link" type="email" placeholder="Email" id="email"; style="margin:10px;margin-bottom:0px;padding-righ;margin-right:10px;width: calc(100% - 20px)">
-               <span class="icon is-small is-left" style="margin:10px">
-                 <i class="fas fa-envelope"></i>
-               </span>
-               <span class="icon is-small is-right" style="margin:10px">
-                 <i class="fas fa-check"></i>
-               </span>
-             </p>
-           </div>
-        </a>
-        
-          <a class="" style="">
-           <div class="field">
-             <p class="control has-icons-left">
-               <input class="input is-link" type="password" placeholder="Password" style="margin:10px; width: calc(100% - 20px)" id="password">
-               <span class="icon is-small is-left" style="margin:10px">
-                 <i class="fas fa-lock"></i>
-               </span>
-             </p>
-           </div>
-        </a>
-        <!-- <div class="button is-link is-outlined is-fullwidth" style="margin: 10px; width: calc(100% - 20px)">
-            Log in with EPS Account
-        </div> -->
         <button class="button is-fullwidth is-link is-outlined" style="margin-top: 10px;" onclick="signin()">
-          Log in
+          Log in with EPS
         </button>
      
       </article>
@@ -96,32 +69,7 @@
   <script src="./index_signup.js"></script>
   <script>
     function signin() {
-      const email = document.getElementById("email").value;
-      const password = document.getElementById("password").value;
-
-      const data = {
-        email,
-        password,
-      };
-
-      const jsonData = JSON.stringify(data);
-
-      const url = "/auth/signin";
-      let accessToken;
-
-      fetch(url, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: jsonData,
-      })
-        .then((response) => {
-          if (response.redirected) {
-            window.location.href = response.url;
-          }
-        })
-        .catch(error => console.error('Error:', error));
+      window.location.href = "/login";
       
       
 
