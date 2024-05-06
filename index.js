@@ -53,7 +53,7 @@ app.use(express.urlencoded({ extended: true, limit: "100mb" }));
 
 // Init Routes
 app.use("/api", apiRoutes);
-app.use("/", authRoutes);
+app.use("/", authRoutes);  
 
 app.use(auth(config));
 
