@@ -1,15 +1,18 @@
 <!DOCTYPE html>
 <html lang="en" id="head">
   <head>
+    <!--Header tools-->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>EPShare Rides</title>
+    <!--Bulma install-->
     <link href="./bulma.min.css" rel="stylesheet" type="text/css" />
     <link href="./style.css" rel="stylesheet" type="text/css" />
+    <!--Fonts-->
     <script src="https://kit.fontawesome.com/16ae8e710d.js" crossorigin="anonymous"></script>
+    <!--Icon-->
     <link rel="icon" href="favicon.png" type="image/x-icon">
-    <link rel="stylesheet" href="./style.css">
 
   </head>
   <body>
@@ -157,12 +160,15 @@
 
   </script>
   <script>
+    //Creates var
     let userData1;
 
-
+    //initializes request
     var request = new Request("/api/users", {
+      //HTTP get request
         method: "GET",
         headers: new Headers({
+          //Content Type
           Accept: 'application/json',
           'Content-Type': 'application/json',
         })
@@ -170,7 +176,9 @@
       fetch(request)
         .then((response) => response.json())
         .then((data) => {
+          //Data we get back is called userData1
           userData1 = data;
+          //adds all the people from the db to the friends page.
           for (let k = 0; k < userData1.length; k++) {
             console.log(userData1[k])
             console.log(k)
