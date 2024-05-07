@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,6 +9,7 @@
   <link href="./style.css" rel="stylesheet" type="text/css" />
   <link rel="icon" href="favicon.png" type="image/x-icon">
 </head>
+
 <body>
   <div id="errordiv">
     <article class="message is-danger" id="error">
@@ -23,7 +25,7 @@
   </div>
 
   <article class="panel is-link vertical-center" id="deleteaccount" style=" ">
-    <p class="panel-heading"style="background: linear-gradient(105deg, #3273DC, #275CBF);">
+    <p class="panel-heading" style="background: linear-gradient(105deg, #3273DC, #275CBF);">
       Delete EPShare Ride account
       <span style="font-size: 1em; color: #30B700; float: right">
         <i class="fa-solid fa-leaf"></i>
@@ -34,72 +36,74 @@
 
     </div>
 
- 
-      <a class="" style="">
-       <div class="field">
-         <p class="control has-icons-left">
-           <input class="input is-link" type="password" placeholder="Password" style="margin:10px; width: 97%" id="password">
-           <span class="icon is-small is-left" style="margin:10px">
-             <i class="fas fa-lock"></i>
-           </span>
-         </p>
-       </div>
+
+    <a class="" style="">
+      <div class="field">
+        <p class="control has-icons-left">
+          <input class="input is-link" type="password" placeholder="Password" style="margin:10px; width: 97%"
+            id="password">
+          <span class="icon is-small is-left" style="margin:10px">
+            <i class="fas fa-lock"></i>
+          </span>
+        </p>
+      </div>
     </a>
     <label class="checkbox" style="margin-left: 20px;">
       <input type="checkbox" id="checkbox">
       I understand that this action cannot be undone<br>
     </label>
     <div class="buttons" style="margin-left: 10px; margin-bottom: 0px;">
-    <button class="button  is-danger " style="margin-top: 10px;" onclick="deleteAccount()">
-      Delete account
-    </button>
-    <button class="button " style="margin-top: 10px;" onclick="window.location.href = '/'">
-      Cancel
-    </button>
-      </div>
+      <button class="button  is-danger " style="margin-top: 10px;" onclick="deleteAccount()">
+        Delete account
+      </button>
+      <button class="button " style="margin-top: 10px;" onclick="window.location.href = '/'">
+        Cancel
+      </button>
+    </div>
 
   </article>
 
-  
-    <script>
-      const errorFromServer = "<%= error %>";
-      const warningHTML = document.getElementById("errordiv").innerHTML;
 
-      if (errorFromServer == "") {
-        document.getElementById("errordiv").innerHTML = "";
+  <script>
+    const errorFromServer = "<%= error %>";
+    const warningHTML = document.getElementById("errordiv").innerHTML;
+
+    if (errorFromServer == "") {
+      document.getElementById("errordiv").innerHTML = "";
+    }
+
+    function deleteAccount() {
+      const data = { password: document.getElementById("password").value, };
+      const checkBoxChecked = document.getElementById("checkbox").checked;
+
+      if (!data.password) {
+        document.getElementById("errordiv").innerHTML = warningHTML;
+        document.getElementById("errormessagebody").innerHTML = "Please enter your password";
+        return;
+      } else if (!checkBoxChecked) {
+        document.getElementById("errordiv").innerHTML = warningHTML;
+        document.getElementById("errormessagebody").innerHTML = "Please check the box";
+        return;
       }
-      
-      function deleteAccount() {
-        const data = { password: document.getElementById("password").value,       };
-        const checkBoxChecked = document.getElementById("checkbox").checked;
 
-        if (!data.password) {
-          document.getElementById("errordiv").innerHTML = warningHTML;
-          document.getElementById("errormessagebody").innerHTML = "Please enter your password";
-          return;
-        } else if (!checkBoxChecked) {
-          document.getElementById("errordiv").innerHTML = warningHTML;
-          document.getElementById("errormessagebody").innerHTML = "Please check the box";
-          return;
-        }
-
-        const jsonData = JSON.stringify(data);
+      const jsonData = JSON.stringify(data);
 
 
-        fetch("/auth/deleteAccount", {
-          method: "DELETE",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: jsonData,
-        })
+      fetch("/auth/deleteAccount", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: jsonData,
+      })
         .then((response) => {
           if (response.redirected) {
             window.location.href = response.url;
           }
         })
         .catch(error => console.error("Error:", error));
-      }
-    </script>
+    }
+  </script>
 </body>
+
 </html>
