@@ -118,12 +118,9 @@ router.get("/events", getToken, authenticateToken, async (req, res) => {
 });
 
 router.post("/events", getToken, authenticateToken, async (req, res) => {
-  const { eventName, wlocation, date, category, address1234567890 } = req.body;
-
-  if (!eventName || !wlocation || !date || !category || !address1234567890) {
-    res.status(400).send("Bad Request");
-    return;
-  }
+  console.log("ari yamamoto")
+  const { eventName, wlocation, date, category, addressToPut } = req.body;
+  console.log("hhi");
   let userInData;
   const email = req.email;
   try {
@@ -152,7 +149,7 @@ router.post("/events", getToken, authenticateToken, async (req, res) => {
       lastName,
       eventName,
       wlocation,
-      address1234567890,
+      addressToPut,
       date,
       category,
     });
@@ -266,11 +263,14 @@ router.get(
       const carpoolOwnerEmailE = await Carpool.findById(carpoolId);
       const carpoolOwnerEmail = carpoolOwnerEmailE.email;
 
-      const carpoolOwnerCell = await User.findOne({ email: carpoolOwnerEmail }).cell;
+      const carpoolOwnerCell = await User.findOne({ email: carpoolOwnerEmail })
+        .cell;
 
       if (carpoolOwnerCell == undefined || carpoolOwnerCell == "none") {
-        userCommunication.push(carpoolOwnerEmail)
-      } else { userCommunication.push(carpoolOwnerCell) }
+        userCommunication.push(carpoolOwnerEmail);
+      } else {
+        userCommunication.push(carpoolOwnerCell);
+      }
 
       const carpoolersInfoO = await Carpool.findById(carpoolId).exec();
 

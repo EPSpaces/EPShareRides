@@ -1,4 +1,8 @@
 node_modules
+Caddyfile
+docker-compose.yml
+Dockerfile
+npm-debug.log
 .breakpoints
 .cache
 .config
