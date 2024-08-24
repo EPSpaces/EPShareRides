@@ -2,13 +2,13 @@
 FROM node:lts-alpine
 
 # Set working directory
-WORKDIR /app
+WORKDIR /usr/src/app
 
 # Copy package.json and package-lock.json
 COPY package*.json ./
 
 # Install dependecies
-RUN npm install
+RUN npm i
 
 # Copy the rest of the application's code
 COPY . .
@@ -23,4 +23,4 @@ ENV EMAIL_PASSWORD=PLACEHOLDER
 ENV TOKEN_SECRET=PLACEHOLDER
 
 # Command to run application
-CMD ["npm", "run", "start"]
+CMD ["npm", "start"]
