@@ -6,9 +6,20 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "3000:80"
+      - "3000:3000"
     networks:
       - app_network
+    environment:
+      - MONGO_URI=${MONGO_URI}
+      - PORT=${PORT}
+      - EMAIL_ADDRESS=${EMAIL_ADDRESS}
+      - EMAIL_PASSWORD=${EMAIL_PASSWORD}
+      - TOKEN_SECRET=${TOKEN_SECRET}
+      - MODE=${MODE}
+      - SESSION_SECRET=${SESSION_SECRET}
+      - AUTH0_CLIENTID=${AUTH0_CLIENTID}
+      - AUTH0_SECRET=${AUTH0_SECRET}
+      - BASE_URL=${BASE_URL}
 
   caddy:
     image: caddy:latest
@@ -16,7 +27,9 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      - ./Caddyfile:/etc/Caddyfile
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
     networks:
       - app_network
     depends_on:
@@ -25,3 +38,7 @@ services:
 networks:
   app_network:
     driver: bridge
+
+volumes:
+  caddy_data:
+  caddy_config:
