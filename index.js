@@ -1,3 +1,8 @@
+// Import ENV Vars
+if (process.env.MODE != 'PROD') {
+  require('dotenv').config()
+}
+
 // Import libraries
 const express = require("express");
 const ejs = require("ejs");
