@@ -118,9 +118,7 @@ router.get("/events", getToken, authenticateToken, async (req, res) => {
 });
 
 router.post("/events", getToken, authenticateToken, async (req, res) => {
-  console.log("ari yamamoto")
   const { eventName, wlocation, date, category, addressToPut } = req.body;
-  console.log("hhi");
   let userInData;
   const email = req.email;
   try {
@@ -149,10 +147,12 @@ router.post("/events", getToken, authenticateToken, async (req, res) => {
       lastName,
       eventName,
       wlocation,
-      addressToPut,
+      address: addressToPut,
       date,
       category,
     });
+
+    console.log(newEvent);
 
     await newEvent.save();
   } catch (err) {
