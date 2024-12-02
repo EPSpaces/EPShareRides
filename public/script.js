@@ -148,7 +148,7 @@ function add(carpoolId) {
     //the destination
     var marker = L.marker(geocode[result.address]).addTo(markersGroup);
     marker.options.shadowSize = [0, 0];
-    var popup = marker.bindPopup(`<i class="fa-solid fa-location-dot" style="color: Tomato; font-size: 15px"></i> ` + result.wlocation + "<br>" + result.address);
+    var popup = marker.bindPopup(`<i class="fa-solid fa-location-dot" style="color: Tomato; font-size: 17px"></i> ` + result.wlocation + "<br>" + result.address);
 
     carpoolPoints.push(geocode[carpool.wlocation]);
     homeHomeLines(carpoolPoints, geocode[result.address]);
