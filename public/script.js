@@ -1,3 +1,4 @@
+//code for the map
 var MARKERS_MAX = 4;
 var markers = 0;
 
@@ -10,49 +11,18 @@ map.attributionControl.setPrefix(false);
 var markersGroup = L.layerGroup();
 map.addLayer(markersGroup);
 
+//temp storage of points on map
 const points = [];
 map.on("click", function (e) {
-  //var marker = L.marker(e.latlng).addTo(markersGroup);
-
   points[markers] = L.marker(e.latlng);
   markers++;
   console.log(e.latlng);
-  /*const datastuff = points[markers];
-
-  const data = {
-    datastuff,
-  };
-
-  const jsonData = JSON.stringify(data);
-
-  const url = "/auth/signup";
-
-  fetch(url, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: jsonData,
-  })
-    .then((response) => {
-      if (response.redirected) {
-        window.location.href = response.url;
-      }
-    })
-    .catch((error) => console.error("Error:", error));
-  return;*/
 });
-
-// var latlngs = [
-//   [47.64332055551951, 237.80129313468936],
-//   [47.671123312785845, 237.80606227232607]
-// ];
-
-// var polyline = L.polyline(latlngs, {color: "#3273dc"}).addTo(map);
 
 let geocode = {};
 let carpools;
 
+//Gets the events
 fetch("/api/events", {
   method: "GET",
 })
@@ -68,6 +38,7 @@ fetch("/api/events", {
         carpools = data;
         console.log(carpools);
 
+        //puts events on map
         for (let i = 0; i < carpools.length; i++) {
           carpools[i].carpoolers.forEach((carpooler) => {
             getAddressCoordinates(carpooler.address);
@@ -79,6 +50,7 @@ fetch("/api/events", {
           getAddressCoordinates(carpools[i].wlocation);
         }
 
+        //As the name suggests, it gets the coordinates of the addresses
         function getAddressCoordinates(address) {
           const apiKey = "992ef3d60d434f2283ea8c6d70a4898d"; // Replace 'YOUR_API_KEY' with your actual API key
           const url = `https://api.geoapify.com/v1/geocode/search?text=${encodeURIComponent(
