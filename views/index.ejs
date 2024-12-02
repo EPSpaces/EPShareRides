@@ -1305,6 +1305,7 @@
       var components = dateb.split(/[-T:]/);
 
       address = document.getElementById("create_address").value
+      
       // Create a new Date object
       var dateTimeObject = new Date(components[0], components[1] - 1, components[2], components[3], components[4]);
       // Format the Date object as a string in the desired format
@@ -1322,7 +1323,7 @@
         wlocation,
         date,
         category,
-        address
+        addressToPut: address
       };
       console.log(data);
 
