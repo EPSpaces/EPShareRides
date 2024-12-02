@@ -1,6 +1,6 @@
 // Import ENV Vars
 if (process.env.MODE != 'PROD') {
-  require('dotenv').config()
+  require('dotenv').config(); // Load environment variables from .env file in non-production mode
 }
 
 // Import libraries
@@ -37,7 +37,6 @@ const apiRoutes = require("./routes/apiRoutes");
 const app = express();
 
 // Configure Server
-
 const config = {
   authRequired: false,
   auth0Logout: true,
@@ -48,19 +47,20 @@ const config = {
 };
 
 app.set("trust proxy", true); // Trust the first proxy
-app.set("view engine", "ejs");
-app.use(express.json());
-app.use(express.static(__dirname + "/public"));
-app.use(cookieParser());
-app.use(express.json({ limit: "100mb" }));
-app.use(express.urlencoded({ extended: true, limit: "100mb" }));
+app.set("view engine", "ejs"); // Set view engine to EJS
+app.use(express.json()); // Parse JSON requests
+app.use(express.static(__dirname + "/public")); // Serve static files
+app.use(cookieParser()); // Parse cookies
+app.use(express.json({ limit: "100mb" })); // Set JSON body limit to 100mb
+app.use(express.urlencoded({ extended: true, limit: "100mb" })); // Parse URL-encoded bodies with limit
 
 // Init Routes
-app.use("/api", apiRoutes);
-app.use("/", authRoutes);  
+app.use("/api", apiRoutes); // Use API routes
+app.use("/", authRoutes);  // Use auth routes
 
-app.use(auth(config));
+app.use(auth(config)); // Use auth middleware with config
 
+// Home route
 app.get("/", getToken, authenticateToken, async (req, res) => {
   const email = req.email;
   let firstName;
@@ -69,12 +69,10 @@ app.get("/", getToken, authenticateToken, async (req, res) => {
   let userInData;
 
   try {
-    userInData = await User.findOne({ email });
+    userInData = await User.findOne({ email }); // Find user by email
     if (!userInData) {
       res.clearCookie("authToken");
-      res.redirect(
-        "/signin?err=Error with system finding User, please try again",
-      );
+      res.redirect("/signin?err=Error with system finding User, please try again");
       return;
     }
   } catch (err) {
@@ -87,13 +85,15 @@ app.get("/", getToken, authenticateToken, async (req, res) => {
   lastName = userInData["lastName"];
   admin = userInData["admin"];
 
-  res.render("index", { email, firstName, lastName, admin });
+  res.render("index", { email, firstName, lastName, admin }); // Render home page
 });
 
+// Sustainability statement route
 app.get("/sustainabilityStatement", (req, res) => {
-  res.render("sustainabilityStatement");
+  res.render("sustainabilityStatement"); // Render sustainability statement page
 });
 
+// My carpools route
 app.get("/mycarpools", getToken, authenticateToken, async (req, res) => {
   const email = req.email;
   let firstName;
@@ -102,7 +102,7 @@ app.get("/mycarpools", getToken, authenticateToken, async (req, res) => {
   let userInData;
 
   try {
-    userInData = await User.findOne({ email });
+    userInData = await User.findOne({ email }); // Find user by email
   } catch (err) {
     console.error("Error finding user: " + err);
     res.clearCookie("authToken");
@@ -119,13 +119,10 @@ app.get("/mycarpools", getToken, authenticateToken, async (req, res) => {
     lastName,
     message: req.query.message,
     error: req.query.error,
-  });
+  }); // Render my carpools page
 });
 
-/*app.get("/updateSettings", getToken, authenticateToken, async (req, res) => {
-  res.render("updateSettings", { error: req.query.err, suc: req.query.suc });
-});*/
-
+// Update settings route
 app.get("/updateSettings", getToken, authenticateToken, async (req, res) => {
   const email = req.email;
   let firstName;
@@ -134,7 +131,7 @@ app.get("/updateSettings", getToken, authenticateToken, async (req, res) => {
   let userInData;
 
   try {
-    userInData = await User.findOne({ email });
+    userInData = await User.findOne({ email }); // Find user by email
   } catch (err) {
     console.error("Error finding user: " + err);
     res.clearCookie("authToken");
@@ -145,19 +142,16 @@ app.get("/updateSettings", getToken, authenticateToken, async (req, res) => {
   firstName = userInData["firstName"];
   lastName = userInData["lastName"];
 
-  res.render("updateSettings", { email, firstName, lastName });
+  res.render("updateSettings", { email, firstName, lastName }); // Render update settings page
 });
 
-//app.get("/updateSettings", getToken, authenticateToken, async (req, res) => {
-//  res.render("updateSettings", { error: req.query.err, suc: req.query.suc });
-//});
-
+// Friends route
 app.get("/friends", getToken, authenticateToken, async (req, res) => {
   let people = [];
   let i = 0;
   let users;
   try {
-    users = await User.find({});
+    users = await User.find({}); // Find all users
   } catch (err) {
     res.status(500).send("Error retrieving users");
   }
@@ -177,7 +171,7 @@ app.get("/friends", getToken, authenticateToken, async (req, res) => {
   let userInData;
 
   try {
-    userInData = await User.findOne({ email });
+    userInData = await User.findOne({ email }); // Find user by email
   } catch (err) {
     console.error("Error finding user: " + err);
     res.clearCookie("authToken");
@@ -188,22 +182,22 @@ app.get("/friends", getToken, authenticateToken, async (req, res) => {
   firstName = userInData["firstName"];
   lastName = userInData["lastName"];
 
-  res.render("friends", { people, email, firstName, lastName });
+  res.render("friends", { people, email, firstName, lastName }); // Render friends page
 });
 
 // Setup 404 page
 app.use((req, res) => {
-  res.status(404).render("404");
+  res.status(404).render("404"); // Render 404 page
 });
 
 // Connect to the database
 mongoose
-  .connect(process.env["MONGO_URI"])
+  .connect(process.env["MONGO_URI"]) // Connect to MongoDB
   .then(() => {
     console.log("Connected to db");
 
     app.listen(process.env["PORT"], () => {
-      console.log("Server started on port " + process.env["PORT"]);
+      console.log("Server started on port " + process.env["PORT"]); // Start server
     });
   })
   .catch((err) => {

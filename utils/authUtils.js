@@ -3,7 +3,7 @@ const bcrypt = require("bcrypt");
 const nodemailer = require("nodemailer");
 const User = require("../schemas/User.model");
 
-// Verify token sent and set req.email to the user's email
+// Middleware to verify the token sent and set req.email to the user's email
 function authenticateToken(req, res, next) {
   const authHeader = req.headers && req.headers["Authorization"];
   const token = authHeader && authHeader.split(" ")[1];
@@ -21,7 +21,7 @@ function authenticateToken(req, res, next) {
   });
 }
 
-// Move the token from the cookie jar to the request header
+// Middleware to move the token from the cookie jar to the request header
 function getToken(req, res, next) {
   const token = req.cookies && req.cookies["authToken"];
 
@@ -32,7 +32,7 @@ function getToken(req, res, next) {
   next();
 }
 
-// Only allows the user to go through if they do not have a token
+// Middleware to only allow the user to proceed if they do not have a token
 function ensureNoToken(req, res, next) {
   const token = req.cookies && req.cookies["authToken"];
   if (token != null) {
@@ -41,24 +41,26 @@ function ensureNoToken(req, res, next) {
   next();
 }
 
+// Generate a JWT access token
 function generateAccessToken(user) {
   return jwt.sign(user, process.env["TOKEN_SECRET"], { expiresIn: "60m" });
 }
 
+// Hash a password using bcrypt
 function hashPassword(password) {
   const saltRounds = 10;
   const salt = bcrypt.genSaltSync(saltRounds);
-
   return bcrypt.hashSync(password, salt);
 }
 
+// Compare a password with the hashed password stored in the database
 async function comparePassword(password, email) {
   let hashedPassword;
   let user;
   try {
     user = await User.findOne({ email });
   } catch (err) {
-    console.error("Error getting passwords to compare passwords: " + eer);
+    console.error("Error getting passwords to compare passwords: " + err);
     return false;
   }
 
@@ -73,6 +75,7 @@ async function comparePassword(password, email) {
   }
 }
 
+// Compare a hash with the hashed password stored in the database
 function comparePasswordHash(hash, email, users) {
   let hashedPassword;
 
@@ -92,6 +95,7 @@ function comparePasswordHash(hash, email, users) {
     });
 }
 
+// Send a verification code to the user's email using nodemailer
 async function sendVerificationCode(email, verificationCode) {
   const transporter = nodemailer.createTransport({
     host: "smtp.gmail.com",
@@ -123,6 +127,7 @@ async function sendVerificationCode(email, verificationCode) {
   return verificationCode;
 }
 
+// Decode a token using Auth0's secret
 function decodeAuth0(content) {
   return jwt.verify(content, process.env["AUTH0_SECRET"], {
     algorithms: ["RS256"],

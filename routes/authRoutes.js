@@ -18,30 +18,30 @@ const {
   sendVerificationCode,
 } = require("../utils/authUtils");
 
+// Route to render the signup page
 router.get("/signup", ensureNoToken, (req, res) => {
   res.render("signup", { error: req.query.err });
 });
 
+// Route to render the signin page
 router.get("/signin", ensureNoToken, (req, res) => {
   res.render("signin", { error: req.query.err, message: req.query.message });
 });
 
+// Route to log out the user and clear the auth token
 router.get("/logout", (req, res) => {
   res.clearCookie("authToken");
   res.redirect("/signin");
 });
 
+// Route to render the delete account page
 router.get("/deleteAccount", getToken, authenticateToken, (req, res) => {
   res.render("deleteAccount", { error: req.query.err });
 });
 
+// Route to handle user signup
 router.post("/auth/signup", async (req, res) => {
-  if (
-    !req.body.firstName ||
-    !req.body.lastName ||
-    !req.body.email ||
-    !req.body.password
-  ) {
+  if (!req.body.firstName || !req.body.lastName || !req.body.email || !req.body.password) {
     res.redirect("/signup?err=Please fill in all fields");
     return;
   }
@@ -52,18 +52,16 @@ router.post("/auth/signup", async (req, res) => {
     UserAlready = await User.findOne({ email: req.body.email });
   } catch (err) {
     console.error("Error finding user during verification cache: " + err);
-    res.redirect(
-      "/signup?err=Error validating user creation, please try again",
-    );
+    res.redirect("/signup?err=Error validating user creation, please try again");
     return;
   }
+
   if (UserAlready) {
     res.redirect("/signup?err=Email already exists");
     return;
   }
 
-  const verificationCode =
-    Math.floor(Math.random() * (999999 - 100000 + 1)) + 100000;
+  const verificationCode = Math.floor(Math.random() * (999999 - 100000 + 1)) + 100000;
   sendVerificationCode(req.body.email, verificationCode);
   const newVerificationCode = new VerificationCode({
     ip: req.ip,
@@ -83,27 +81,20 @@ router.post("/auth/signup", async (req, res) => {
   try {
     await newVerificationCode.save();
   } catch (err) {
-    console.error(
-      "Error saving verification code for: " +
-        req.body.email +
-        "at ip: " +
-        req.ip +
-        "With this error: " +
-        err,
-    );
-    res.redirect(
-      "/signup?err=Error sending verification code, please try again",
-    );
+    console.error("Error saving verification code for: " + req.body.email + " at ip: " + req.ip + " With this error: " + err);
+    res.redirect("/signup?err=Error sending verification code, please try again");
     return;
   }
 
   res.redirect("/verification?email=" + req.body.email);
 });
 
+// Route to render the verification page
 router.get("/verification", (req, res) => {
   res.render("verification", { email: req.query.email, error: req.query.err });
 });
 
+// Route to handle verification of the signup code
 router.post("/auth/signupConfirm", async (req, res) => {
   const { email, code } = req.body;
   const ip = req.ip;
@@ -125,10 +116,9 @@ router.post("/auth/signupConfirm", async (req, res) => {
     res.redirect("/signup?Internal server error, please try again");
     return;
   }
+
   if (!verifyEntry) {
-    res.redirect(
-      "/signup?err=Verification session timed out, please try again",
-    );
+    res.redirect("/signup?err=Verification session timed out, please try again");
     return;
   }
 
@@ -142,17 +132,13 @@ router.post("/auth/signupConfirm", async (req, res) => {
     });
   } catch (err) {
     console.error("Error finding ip cache after found: " + err);
-    res.redirect(
-      "/verification?Internal server error, please try again&email=" + email,
-    );
+    res.redirect("/verification?Internal server error, please try again&email=" + email);
     return;
   }
 
   if (!entryToDelete) {
     console.error("Error finding ip cache after found: " + err);
-    res.redirect(
-      "/verification?Internal server error, please try again&email=" + email,
-    );
+    res.redirect("/verification?Internal server error, please try again&email=" + email);
     return;
   }
 
@@ -164,9 +150,7 @@ router.post("/auth/signupConfirm", async (req, res) => {
       email,
     });
   } catch (err) {
-    console.error(
-      "Error finding user with email to check if email exists: " + err,
-    );
+    console.error("Error finding user with email to check if email exists: " + err);
     res.redirect("/signup?err=Internal server error, please try again");
     return;
   }
@@ -199,9 +183,7 @@ router.post("/auth/signupConfirm", async (req, res) => {
 
     newUser.deleteOne({ email: user.email }).catch((err) => {
       console.error("Error deleting newly created user: " + err);
-      res.redirect(
-        "/signin?err=Error creating user and concurrent exception while repairing, please report this as a bug",
-      );
+      res.redirect("/signin?err=Error creating user and concurrent exception while repairing, please report this as a bug");
     });
     res.redirect("/signup?err=Internal server error, please try again");
   });
@@ -217,12 +199,11 @@ router.post("/auth/signupConfirm", async (req, res) => {
     });
     res.redirect("/");
   } else {
-    res.redirect(
-      "/signin?err=Account created, error while signing in, please try to sign in",
-    );
+    res.redirect("/signin?err=Account created, error while signing in, please try to sign in");
   }
 });
 
+// Route to handle user signin
 router.post("/auth/signin", async (req, res) => {
   const { email, password } = req.body;
 
@@ -240,41 +221,34 @@ router.post("/auth/signin", async (req, res) => {
   }
 });
 
-router.delete(
-  "/auth/deleteAccount",
-  getToken,
-  authenticateToken,
-  (req, res) => {
-    const { password } = req.body;
-    const email = req.email;
-    res.clearCookie("authToken");
-    if (comparePassword(password, email)) {
-      User.findOneAndDelete({ email })
-        .then((user) => {
-          if (!user) {
-            console.error("Error finding user to delete: " + err);
-            res.redirect(
-              "/signin?err=Error deleting account, please sign in and try again",
-            );
-            return;
-          } else {
-            res.redirect("/signin?message=Account deleted successfully");
-            return;
-          }
-        })
-        .catch((err) => {
-          console.error("Error removing user: " + eer);
-          res.redirect(
-            "/signin?err=Error deleting account, please sign in and try again",
-          );
+// Route to handle account deletion
+router.delete("/auth/deleteAccount", getToken, authenticateToken, (req, res) => {
+  const { password } = req.body;
+  const email = req.email;
+  res.clearCookie("authToken");
+  if (comparePassword(password, email)) {
+    User.findOneAndDelete({ email })
+      .then((user) => {
+        if (!user) {
+          console.error("Error finding user to delete: " + err);
+          res.redirect("/signin?err=Error deleting account, please sign in and try again");
           return;
-        });
-    } else {
-      res.redirect("/deleteAccount?err=Password Incorrect");
-    }
-  },
-);
+        } else {
+          res.redirect("/signin?message=Account deleted successfully");
+          return;
+        }
+      })
+      .catch((err) => {
+        console.error("Error removing user: " + err);
+        res.redirect("/signin?err=Error deleting account, please sign in and try again");
+        return;
+      });
+  } else {
+    res.redirect("/deleteAccount?err=Password Incorrect");
+  }
+});
 
+// Route to handle password change
 router.put("/changePassword", getToken, authenticateToken, async (req, res) => {
   const { currentPassword, newPassword } = req.body;
   if (!currentPassword || !newPassword) {
@@ -297,47 +271,38 @@ router.put("/changePassword", getToken, authenticateToken, async (req, res) => {
     );
   } catch (err) {
     console.error("Error updating password: " + err);
-    res.redirect(
-      "/updateSettings?err=Error updating password, please try again",
-    );
+    res.redirect("/updateSettings?err=Error updating password, please try again");
     return;
   }
 
   res.clearCookie("authToken");
-  res.redirect(
-    "/signin?message=Password updated successfully, please sign in again",
-  );
+  res.redirect("/signin?message=Password updated successfully, please sign in again");
 });
 
-router.patch(
-  "/updateSettings",
-  getToken,
-  authenticateToken,
-  async (req, res) => {
-    const { settingId, newStatus } = req.body;
-    if (!settingId || !newStatus) {
-      res.redirect("/updateSettings?err=Please fill in all fields");
-      return;
-    }
+// Route to handle updating user settings
+router.patch("/updateSettings", getToken, authenticateToken, async (req, res) => {
+  const { settingId, newStatus } = req.body;
+  if (!settingId || !newStatus) {
+    res.redirect("/updateSettings?err=Please fill in all fields");
+    return;
+  }
 
-    try {
-      await UserSettings.findOneAndUpdate(
-        { userEmail: req.email },
-        { $set: { [settingId]: newStatus } },
-        { new: true },
-      );
-    } catch (err) {
-      console.error("Error updating settings: " + err);
-      res.redirect(
-        "/updateSettings?err=Error updating settings, please try again",
-      );
-      return;
-    }
+  try {
+    await UserSettings.findOneAndUpdate(
+      { userEmail: req.email },
+      { $set: { [settingId]: newStatus } },
+      { new: true },
+    );
+  } catch (err) {
+    console.error("Error updating settings: " + err);
+    res.redirect("/updateSettings?err=Error updating settings, please try again");
+    return;
+  }
 
-    res.redirect("/updateSettings?suc=Settings updated successfully");
-  },
-);
+  res.redirect("/updateSettings?suc=Settings updated successfully");
+});
 
+// Route to handle callback for authentication
 router.post("/callback", async (req, res) => {
   const user = jwt.verify(req.body.id_token, process.env["AUTH0_SECRET"], { algorithms: ['HS256'] });
   // const state = jwt.verify(req.body.state, process.env["AUTH0_SECRET"], { algorithms: ['HS256'] });
@@ -372,9 +337,7 @@ router.post("/callback", async (req, res) => {
         email,
       });
     } catch (err) {
-      console.error(
-        "Error finding user with email to check if email exists: " + err,
-      );
+      console.error("Error finding user with email to check if email exists: " + err);
       res.redirect("/signup?err=Internal server error, please try again");
       return;
     }

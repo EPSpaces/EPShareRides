@@ -498,7 +498,7 @@
    function addDirectionsButton(id) {
       var topRight = document.getElementsByClassName("leaflet-top leaflet-right");
       topRight[0].innerHTML = `
-  <div class="leaflet-control-attribution leaflet-control"><a style="font-size: 13px;" onclick="getPhoneRoute('` + id + `')">Get route directions <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i></a></div>`
+  <div class="leaflet-control-attribution leaflet-control"><a style="font-size: 15px; border-radius: 5px" onclick="getPhoneRoute('` + id + `')">View in maps <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i></a></div>`
    }
 
    function generateMapsLink(finalDestination, waypoints) {

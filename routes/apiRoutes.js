@@ -12,6 +12,7 @@ const Carpool = require("../schemas/Carpool.model.js");
 
 const router = express.Router();
 
+// Function to write data to a JSON file
 function writeToJSON(filepath, data) {
   const jsonString = JSON.stringify(data, null, 2);
   fs.writeFile(filepath, jsonString, (err) => {
@@ -21,16 +22,19 @@ function writeToJSON(filepath, data) {
   });
 }
 
+// Route to get points data
 router.get("/points", getToken, authenticateToken, (req, res) => {
   let points = require("../database/points.json");
   res.json(points);
 });
 
+// Route to get offer to carpool data
 router.get("/offerToCarpool", getToken, authenticateToken, (req, res) => {
   let offerToCarpool = require("../database/offerToCarpool.json");
   res.json(offerToCarpool);
 });
 
+// Route to join a carpool
 router.post("/joinCarpool", getToken, authenticateToken, async (req, res) => {
   let carpools;
   try {
@@ -105,6 +109,7 @@ router.post("/joinCarpool", getToken, authenticateToken, async (req, res) => {
   res.status(200);
 });
 
+// Route to get all events
 router.get("/events", getToken, authenticateToken, async (req, res) => {
   let events;
   try {
@@ -117,6 +122,7 @@ router.get("/events", getToken, authenticateToken, async (req, res) => {
   res.json(events);
 });
 
+// Route to create a new event
 router.post("/events", getToken, authenticateToken, async (req, res) => {
   const { eventName, wlocation, date, category, addressToPut } = req.body;
   let userInData;
@@ -164,6 +170,7 @@ router.post("/events", getToken, authenticateToken, async (req, res) => {
   return;
 });
 
+// Route to get all carpools
 router.get("/carpools", getToken, authenticateToken, async (req, res) => {
   try {
     const carpools = await Carpool.find({});
@@ -174,6 +181,7 @@ router.get("/carpools", getToken, authenticateToken, async (req, res) => {
   }
 });
 
+// Route to get user's carpools
 router.get("/userCarpools", getToken, authenticateToken, async (req, res) => {
   let carpools = [];
   try {
@@ -190,6 +198,7 @@ router.get("/userCarpools", getToken, authenticateToken, async (req, res) => {
   res.json(carpools);
 });
 
+// Route to get the route for a specific carpool
 router.get("/mapRoute/:id", getToken, authenticateToken, async (req, res) => {
   const { id } = req.params;
   if (!id) {
@@ -237,6 +246,7 @@ router.get("/mapRoute/:id", getToken, authenticateToken, async (req, res) => {
   }
 });
 
+// Route to get communication details for the users in a carpool
 router.get(
   "/carpoolUserCommunication/:id",
   getToken,
@@ -294,6 +304,7 @@ router.get(
   },
 );
 
+// Route to update the route for a specific carpool
 router.patch(
   "/carpools/updateRoute/:id",
   getToken,
@@ -323,6 +334,7 @@ router.patch(
   },
 );
 
+// Route to delete a specific carpool
 router.delete(
   "/carpools/:id",
   getToken,
@@ -341,7 +353,7 @@ router.delete(
   },
 );
 
-// Route for deleting a carpooler
+// Route for deleting a carpooler from a carpool
 router.patch(
   "/carpools/deleteCarpooler",
   getToken,
@@ -361,7 +373,7 @@ router.patch(
   },
 );
 
-// Route for updating the route
+// Route to update a specific carpool
 router.patch("/carpools/:id", getToken, authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
@@ -378,6 +390,7 @@ router.patch("/carpools/:id", getToken, authenticateToken, async (req, res) => {
   }
 });
 
+// Route to update user information
 router.patch("/users/update", async (req, res) => {
   try {
     const { _id, address, privacy } = req.body;
@@ -393,6 +406,7 @@ router.patch("/users/update", async (req, res) => {
   }
 });
 
+// Route to create a new carpool
 router.post("/carpools", getToken, authenticateToken, async (req, res) => {
   const {
     firstName,
@@ -440,6 +454,7 @@ router.post("/carpools", getToken, authenticateToken, async (req, res) => {
   res.status(200).send("Carpool created");
 });
 
+// Route to get all users
 router.get("/users", getToken, authenticateToken, async (req, res) => {
   let users;
   try {
