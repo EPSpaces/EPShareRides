@@ -19,7 +19,7 @@ const Event = require("./schemas/Event.model.js");
 const Carpool = require("./schemas/Carpool.model.js");
 const UserSettings = require("./schemas/UserSettings.model.js");
 
-// Init Verification Code Cache
+// Initialize verification code cache to store temporary verification codes
 const verificationCodeCache = {};
 
 // Import Util Functions
@@ -33,10 +33,10 @@ const {
 const authRoutes = require("./routes/authRoutes");
 const apiRoutes = require("./routes/apiRoutes");
 
-// Init Server
+// Initialize Express server
 const app = express();
 
-// Configure Server
+// Configure Auth0 Server settings
 const config = {
   authRequired: false,
   auth0Logout: true,
@@ -54,13 +54,13 @@ app.use(cookieParser()); // Parse cookies
 app.use(express.json({ limit: "100mb" })); // Set JSON body limit to 100mb
 app.use(express.urlencoded({ extended: true, limit: "100mb" })); // Parse URL-encoded bodies with limit
 
-// Init Routes
+// Initialize routes
 app.use("/api", apiRoutes); // Use API routes
 app.use("/", authRoutes);  // Use auth routes
 
 app.use(auth(config)); // Use auth middleware with config
 
-// Home route
+// Home route - Render home page with user information
 app.get("/", getToken, authenticateToken, async (req, res) => {
   const email = req.email;
   let firstName;
@@ -93,7 +93,7 @@ app.get("/sustainabilityStatement", (req, res) => {
   res.render("sustainabilityStatement"); // Render sustainability statement page
 });
 
-// My carpools route
+// My carpools route - Render user's carpools
 app.get("/mycarpools", getToken, authenticateToken, async (req, res) => {
   const email = req.email;
   let firstName;
@@ -122,7 +122,7 @@ app.get("/mycarpools", getToken, authenticateToken, async (req, res) => {
   }); // Render my carpools page
 });
 
-// Update settings route
+// Update settings route - Allow user to update their settings
 app.get("/updateSettings", getToken, authenticateToken, async (req, res) => {
   const email = req.email;
   let firstName;
@@ -145,7 +145,7 @@ app.get("/updateSettings", getToken, authenticateToken, async (req, res) => {
   res.render("updateSettings", { email, firstName, lastName }); // Render update settings page
 });
 
-// Friends route
+// Friends route - Display list of all users
 app.get("/friends", getToken, authenticateToken, async (req, res) => {
   let people = [];
   let i = 0;
@@ -185,12 +185,12 @@ app.get("/friends", getToken, authenticateToken, async (req, res) => {
   res.render("friends", { people, email, firstName, lastName }); // Render friends page
 });
 
-// Setup 404 page
+// Setup 404 page - Handle undefined routes
 app.use((req, res) => {
   res.status(404).render("404"); // Render 404 page
 });
 
-// Connect to the database
+// Connect to the database and start the server
 mongoose
   .connect(process.env["MONGO_URI"]) // Connect to MongoDB
   .then(() => {

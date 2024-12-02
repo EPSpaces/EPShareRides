@@ -142,13 +142,13 @@ function add(carpoolId) {
     var marker = L.marker(geocode[carpool.wlocation]).addTo(markersGroup);
     marker.options.shadowSize = [0, 0];
     var popup = marker.bindPopup(
-      carpool.firstName + "'s house<br> " + carpool.wlocation,
+      `<i class="fa-solid fa-house" style="color: Dodgerblue; font-size: 15px"></i> ` + carpool.firstName + "'s house<br> " + carpool.wlocation,
     );
 
     //the destination
     var marker = L.marker(geocode[result.address]).addTo(markersGroup);
     marker.options.shadowSize = [0, 0];
-    var popup = marker.bindPopup(result.wlocation + "<br>" + result.address);
+    var popup = marker.bindPopup(`<i class="fa-solid fa-location-dot" style="color: Tomato; font-size: 15px"></i> ` + result.wlocation + "<br>" + result.address);
 
     carpoolPoints.push(geocode[carpool.wlocation]);
     homeHomeLines(carpoolPoints, geocode[result.address]);
@@ -157,12 +157,12 @@ function add(carpoolId) {
     //the meeting point address
     var marker = L.marker(geocode[carpool.wlocation]).addTo(markersGroup);
     marker.options.shadowSize = [0, 0];
-    var popup = marker.bindPopup("Meeting point<br>" + carpool.wlocation);
+    var popup = marker.bindPopup(`<i class="fa-solid fa-location-crosshairs" style="color: #00d1b2; font-size: 15px"></i> ` + "Meeting point<br>" + carpool.wlocation);
 
     //the destination
     var marker = L.marker(geocode[result.address]).addTo(markersGroup);
     marker.options.shadowSize = [0, 0];
-    var popup = marker.bindPopup(result.wlocation + "<br> " + result.address);
+    var popup = marker.bindPopup(`<i class="fa-solid fa-location-dot" style="color: Tomato; font-size: 15px"></i> ` + result.wlocation + "<br> " + result.address);
 
     commonPointLines(
       geocode[carpool.wlocation],
@@ -235,7 +235,7 @@ function addPoint(firstName, address, point) {
   console.log(point);
   var marker = L.marker(point).addTo(markersGroup);
   marker.options.shadowSize = [0, 0];
-  var popup = marker.bindPopup(firstName + "'s house<br> " + address);
+  var popup = marker.bindPopup(`<i class="fa-solid fa-house" style="color: Dodgerblue; font-size: 15px"></i> ` + firstName + "'s house<br> " + address);
 }
 
 var marker = L.marker(center).addTo(markersGroup);
