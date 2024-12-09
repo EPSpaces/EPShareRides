@@ -19,9 +19,6 @@ const Event = require("./schemas/Event.model.js");
 const Carpool = require("./schemas/Carpool.model.js");
 const UserSettings = require("./schemas/UserSettings.model.js");
 
-// Initialize verification code cache to store temporary verification codes
-const verificationCodeCache = {};
-
 // Import Util Functions
 const {
   authenticateToken,
