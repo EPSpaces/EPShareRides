@@ -12,8 +12,6 @@ services:
     environment:
       - MONGO_URI=${MONGO_URI}
       - PORT=${PORT}
-      - EMAIL_ADDRESS=${EMAIL_ADDRESS}
-      - EMAIL_PASSWORD=${EMAIL_PASSWORD}
       - TOKEN_SECRET=${TOKEN_SECRET}
       - MODE=${MODE}
       - SESSION_SECRET=${SESSION_SECRET}
