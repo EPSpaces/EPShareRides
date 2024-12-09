@@ -1,6 +1,5 @@
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
-const nodemailer = require("nodemailer");
 const User = require("../schemas/User.model");
 
 // Middleware to verify the token sent and set req.email to the user's email
@@ -95,45 +94,6 @@ function comparePasswordHash(hash, email, users) {
     });
 }
 
-// Send a verification code to the user's email using nodemailer
-async function sendVerificationCode(email, verificationCode) {
-  const transporter = nodemailer.createTransport({
-    host: "smtp.gmail.com",
-    port: 465,
-    secure: true,
-    auth: {
-      user: process.env["EMAIL_ADDRESS"],
-      pass: process.env["EMAIL_PASSWORD"],
-    },
-  });
-
-  const mailOptions = {
-    from: process.env["EMAIL_ADDRESS"],
-    to: email,
-    subject: "EPShareRide - Verification Code: " + verificationCode,
-    html:
-      "<h3>The verification code for your new account on EPShareRide is " +
-      verificationCode +
-      "</h3>" +
-      "<p>Note: If you did not request this, you can safely ignore this email</p>",
-  };
-
-  await transporter.sendMail(mailOptions, function (error, info) {
-    if (error) {
-      console.log(error);
-    }
-  });
-
-  return verificationCode;
-}
-
-// Decode a token using Auth0's secret
-function decodeAuth0(content) {
-  return jwt.verify(content, process.env["AUTH0_SECRET"], {
-    algorithms: ["RS256"],
-  });
-}
-
 module.exports = {
   authenticateToken,
   getToken,
@@ -142,6 +102,4 @@ module.exports = {
   hashPassword,
   comparePassword,
   comparePasswordHash,
-  sendVerificationCode,
-  decodeAuth0,
 };
