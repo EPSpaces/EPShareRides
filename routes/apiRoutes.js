@@ -12,16 +12,6 @@ const Carpool = require("../schemas/Carpool.model.js");
 
 const router = express.Router();
 
-// Function to write data to a JSON file
-function writeToJSON(filepath, data) {
-  const jsonString = JSON.stringify(data, null, 2);
-  fs.writeFile(filepath, jsonString, (err) => {
-    if (err) {
-      console.error("Error writing to JSON file:", err);
-    }
-  });
-}
-
 // Route to get points data
 router.get("/points", getToken, authenticateToken, (req, res) => {
   let points = require("../database/points.json");
