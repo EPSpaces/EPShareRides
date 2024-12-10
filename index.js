@@ -38,9 +38,9 @@ const config = {
   authRequired: false,
   auth0Logout: true,
   secret: process.env["AUTH0_SECRET"],
-  baseURL: process.env["BASE_URL"],
+  baseURL: process.env["AUTH0_BASE_URL"],
   clientID: process.env["AUTH0_CLIENTID"],
-  issuerBaseURL: "https://dev-1tui2vdlhhsdtl30.us.auth0.com",
+  issuerBaseURL: process.env["AUTH0_ISSUER_BASE_URL"],
 };
 
 app.set("trust proxy", true); // Trust the first proxy

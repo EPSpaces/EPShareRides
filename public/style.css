@@ -356,13 +356,13 @@ body {
 /* tablet */
 @media only screen and (min-width: 769px) {
   #signup {
-    width: 700px
+    width: 500px
   }
   #signin {
-    width: 700px
+    width: 500px
   }
   #deleteaccount {
-    width: 700px 
+    width: 500px 
   }
   #updatesettings {
     width: 500px 
