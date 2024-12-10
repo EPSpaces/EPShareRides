@@ -16,6 +16,44 @@ router.get("/signin", ensureNoToken, (req, res) => {
   res.render("signin", { error: req.query.err, message: req.query.message });
 });
 
+router.get('/login/microsoft', (req, res) => {
+  const authorizeUrl = `https://login.microsoftonline.com/${process.env.MICROSOFT_TENANT_ID}/oauth2/v2.0/authorize?client_id=${process.env.MICROSOFT_CLIENT_ID}&response_type=code&redirect_uri=${encodeURIComponent('https://vigilant-telegram-x54r99j7p69h4r5-3000.app.github.dev/mscallback')}&scope=openid%20email%20profile&response_mode=query`;
+
+  res.redirect(authorizeUrl);
+})
+
+router.get('/mscallback', async (req, res) => {
+  const code = req.query.code;
+
+  // Exchange code for tokens
+  const tokenResponse = await fetch(`https://login.microsoftonline.com/${process.env.MICROSOFT_TENANT_ID}/oauth2/v2.0/token`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({
+      client_id: process.env.MICROSOFT_CLIENT_ID,
+      client_secret: process.env.MICROSOFT_CLIENT_SECRET,
+      code: code,
+      grant_type: 'authorization_code',
+      redirect_uri: 'https://vigilant-telegram-x54r99j7p69h4r5-3000.app.github.dev/mscallback'
+    })
+  });
+
+  const tokens = await tokenResponse.json();
+
+  // tokens now contain id_token which you can verify
+  const idToken = tokens.id_token;
+
+  // Verify id_token using a library. For OIDC, you typically use jwks-rsa or openid-client
+  // For demonstration, let's assume we have a function verifyToken.
+  
+  const userClaims = await verifyToken(idToken, `${process.env.MICROSOFT_ISSUER_BASE_URL}/v2.0/.well-known/openid-configuration`);
+  
+  const email = userClaims.email;
+  // Now do the logic you have: find or create user, set cookie, redirect.
+
+  console.log(email);
+});
+
 // Route to log out the user and clear the auth token
 router.get("/logout", (req, res) => {
   res.clearCookie("authToken");
