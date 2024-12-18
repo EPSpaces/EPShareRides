@@ -92,7 +92,12 @@ function signup() {
     .then((response) => {
       if (response.redirected) {
         window.location.href = response.url;
+      } else if (!response.ok) {
+        throw new Error("Signup failed");
       }
     })
-    .catch((error) => console.error("Error:", error));
+    .catch((error) => {
+      console.error("Error:", error);
+      window.location.href = "/signup?err=" + encodeURIComponent(error.message);
+    });
 }
