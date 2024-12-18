@@ -64,7 +64,7 @@ router.post("/callback", async (req, res) => {
     // Check if the user already exists in the database
     alreadyUser = await User.findOne({ email });
   } catch (err) {
-    res.status(500).send("An error occurred");
+    res.status(500).send("An error occurred while checking for existing user");
     return;
   }
 
