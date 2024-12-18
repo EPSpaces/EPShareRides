@@ -45,46 +45,13 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 
+// Function to handle data input
 function dataInput() {
   var email = document.getElementById("email").value;
-  /*var a = [b];
-  localStorage.setItem("array", a);*/
   console.log(email);
 }
 
-/*function signup() {
-  const email = document.getElementById("email").value;
-  const firstName = document.getElementById("first_name").value;
-  const lastName = document.getElementById("last_name").value;
-  const admin = false;
-
-  const data = {
-    firstName,
-    lastName,
-    email,
-    admin
-  };
-
-  const jsonData = JSON.stringify(data);
-
-  const url = "/auth/signup";
-
-  fetch(url, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: jsonData,
-  })
-    .then((response) => {
-      console.log(response);
-      // Open verification checker
-    })
-    .catch((error) => console.error("Error:", error));
-}
-
-function checkAndVerifyCode() {}
-*/
+// Function to handle user signup
 function signup() {
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;

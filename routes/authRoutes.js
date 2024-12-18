@@ -13,11 +13,13 @@ const {
 
 // Route to render the signin page
 router.get("/signin", ensureNoToken, (req, res) => {
+  // Render the signin page with error and message parameters
   res.render("signin", { error: req.query.err, message: req.query.message });
 });
 
 // Route to log out the user and clear the auth token
 router.get("/logout", (req, res) => {
+  // Clear the auth token cookie and redirect to signin page
   res.clearCookie("authToken");
   res.redirect("/signin");
 });
@@ -31,6 +33,7 @@ router.patch("/updateSettings", getToken, authenticateToken, async (req, res) =>
   }
 
   try {
+    // Update the user settings in the database
     await UserSettings.findOneAndUpdate(
       { userEmail: req.email },
       { $set: { [settingId]: newStatus } },
@@ -48,7 +51,6 @@ router.patch("/updateSettings", getToken, authenticateToken, async (req, res) =>
 // Route to handle callback for authentication
 router.post("/callback", async (req, res) => {
   const user = jwt.verify(req.body.id_token, process.env["AUTH0_SECRET"], { algorithms: ['HS256'] });
-  // const state = jwt.verify(req.body.state, process.env["AUTH0_SECRET"], { algorithms: ['HS256'] });
 
   if (!user) {
     res.redirect("/login");
@@ -59,6 +61,7 @@ router.post("/callback", async (req, res) => {
   let alreadyUser;
 
   try {
+    // Check if the user already exists in the database
     alreadyUser = await User.findOne({ email });
   } catch (err) {
     res.status(500).send("An error occurred");
@@ -68,14 +71,17 @@ router.post("/callback", async (req, res) => {
   if (alreadyUser) {
     const user = { email };
 
+    // Generate an access token for the user
     const accessToken = generateAccessToken(user);
 
+    // Set the auth token cookie and redirect to home page
     res.cookie("authToken", accessToken, { httpOnly: true, maxAge: 3600000 });
     res.redirect("/");
   } else {
     let userCheckIfExist;
 
     try {
+      // Check if the user email already exists in the database
       userCheckIfExist = await User.findOne({
         email,
       });
@@ -90,6 +96,7 @@ router.post("/callback", async (req, res) => {
       return;
     }
 
+    // Create a new user in the database
     const newUser = new User({
       firstName: user.nickname,
       lastName: user.nickname,
@@ -103,7 +110,7 @@ router.post("/callback", async (req, res) => {
       console.error("Error creating user: " + err);
       res.redirect("/signup?err=Internal server error, please try again");
       return;
-  })
+    });
   }
 });
 
