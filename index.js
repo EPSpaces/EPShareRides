@@ -1,4 +1,3 @@
-// Import ENV Vars
 if (process.env.MODE != 'PROD') {
   require('dotenv').config(); // Load environment variables from .env file in non-production mode
 }
