@@ -1,5 +1,6 @@
 let userData1;
 
+// Fetch carpool data from the server
 var request = new Request("/api/carpools", {
   method: "GET",
   headers: new Headers({
@@ -17,6 +18,8 @@ fetch(request)
   });
 
 let carpooledEvents = [];
+
+// Check if the user is registered for any events
 function checkIfRegistered(userData1) {
   for (var i = 0; i < userData1.length; i++) {
     let carpoolPart = userData1[i].carpoolers.find(
@@ -38,6 +41,7 @@ function checkIfRegistered(userData1) {
   turnRegistered(carpooledEvents);
 }
 
+// Mark events as registered
 function turnRegistered(eventsToDisable) {
   for (var i = 0; i < eventsToDisable.length; i++) {
     console.log(document.getElementById(eventsToDisable[i].id));
@@ -47,6 +51,7 @@ function turnRegistered(eventsToDisable) {
   }
 }
 
+// Get the day of the week from a date string
 function getDayOfWeek(string) {
   const d = new Date(string);
   const dayOfWeek = d.getDay();
@@ -67,11 +72,14 @@ function getDayOfWeek(string) {
 
 var eventsW2 = [];
 
+// Send data to the server
 function sendData(data) {
   datarray.push(data);
   console.log(data);
 }
 var datarray = [];
+
+// Create a new event
 function createevent() {
   firstName = "<%= firstName %> ";
   lastName = "<%= lastName %> ";
@@ -122,6 +130,8 @@ function createevent() {
   });
 }
 let eventsW;
+
+// Fetch event data from the server
 var request = new Request("/api/events", {
   method: "GET",
   headers: new Headers({
@@ -474,6 +484,7 @@ fetch(request)
 
 let selectedCarpool = null;
 
+// Select a carpool
 function selectCarpool(element) {
   if (element.classList[2] == "is-focused") {
     unfocus();
@@ -485,6 +496,7 @@ function selectCarpool(element) {
   }
 }
 
+// Offer a carpool
 function offerACar(
   firstName,
   lastName,
