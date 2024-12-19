@@ -16,97 +16,11 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <!--<script>
-      function changePassword(){
-        document.getElementById("errorHolder").innerHTML = "";
-        // Code to update settings
-
-
-        const cp = document.getElementById("cp").value;
-        const np = document.getElementById("np").value;
-        const np2 = document.getElementById("np2").value;
-
-        if (!cp || !np || !np2) {
-          document.getElementById("errorHolder").innerHTML = `
-          <article class="message is-danger" id="error">
-            <div class="message-header">
-              <p>Warning</p>
-              <button class="delete" aria-label="delete" onclick="const element = document.getElementById('error');
-                element.remove();"></button>
-            </div>
-            <div class="message-body">
-              Please fill all of the fields required for changing your password
-            </div>
-          </article>
-          `;
-        } else {
-
-          if (np != np2) {
-            document.getElementById("errorHolder").innerHTML = `
-            <article class="message is-danger" id="error">
-              <div class="message-header">
-                <p>Warning</p>
-                <button class="delete" aria-label="delete" onclick="const element = document.getElementById('error');
-                  element.remove();"></button>
-              </div>
-              <div class="message-body">
-                New password confirmation does not match
-              </div>
-            </article>
-            `;
-          } else {
-            if (cp == np) {
-              document.getElementById("errorHolder").innerHTML = `
-              <article class="message is-danger" id="error">
-                <div class="message-header">
-                  <p>Warning</p>
-                  <button class="delete" aria-label="delete" onclick="const element = document.getElementById('error');
-                    element.remove();"></button>
-                </div>
-                <div class="message-body">
-                  Your new password should not match your old one
-                </div>
-              </article>
-              `;
-            } else {
-              fetch('/changePassword', {
-                method: 'PUT',
-                headers: {
-                  'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ currentPassword: cp, newPassword: np })
-              })
-              .then(response => {
-                if (response.redirected) {
-                  window.location.href = response.url;
-                }
-              })
-              .catch(error => {
-                document.getElementById("errorHolder").innerHTML = `
-                <article class="message is-danger" id="error">
-                  <div class="message-header">
-                    <p>Warning</p>
-                    <button class="delete" aria-label="delete" onclick="const element = document.getElementById('error');
-                      element.remove();"></button>
-                  </div>
-                  <div class="message-body">
-                    Error changing password, please try again
-                  </div>
-                </article>
-                `;
-              });
-            }
-          }
-        }
-      }
-    </script>-->
 </head>
 
 <body>
   <main>
     <section class="hero is-fullheight" id="hero">
-      <!-- Hero head: will stick at the top -->
       <div class="hero-head">
         <header class="navbar">
           <div class="container">
@@ -195,17 +109,6 @@
             <div class="container" style="margin-bottom: 30px;margin-top: 10px">
               <p class="subtitle is-6" style=" width: 100%;  text-align: left; margin-bottom: 10px"><strong>Save my
                   address</strong></p>
-              <!-- <p style="display: inline-block; font-size: 17px; transform: translate(0px,2px); float: left">Require an address when registering</p>
-            <input class="switch-input" type="checkbox" id="switch2"  /><label class="switch-label" style="display: inline-block; margin-left: 5px; float: right" for="switch2">Toggle</label> -->
-              <!-- <div class="field">
-              <input class="input" id="cp" type="password" placeholder="Current password">
-              </div>
-             <div class="field">
-              <input class="input" id="np" type="password" placeholder="New password">
-             </div>
-             <div class="field">
-              <input class="input" id="np2" type="password" placeholder="Confirm password">
-            </div> -->
               <div class="autocomplete-container" id="">
                 <div class='control' id="autocomplete-container">
                 </div>
@@ -281,9 +184,7 @@
   document.body.onmousedown = function () {
     if (document.getElementById('address-input') != null) {
       document.getElementById("autocomplete-container").classList.remove("is-loading");
-
     }
-
   }
 
 
@@ -350,6 +251,7 @@
       var promise = new Promise((resolve, reject) => {
         currentPromiseReject = reject;
 
+        // Geoapify Key
         var apiKey = "992ef3d60d434f2283ea8c6d70a4898d";
         var url = `https://api.geoapify.com/v1/geocode/autocomplete?text=${encodeURIComponent(currentValue)}&limit=5&apiKey=${apiKey}`;
 
