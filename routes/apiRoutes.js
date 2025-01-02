@@ -1,20 +1,28 @@
+// Create a new router to handle all the API routes
 const express = require("express");
 const fs = require("fs");
+// Mongoose
 const mongoose = require("mongoose");
 
+// JWT creation
 const { authenticateToken, getToken } = require("../utils/authUtils");
 
+// Models (Objects) like User, Event, Carpool
 const User = require("../schemas/User.model.js");
 const Event = require("../schemas/Event.model.js");
+// ObjectId is a class that is used to convert a string into a MongoDB ObjectId
 const ObjectId = require("mongodb").ObjectId;
 
+// Carpool model
 const Carpool = require("../schemas/Carpool.model.js");
 
+// Create a new router to handle all the API routes
 const router = express.Router();
 
 // Function to write data to a JSON file
 function writeToJSON(filepath, data) {
   const jsonString = JSON.stringify(data, null, 2);
+  // Write the data to the JSON file
   fs.writeFile(filepath, jsonString, (err) => {
     if (err) {
       console.error("Error writing to JSON file:", err);
@@ -23,37 +31,56 @@ function writeToJSON(filepath, data) {
 }
 
 // Route to get points data
+// Why do we have a req here?
 router.get("/points", getToken, authenticateToken, (req, res) => {
+  // Read the points data from the DB
   let points = require("../database/points.json");
+  // Send the points data as a JSON response
   res.json(points);
 });
 
 // Route to get offer to carpool data
+// Why do we have a req here?
 router.get("/offerToCarpool", getToken, authenticateToken, (req, res) => {
+  // Read the offer to carpool data from the DB
   let offerToCarpool = require("../database/offerToCarpool.json");
+  // Send the offer to carpool data as a JSON response
   res.json(offerToCarpool);
 });
 
 // Route to join a carpool
 router.post("/joinCarpool", getToken, authenticateToken, async (req, res) => {
+  // Read the carpool data from the DB
   let carpools;
+  // Try to get the carpool data from the DB
+  // If there is an error, send a 500 status code and an error message
   try {
+    // Get all the carpools from the DB and wait for the response
     carpools = await Carpool.find({});
   } catch (err) {
     console.error("Error retrieving carpools: " + err);
     res.status(500).send("Error retrieving carpools");
     return;
   }
+  // Get the carpool ID from the request body
   let { carpool, address } = req.body;
+  // Check if the carpool ID and address are valid
   let carpoolS = carpool;
+  // If the carpool ID or address are not valid, send a 400 status code and an error message
+  // I miss 418 status code
   if (!carpoolS || !address) {
     res.status(400).send("Invalid request");
     return;
   }
+  // Get the user's email from the request
   const email = req.email;
+  // This is the person, their entire entity as a human being in a variable because why not
   let userInData;
+  // Try to find the user in the DB
   try {
+    // Find the user in the DB and wait for the response
     userInData = await User.findOne({ email });
+    // If the user is not found, clear the auth token and redirect to the sign in page because they are not signed in with the right credentials
     if (!userInData) {
       res.clearCookie("authToken");
       res.redirect(
@@ -61,51 +88,68 @@ router.post("/joinCarpool", getToken, authenticateToken, async (req, res) => {
       );
       return;
     }
+    // If there is an error, clear the auth token and redirect to the sign in page because there was an internal server error
   } catch (err) {
+    // Log the error
     console.error("Error finding user: " + err);
+    // Clear the auth token and redirect to the sign in page
     res.clearCookie("authToken");
+    // Redirect to the sign in page with an error message
     res.redirect("/signin?err=Internal server error, please sign in again");
     return;
   }
+  // Get the user's first name and last name from the user data
   firstName = userInData["firstName"];
   lastName = userInData["lastName"];
+  // Create a new user object with the user's email, first name, last name, and address
   const newUser = {
     email: req.email,
     firstName,
     lastName,
     address,
   };
+  // Find the carpool in the DB
   try {
+    // Find the joined carpool and wait for the response
     carpool = await Carpool.findById(carpoolS);
 
+    // If the carpool is not found, send a 404 status code and an error message
     if (!carpool) {
       res.status(404).send("Carpool not found");
       return;
     }
 
+    // If the carpool is full, send a 400 status code and an error message
     if (carpool.carpoolers.length >= carpool.seats) {
+      // Mission failed successfully
       res.status(400).send("Carpool is full");
       return;
     }
 
+    // Check if the user is already in the carpool
     const alreadyCarpoolerExists = carpool.carpoolers.some(
       (carpooler) => carpooler.email === req.email,
     );
+    // If the user is already in the carpool, send a 409 status code and an error message
     if (alreadyCarpoolerExists) {
+      // Mission failed, we'll get 'em next time
       res.status(409).send("You are already in this carpool");
       return;
     }
+    // Add the user to the carpool
     const updatedCarpool = await Carpool.findByIdAndUpdate(
       carpoolS,
       { $push: { carpoolers: newUser } },
       { new: true },
     );
-
+    // Send the updated carpool as a JSON response
     res.status(200).send(updatedCarpool);
+    // If there is an error, send a 500 status code and an error message
   } catch (error) {
     console.error("Error:", error);
     res.status(500).send("Internal Server Error");
   }
+  // Send a 200 status code because everything is chill here and the user has been added to the carpool
   res.status(200);
 });
 
