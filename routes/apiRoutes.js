@@ -539,6 +539,7 @@ router.patch("/users/update", async (req, res) => {
 
 // Route to create a new carpool
 router.post("/carpools", getToken, authenticateToken, async (req, res) => {
+  // Create a person object with the data
   const {
     firstName,
     lastName,
@@ -550,6 +551,7 @@ router.post("/carpools", getToken, authenticateToken, async (req, res) => {
     email,
   } = req.body;
 
+  // Check if the data is valid
   if (
     !firstName ||
     !lastName ||
@@ -564,6 +566,7 @@ router.post("/carpools", getToken, authenticateToken, async (req, res) => {
     return;
   }
 
+  // Create a new carpool object with the data
   const newCarpool = new Carpool({
     firstName,
     lastName,
@@ -575,6 +578,7 @@ router.post("/carpools", getToken, authenticateToken, async (req, res) => {
     email,
   });
 
+  // Try to save the new carpool
   try {
     await newCarpool.save();
   } catch (err) {
@@ -582,20 +586,28 @@ router.post("/carpools", getToken, authenticateToken, async (req, res) => {
     res.status(500).send("Error creating new carpool");
     return;
   }
+  // Send a 200 status code because the carpool was created successfully
   res.status(200).send("Carpool created");
 });
 
 // Route to get all users
+// Why do we have a req here?
 router.get("/users", getToken, authenticateToken, async (req, res) => {
+  // Get all the users from the DB
   let users;
+  // Try to get the users from the DB
   try {
+    // Get all the users from the DB and wait for the response
     users = await User.find({});
   } catch (err) {
+    // Log the error
     console.error("Error getting users: " + err);
     res.status(500).send("Error getting users");
     return;
   }
+  // Send the users as a JSON response
   res.json(users);
 });
 
+// Route to get a specific user
 module.exports = router;
