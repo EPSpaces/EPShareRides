@@ -1,5 +1,7 @@
+// Purpose: Define the schema for the Event model.
 const mongoose = require('mongoose');
 
+// Define the schema for the Event model
 const eventSchema = new mongoose.Schema({
   firstName: {
     type: String,
@@ -21,10 +23,6 @@ const eventSchema = new mongoose.Schema({
     required: true,
     trim: true
   },
-  // route: {
-  //   type: String,
-  //   required: true
-  // },
   address: {
     type: String,
     required: true
@@ -41,6 +39,8 @@ const eventSchema = new mongoose.Schema({
   }
 });
 
+// Create the Event model
 const Event = mongoose.model('Event', eventSchema);
 
+// Export the Event model
 module.exports = Event;
