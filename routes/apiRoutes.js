@@ -340,18 +340,23 @@ router.get("/mapRoute/:id", getToken, authenticateToken, async (req, res) => {
 
 // Route to get communication details for the users in a carpool
 router.get(
+  // Get the carpool ID from the request
   "/carpoolUserCommunication/:id",
   getToken,
   authenticateToken,
   async (req, res) => {
+    // Get the carpool ID from the request
     const { id } = req.params;
 
+    // Check if the carpool ID is valid
     if (!id) {
       res.status(400).send("Bad Request");
       return;
     }
 
+    // Let carpoolId be an empty object to store the carpool ID
     let carpoolId;
+    // Try to get the carpool ID
     try {
       carpoolId = new mongoose.Types.ObjectId(id);
     } catch (err) {
@@ -359,30 +364,41 @@ router.get(
       return;
     }
 
+    // Let userCommunication be an empty array to store the user communication details
     let userCommunication = [];
 
+    // Try to get the communication details for the users in the carpool
     try {
+      // Get the email of the carpool owner
       const carpoolOwnerEmailE = await Carpool.findById(carpoolId);
       const carpoolOwnerEmail = carpoolOwnerEmailE.email;
 
+      // Get the cell number of the carpool owner
       const carpoolOwnerCell = await User.findOne({ email: carpoolOwnerEmail })
         .cell;
-
+      // If the carpool owner does not have a cell number, use their email
       if (carpoolOwnerCell == undefined || carpoolOwnerCell == "none") {
         userCommunication.push(carpoolOwnerEmail);
+        // If the carpool owner has a cell number, use their cell number
       } else {
         userCommunication.push(carpoolOwnerCell);
       }
 
+      // Get the email and cell number of the carpoolers
       const carpoolersInfoO = await Carpool.findById(carpoolId).exec();
 
+      // Get the carpoolers information
       const carpoolersInfo = carpoolersInfoO.carpoolers;
 
+      // Get the email and cell number of the carpoolers
       for (const c of carpoolersInfo) {
+        // Get the cell number of the carpooler
         const userCell = await User.findOne({ email: c.email }).cell;
+        // If the carpooler does not have a cell number, use their email
         if (userCell == "none" || userCell == undefined) {
           userCommunication.push(c.email);
         } else {
+          // If the carpooler has a cell number, use their cell number
           userCommunication.push(userCell);
         }
       }
@@ -391,7 +407,7 @@ router.get(
       res.status(500).send("Error getting communication for carpool");
       return;
     }
-
+    // Send the user communication details as a JSON response
     res.json(userCommunication);
   },
 );
@@ -402,15 +418,20 @@ router.patch(
   getToken,
   authenticateToken,
   async (req, res) => {
+    // Get the carpool ID from the request
     const { id } = req.params;
     const objectId = new mongoose.Types.ObjectId(id);
+    // Set the route, location, and carpoolers for the carpool
     const { route, wlocation, carpoolers } = req.body;
+    // Check if the route, location, and carpoolers are valid
     if (!route || !wlocation || !carpoolers || !id) {
       res.status(400).send("Bad Request");
       return;
     }
 
+    // Try to update the carpool
     try {
+      // Update the carpool and wait for the response
       await Carpool.findByIdAndUpdate(
         objectId,
         { route, wlocation, carpoolers },
@@ -422,6 +443,7 @@ router.patch(
       return;
     }
 
+    // Send a 200 status code because the carpool was updated successfully
     res.status(200).send("Carpool updated");
   },
 );
@@ -433,10 +455,13 @@ router.delete(
   authenticateToken,
   async (req, res) => {
     try {
+      // Get the carpool ID from the request
       const { id } = req.params;
+      // Delete the carpool from the DB
       const carpools = await Carpool.deleteOne({
         _id: new ObjectId(id),
       });
+      // Send a 200 status code because the carpool was deleted successfully
       res.json(carpools);
     } catch (err) {
       console.error("Error retrieving carpools: " + err);
@@ -451,12 +476,17 @@ router.patch(
   getToken,
   authenticateToken,
   async (req, res) => {
+    // Get the carpool ID from the request
     try {
       const { _id, _id2 } = req.body;
+      // Update the carpool to remove the carpooler
       const carpools = await Carpool.updateOne(
+        // Find the carpool by ID
         { _id: new ObjectId(_id2) },
+        // Remove the carpooler from the carpool
         { $pull: { carpoolers: { _id: new ObjectId(_id) } } },
       );
+      // Send the updated carpool as a JSON response
       res.json(carpools);
     } catch (err) {
       console.error("Error updating carpools: " + err);
@@ -468,13 +498,17 @@ router.patch(
 // Route to update a specific carpool
 router.patch("/carpools/:id", getToken, authenticateToken, async (req, res) => {
   try {
+    // Get the carpool ID from the request
     const { id } = req.params;
+    // Get the updated carpool data from the request
     const { route, wlocation } = req.body;
+    // Update the carpool with the new data
     const carpools = await Carpool.updateOne(
       { _id: new ObjectId(id) },
       { $set: { route: route } },
       { $set: { wlocation: wlocation } },
     );
+    // Send the updated carpool as a JSON response
     res.json(carpools);
   } catch (err) {
     console.error("Error updating carpools: " + err);
@@ -485,12 +519,17 @@ router.patch("/carpools/:id", getToken, authenticateToken, async (req, res) => {
 // Route to update user information
 router.patch("/users/update", async (req, res) => {
   try {
+    // Get the user ID from the request
     const { _id, address, privacy } = req.body;
+    // Update the user with the new data
     const users = await User.updateOne(
+      // Find the user by ID
       { _id: new ObjectId(_id) },
+      // Update the user's address and privacy settings
       { $set: { address: address, privacy: privacy } },
     );
 
+    // Send the updated user as a JSON response
     res.json(users);
   } catch (err) {
     console.error("Error updating user: " + err);
