@@ -154,44 +154,65 @@ router.post("/joinCarpool", getToken, authenticateToken, async (req, res) => {
 });
 
 // Route to get all events
+// Why do we have a req here?
 router.get("/events", getToken, authenticateToken, async (req, res) => {
+  // Get all the events from the DB
   let events;
   try {
+    // Get all the events from the DB and wait for the response
     events = await Event.find({});
   } catch (err) {
+    // Log the error
     console.error("Error getting events: " + err);
+    // Send a 500 status code and an error message
     res.status(500).send("Error getting events");
     return;
   }
+  // Send the events as a JSON response
   res.json(events);
 });
 
 // Route to create a new event
 router.post("/events", getToken, authenticateToken, async (req, res) => {
+  // Get the event data from the request body
+  // Create a new event object with the event data
   const { eventName, wlocation, date, category, addressToPut } = req.body;
+  //Create the user object
   let userInData;
+  // Get the user's email from the request
   const email = req.email;
+  // Try to find the user in the DB
   try {
+    // Find the user in the DB and wait for the response
     userInData = await User.findOne({ email });
+    // If the user is not found, clear the auth token and redirect to the sign in page because they are not signed in with the right credentials
     if (!userInData) {
+      // Clear the auth token
       res.clearCookie("authToken");
       res.redirect(
         "/signin?err=Error with verifing privileges, please try again",
       );
       return;
     }
+    // If there is an error, clear the auth token and redirect to the sign in page because there was an internal server error
   } catch (err) {
+    // Log the error
     console.error("Error finding user: " + err);
     res.clearCookie("authToken");
     res.redirect("/signin?err=Internal server error, please sign in again");
     return;
   }
+  // Get the user's first name and last name from the user data
   const { firstName, lastName, admin } = userInData;
+  // Check if the user is an admin because only admins can create events
   if (!admin) {
+    // Send a 401 status code because the user is not an admin
     res.sendStatus(401);
     return;
   }
+  // Check if the event data is valid
   try {
+    // Check if the event name, location, date, and category are valid
     const newEvent = new Event({
       firstName,
       lastName,
@@ -204,21 +225,29 @@ router.post("/events", getToken, authenticateToken, async (req, res) => {
 
     console.log(newEvent);
 
+    // Save the new event to the DB
     await newEvent.save();
   } catch (err) {
+    // Log the error
     console.error("Error saving event: " + err);
     res.status(500).send("Error saving event");
     return;
   }
+  // Send a 200 status code because the event was saved successfully
   res.status(200).send("Event saved");
   return;
 });
 
 // Route to get all carpools
+// Why do we have a req here?
 router.get("/carpools", getToken, authenticateToken, async (req, res) => {
+  // Get all the carpools from the DB
   try {
+    // Get all the carpools from the DB and wait for the response
     const carpools = await Carpool.find({});
+    // Send the carpools as a JSON response
     res.json(carpools);
+    // If there is an error, send a 500 status code and an error message
   } catch (err) {
     console.error("Error retrieving carpools: " + err);
     res.status(500).send("Error retrieving carpools");
@@ -227,32 +256,43 @@ router.get("/carpools", getToken, authenticateToken, async (req, res) => {
 
 // Route to get user's carpools
 router.get("/userCarpools", getToken, authenticateToken, async (req, res) => {
+  // Let carpools be an empty array to store the carpools
   let carpools = [];
+  // Try to get the carpools from the DB
   try {
+    // Get all the carpools created by the user
     const carpoolsCreated = await Carpool.find({ email: req.email }).exec();
+    // Get all the carpools joined by the user
     const carpoolsJoined = await Carpool.find({
       "carpoolers.email": req.email,
     }).exec();
+    // Combine the carpools created and joined by the user
     carpools = [...carpoolsCreated, ...carpoolsJoined];
+    // Something went wrong that should not have gone wrong
   } catch (err) {
     console.error("Error retrieving carpools: " + err);
     res.status(500).send("Error retrieving carpools");
     return;
   }
+  // Send the carpools as a JSON response
   res.json(carpools);
 });
 
 // Route to get the route for a specific carpool
 router.get("/mapRoute/:id", getToken, authenticateToken, async (req, res) => {
   const { id } = req.params;
+  // Check if the carpool ID is valid
   if (!id) {
     res.status(400).send("Bad Request");
     return;
   }
 
+  // Let carpool be an empty object to store the carpool
   let carpool;
 
+  // Try to get the carpool from the DB
   try {
+    // Get the carpool from the DB and wait for the response
     carpool = await Carpool.findById(id);
   } catch (err) {
     console.error("Error retrieving carpool: " + err);
@@ -262,10 +302,13 @@ router.get("/mapRoute/:id", getToken, authenticateToken, async (req, res) => {
 
   let final;
 
+  // Try to get the event from the DB
   try {
+    // Get the event from the DB and wait for the response
     final = await Event.findById(
       new mongoose.Types.ObjectId(carpool.nameOfEvent),
     );
+    // Get the address of the event
     final = final.address;
   } catch (err) {
     console.error("Error retrieving event: " + err);
@@ -273,16 +316,21 @@ router.get("/mapRoute/:id", getToken, authenticateToken, async (req, res) => {
     return;
   }
 
+  // If the carpool route is a point, send the point as the only stop
   if (carpool.route == "point") {
+    // Send the point as the only stop
     res.json({
       final,
       stops: [carpool.wlocation],
     });
   } else {
+    // If the carpool route is a route, send the route as the stops
     let addresses = [];
+    // Get the addresses of the carpoolers
     carpool.carpoolers.forEach((carpooler) => {
       addresses.push(carpooler.address);
     });
+    // Send the route as the stops
     res.json({
       final,
       stops: addresses,
