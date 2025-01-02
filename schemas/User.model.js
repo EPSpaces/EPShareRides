@@ -1,6 +1,10 @@
+// Purpose: Define the schema for the User model.
 const mongoose = require("mongoose");
+
+// Define the schema for the User model
 const Schema = mongoose.Schema;
 
+// Define the schema for the User model
 const userSchema = new Schema({
   firstName: { type: String, required: true },
   lastName: { type: String, required: true },
@@ -8,8 +12,11 @@ const userSchema = new Schema({
   admin: { type: Boolean, default: false },
   address: { type: String, default: "none" },
   cell: { type: String, default: "none" },
+  // Controls if they appear in the directory
   privacy: { type: Boolean, default: false },
+  // Dark mode does not work yet
   dark: { type: Boolean, default: false },
 });
 
+// Export the User model
 module.exports = mongoose.model("User", userSchema);
