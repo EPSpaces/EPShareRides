@@ -1,6 +1,8 @@
 // Create a new router to handle all the API routes
 const express = require("express");
 const fs = require("fs");
+const rateLimit = require('express-rate-limit');
+
 // Mongoose
 const mongoose = require("mongoose");
 
@@ -30,9 +32,17 @@ function writeToJSON(filepath, data) {
   });
 }
 
+// Home route - Render home page with user information
+// Simple rate limiter to prevent abuse
+const homeLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100 // limit each IP to 100 requests per windowMs
+});
+
+
 // Route to get points data
 // Why do we have a req here?
-router.get("/points", getToken, authenticateToken, (req, res) => {
+router.get("/points", homeLimiter, getToken, authenticateToken, (req, res) => {
   // Read the points data from the DB
   let points = require("../database/points.json");
   // Send the points data as a JSON response
@@ -41,7 +51,7 @@ router.get("/points", getToken, authenticateToken, (req, res) => {
 
 // Route to get offer to carpool data
 // Why do we have a req here?
-router.get("/offerToCarpool", getToken, authenticateToken, (req, res) => {
+router.get("/offerToCarpool", homeLimiter, getToken, authenticateToken, (req, res) => {
   // Read the offer to carpool data from the DB
   let offerToCarpool = require("../database/offerToCarpool.json");
   // Send the offer to carpool data as a JSON response
@@ -49,7 +59,7 @@ router.get("/offerToCarpool", getToken, authenticateToken, (req, res) => {
 });
 
 // Route to join a carpool
-router.post("/joinCarpool", getToken, authenticateToken, async (req, res) => {
+router.post("/joinCarpool", homeLimiter, getToken, authenticateToken, async (req, res) => {
   // Read the carpool data from the DB
   let carpools;
   // Try to get the carpool data from the DB
@@ -155,7 +165,7 @@ router.post("/joinCarpool", getToken, authenticateToken, async (req, res) => {
 
 // Route to get all events
 // Why do we have a req here?
-router.get("/events", getToken, authenticateToken, async (req, res) => {
+router.get("/events", homeLimiter, getToken, authenticateToken, async (req, res) => {
   // Get all the events from the DB
   let events;
   try {
@@ -173,7 +183,7 @@ router.get("/events", getToken, authenticateToken, async (req, res) => {
 });
 
 // Route to create a new event
-router.post("/events", getToken, authenticateToken, async (req, res) => {
+router.post("/events", homeLimiter, getToken, authenticateToken, async (req, res) => {
   // Get the event data from the request body
   // Create a new event object with the event data
   const { eventName, wlocation, date, category, addressToPut } = req.body;
@@ -240,7 +250,7 @@ router.post("/events", getToken, authenticateToken, async (req, res) => {
 
 // Route to get all carpools
 // Why do we have a req here?
-router.get("/carpools", getToken, authenticateToken, async (req, res) => {
+router.get("/carpools", homeLimiter, getToken, authenticateToken, async (req, res) => {
   // Get all the carpools from the DB
   try {
     // Get all the carpools from the DB and wait for the response
@@ -255,7 +265,7 @@ router.get("/carpools", getToken, authenticateToken, async (req, res) => {
 });
 
 // Route to get user's carpools
-router.get("/userCarpools", getToken, authenticateToken, async (req, res) => {
+router.get("/userCarpools", homeLimiter, getToken, authenticateToken, async (req, res) => {
   // Let carpools be an empty array to store the carpools
   let carpools = [];
   // Try to get the carpools from the DB
@@ -279,7 +289,7 @@ router.get("/userCarpools", getToken, authenticateToken, async (req, res) => {
 });
 
 // Route to get the route for a specific carpool
-router.get("/mapRoute/:id", getToken, authenticateToken, async (req, res) => {
+router.get("/mapRoute/:id", homeLimiter, getToken, authenticateToken, async (req, res) => {
   const { id } = req.params;
   // Check if the carpool ID is valid
   if (!id) {
@@ -342,6 +352,7 @@ router.get("/mapRoute/:id", getToken, authenticateToken, async (req, res) => {
 router.get(
   // Get the carpool ID from the request
   "/carpoolUserCommunication/:id",
+  homeLimiter,
   getToken,
   authenticateToken,
   async (req, res) => {
@@ -415,6 +426,7 @@ router.get(
 // Route to update the route for a specific carpool
 router.patch(
   "/carpools/updateRoute/:id",
+  homeLimiter,
   getToken,
   authenticateToken,
   async (req, res) => {
@@ -451,6 +463,7 @@ router.patch(
 // Route to delete a specific carpool
 router.delete(
   "/carpools/:id",
+  homeLimiter,
   getToken,
   authenticateToken,
   async (req, res) => {
@@ -473,6 +486,7 @@ router.delete(
 // Route for deleting a carpooler from a carpool
 router.patch(
   "/carpools/deleteCarpooler",
+  homeLimiter,
   getToken,
   authenticateToken,
   async (req, res) => {
@@ -496,7 +510,7 @@ router.patch(
 );
 
 // Route to update a specific carpool
-router.patch("/carpools/:id", getToken, authenticateToken, async (req, res) => {
+router.patch("/carpools/:id", homeLimiter, getToken, authenticateToken, async (req, res) => {
   try {
     // Get the carpool ID from the request
     const { id } = req.params;
@@ -517,7 +531,7 @@ router.patch("/carpools/:id", getToken, authenticateToken, async (req, res) => {
 });
 
 // Route to update user information
-router.patch("/users/update", async (req, res) => {
+router.patch("/users/update", homeLimiter, async (req, res) => {
   try {
     // Get the user ID from the request
     const { _id, address, privacy } = req.body;
@@ -538,7 +552,7 @@ router.patch("/users/update", async (req, res) => {
 });
 
 // Route to create a new carpool
-router.post("/carpools", getToken, authenticateToken, async (req, res) => {
+router.post("/carpools", homeLimiter, getToken, authenticateToken, async (req, res) => {
   // Create a person object with the data
   const {
     firstName,
@@ -592,7 +606,7 @@ router.post("/carpools", getToken, authenticateToken, async (req, res) => {
 
 // Route to get all users
 // Why do we have a req here?
-router.get("/users", getToken, authenticateToken, async (req, res) => {
+router.get("/users", homeLimiter, getToken, authenticateToken, async (req, res) => {
   // Get all the users from the DB
   let users;
   // Try to get the users from the DB
