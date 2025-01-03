@@ -28,6 +28,7 @@ const {
 // Import Routes
 const authRoutes = require("./routes/authRoutes");
 const apiRoutes = require("./routes/apiRoutes");
+const rateLimit = require('express-rate-limit');
 
 // Initialize Express server
 const app = express();
@@ -50,14 +51,16 @@ app.use(cookieParser()); // Parse cookies
 app.use(express.json({ limit: "100mb" })); // Set JSON body limit to 100mb
 app.use(express.urlencoded({ extended: true, limit: "100mb" })); // Parse URL-encoded bodies with limit
 
-// Initialize routes
-app.use("/api", apiRoutes); // Use API routes
-app.use("/", authRoutes);  // Use auth routes
-
 app.use(auth(config)); // Use auth middleware with config
 
 // Home route - Render home page with user information
-app.get("/", getToken, authenticateToken, async (req, res) => {
+// Simple rate limiter to prevent abuse
+const homeLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100 // limit each IP to 100 requests per windowMs
+});
+
+app.get("/", homeLimiter, getToken, authenticateToken, async (req, res) => {
   const email = req.email;
   let firstName;
   let lastName;
@@ -90,7 +93,7 @@ app.get("/sustainabilityStatement", (req, res) => {
 });
 
 // My carpools route - Render user's carpools
-app.get("/mycarpools", getToken, authenticateToken, async (req, res) => {
+app.get("/mycarpools", homeLimiter, getToken, authenticateToken, async (req, res) => {
   const email = req.email;
   let firstName;
   let lastName;
@@ -119,7 +122,7 @@ app.get("/mycarpools", getToken, authenticateToken, async (req, res) => {
 });
 
 // Update settings route - Allow user to update their settings
-app.get("/updateSettings", getToken, authenticateToken, async (req, res) => {
+app.get("/updateSettings", homeLimiter, getToken, authenticateToken, async (req, res) => {
   const email = req.email;
   let firstName;
   let lastName;
@@ -142,7 +145,7 @@ app.get("/updateSettings", getToken, authenticateToken, async (req, res) => {
 });
 
 // Friends route - Display list of all users
-app.get("/friends", getToken, authenticateToken, async (req, res) => {
+app.get("/friends", homeLimiter, getToken, authenticateToken, async (req, res) => {
   let people = [];
   let i = 0;
   let users;
