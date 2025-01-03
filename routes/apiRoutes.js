@@ -6,6 +6,9 @@ const rateLimit = require('express-rate-limit');
 // Mongoose
 const mongoose = require("mongoose");
 
+const RATE_LIMITER_TIME_PERIOD = 15 * 60 * 1000
+const RATE_LIMITER_REQUESTS = 100;
+
 // JWT creation
 const { authenticateToken, getToken } = require("../utils/authUtils");
 
@@ -35,8 +38,8 @@ function writeToJSON(filepath, data) {
 // Home route - Render home page with user information
 // Simple rate limiter to prevent abuse
 const homeLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100 // limit each IP to 100 requests per windowMs
+  windowMs: RATE_LIMITER_TIME_PERIOD, // RATE_LIMITER_TIME_PERIOD in milliseconds
+  max: RATE_LIMITER_REQUESTS // limit each IP to RATE_LIMITER_REQUESTS requests per windowMs
 });
 
 
