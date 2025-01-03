@@ -698,9 +698,9 @@ function addressAutocomplete(containerElement, idName, callback, options) {
             ? focusedItemIndex + 1
             : 0;
         /*and and make the current item more visible:*/ -setActive(
-          itemElements,
-          focusedItemIndex,
-        );
+              itemElements,
+              focusedItemIndex,
+            );
       } else if (e.keyCode == 38) {
         e.preventDefault();
 
