@@ -1,8 +1,12 @@
+// Purpose: Handle all routes related to authentication
+// Create the express router and import the User and UserSettings schemas
 const express = require("express");
 const User = require("../schemas/User.model");
 const UserSettings = require("../schemas/UserSettings.model");
+// Import the jsonwebtoken package
 const jwt = require("jsonwebtoken");
 
+// Create the express router
 const router = express.Router();
 const {
   ensureNoToken,
@@ -26,7 +30,9 @@ router.get("/logout", (req, res) => {
 
 // Route to handle updating user settings
 router.patch("/updateSettings", getToken, authenticateToken, async (req, res) => {
+  // Get the settingId and newStatus from the request body
   const { settingId, newStatus } = req.body;
+  // Check if the settingId and newStatus are not empty
   if (!settingId || !newStatus) {
     res.redirect("/updateSettings?err=Please fill in all fields");
     return;
@@ -44,18 +50,21 @@ router.patch("/updateSettings", getToken, authenticateToken, async (req, res) =>
     res.redirect("/updateSettings?err=Error updating settings, please try again");
     return;
   }
-
+  // Redirect to the update settings page with a success message
   res.redirect("/updateSettings?suc=Settings updated successfully");
 });
 
 // Route to handle callback for authentication
 router.post("/callback", async (req, res) => {
+  // Verify the user token with the AUTH0_SECRET using HS256 algorithm because why not
   const user = jwt.verify(req.body.id_token, process.env["AUTH0_SECRET"], { algorithms: ['HS256'] });
 
+  // Check if the user exists cause if they don't it's a problem
   if (!user) {
     res.redirect("/login");
   }
 
+  // Get the user email from the user object
   const { email } = user;
 
   let alreadyUser;
@@ -86,11 +95,13 @@ router.post("/callback", async (req, res) => {
         email,
       });
     } catch (err) {
+      // Log the error and redirect to the signup page with an error message
       console.error("Error finding user with email to check if email exists: " + err);
       res.redirect("/signup?err=Internal server error, please try again");
       return;
     }
 
+    // Check if the user already exists in the database
     if (userCheckIfExist) {
       res.redirect("/signup?err=Email already exists");
       return;
@@ -106,12 +117,16 @@ router.post("/callback", async (req, res) => {
       privacy: false,
     });
 
+    // Save the new user to the database
     newUser.save().catch((err) => {
+      // Log the error and redirect to the signup page with an error message
       console.error("Error creating user: " + err);
+      // Redirect to the signup page with an error message
       res.redirect("/signup?err=Internal server error, please try again");
       return;
     });
   }
 });
 
+// Route to handle user sign in
 module.exports = router;
