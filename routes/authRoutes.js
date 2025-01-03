@@ -5,6 +5,7 @@ const User = require("../schemas/User.model");
 const UserSettings = require("../schemas/UserSettings.model");
 // Import the jsonwebtoken package
 const jwt = require("jsonwebtoken");
+const rateLimit = require("express-rate-limit");
 
 // Create the express router
 const router = express.Router();
@@ -15,8 +16,15 @@ const {
   generateAccessToken,
 } = require("../utils/authUtils");
 
+// Home route - Render home page with user information
+// Simple rate limiter to prevent abuse
+const homeLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100 // limit each IP to 100 requests per windowMs
+});
+
 // Route to render the signin page
-router.get("/signin", ensureNoToken, (req, res) => {
+router.get("/signin", homeLimiter, ensureNoToken, (req, res) => {
   // Render the signin page with error and message parameters
   res.render("signin", { error: req.query.err, message: req.query.message });
 });
@@ -29,7 +37,7 @@ router.get("/logout", (req, res) => {
 });
 
 // Route to handle updating user settings
-router.patch("/updateSettings", getToken, authenticateToken, async (req, res) => {
+router.patch("/updateSettings", homeLimiter, getToken, authenticateToken, async (req, res) => {
   // Get the settingId and newStatus from the request body
   const { settingId, newStatus } = req.body;
   // Check if the settingId and newStatus are not empty
@@ -55,7 +63,7 @@ router.patch("/updateSettings", getToken, authenticateToken, async (req, res) =>
 });
 
 // Route to handle callback for authentication
-router.post("/callback", async (req, res) => {
+router.post("/callback", homeLimiter, async (req, res) => {
   // Verify the user token with the AUTH0_SECRET using HS256 algorithm because why not
   const user = jwt.verify(req.body.id_token, process.env["AUTH0_SECRET"], { algorithms: ['HS256'] });
 
