@@ -75,6 +75,7 @@ router.post("/joinCarpool", homeLimiter, getToken, authenticateToken, async (req
     // Get user data
     const user = await User.findOne({ email });
     if (!user) {
+      // Clear the auth token
       res.clearCookie("authToken");
       return res.status(401).send("User not found");
     }
@@ -87,6 +88,7 @@ router.post("/joinCarpool", homeLimiter, getToken, authenticateToken, async (req
         $expr: { $lt: [{ $size: "$carpoolers" }, "$seats"] } // Check carpool not full
       },
       {
+        // Add user to carpool
         $push: {
           carpoolers: {
             email,
@@ -99,20 +101,28 @@ router.post("/joinCarpool", homeLimiter, getToken, authenticateToken, async (req
       { new: true }
     );
 
+    // Check if carpool was not updated
     if (!updatedCarpool) {
       const carpool = await Carpool.findById(carpoolId);
+      // Check if carpool exists
       if (!carpool) {
+        // Mission Failed Successfully
         return res.status(404).send("Carpool not found");
       }
       if (carpool.carpoolers.length >= carpool.seats) {
+        // Carpool is full :(
         return res.status(400).send("Carpool is full");
       }
+      // Mission failed, we'll get 'em next time
       return res.status(409).send("You are already in this carpool");
     }
 
+    // Return updated carpool
     return res.status(200).json(updatedCarpool);
 
+    // Catch any errors
   } catch (error) {
+    // Log the error NOTE: This is not secure, do not do this in production
     console.error("Error joining carpool:", error);
     return res.status(500).send("Internal Server Error");
   }
