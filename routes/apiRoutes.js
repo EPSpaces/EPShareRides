@@ -63,107 +63,59 @@ router.get("/offerToCarpool", homeLimiter, getToken, authenticateToken, (req, re
 
 // Route to join a carpool
 router.post("/joinCarpool", homeLimiter, getToken, authenticateToken, async (req, res) => {
-  // Read the carpool data from the DB
-  let carpools;
-  // Try to get the carpool data from the DB
-  // If there is an error, send a 500 status code and an error message
-  try {
-    // Get all the carpools from the DB and wait for the response
-    carpools = await Carpool.find({});
-  } catch (err) {
-    console.error("Error retrieving carpools: " + err);
-    res.status(500).send("Error retrieving carpools");
-    return;
+  const { carpool: carpoolId, address } = req.body;
+  const { email } = req;
+
+  // Validate required fields
+  if (!carpoolId || !address) {
+    return res.status(400).send("Invalid request");
   }
-  // Get the carpool ID from the request body
-  let { carpool, address } = req.body;
-  // Check if the carpool ID and address are valid
-  let carpoolS = carpool;
-  // If the carpool ID or address are not valid, send a 400 status code and an error message
-  // I miss 418 status code
-  if (!carpoolS || !address) {
-    res.status(400).send("Invalid request");
-    return;
-  }
-  // Get the user's email from the request
-  const email = req.email;
-  // This is the person, their entire entity as a human being in a variable because why not
-  let userInData;
-  // Try to find the user in the DB
+
   try {
-    // Find the user in the DB and wait for the response
-    userInData = await User.findOne({ email });
-    // If the user is not found, clear the auth token and redirect to the sign in page because they are not signed in with the right credentials
-    if (!userInData) {
+    // Get user data
+    const user = await User.findOne({ email });
+    if (!user) {
       res.clearCookie("authToken");
-      res.redirect(
-        "/signin?err=Error with system finding User, please try again",
-      );
-      return;
-    }
-    // If there is an error, clear the auth token and redirect to the sign in page because there was an internal server error
-  } catch (err) {
-    // Log the error
-    console.error("Error finding user: " + err);
-    // Clear the auth token and redirect to the sign in page
-    res.clearCookie("authToken");
-    // Redirect to the sign in page with an error message
-    res.redirect("/signin?err=Internal server error, please sign in again");
-    return;
-  }
-  // Get the user's first name and last name from the user data
-  firstName = userInData["firstName"];
-  lastName = userInData["lastName"];
-  // Create a new user object with the user's email, first name, last name, and address
-  const newUser = {
-    email: req.email,
-    firstName,
-    lastName,
-    address,
-  };
-  // Find the carpool in the DB
-  try {
-    // Find the joined carpool and wait for the response
-    carpool = await Carpool.findById(carpoolS);
-
-    // If the carpool is not found, send a 404 status code and an error message
-    if (!carpool) {
-      res.status(404).send("Carpool not found");
-      return;
+      return res.status(401).send("User not found");
     }
 
-    // If the carpool is full, send a 400 status code and an error message
-    if (carpool.carpoolers.length >= carpool.seats) {
-      // Mission failed successfully
-      res.status(400).send("Carpool is full");
-      return;
-    }
-
-    // Check if the user is already in the carpool
-    const alreadyCarpoolerExists = carpool.carpoolers.some(
-      (carpooler) => carpooler.email === req.email,
+    // Find and update carpool in one operation
+    const updatedCarpool = await Carpool.findOneAndUpdate(
+      {
+        _id: carpoolId,
+        "carpoolers.email": { $ne: email }, // Check user not already in carpool
+        $expr: { $lt: [{ $size: "$carpoolers" }, "$seats"] } // Check carpool not full
+      },
+      {
+        $push: {
+          carpoolers: {
+            email,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            address
+          }
+        }
+      },
+      { new: true }
     );
-    // If the user is already in the carpool, send a 409 status code and an error message
-    if (alreadyCarpoolerExists) {
-      // Mission failed, we'll get 'em next time
-      res.status(409).send("You are already in this carpool");
-      return;
+
+    if (!updatedCarpool) {
+      const carpool = await Carpool.findById(carpoolId);
+      if (!carpool) {
+        return res.status(404).send("Carpool not found");
+      }
+      if (carpool.carpoolers.length >= carpool.seats) {
+        return res.status(400).send("Carpool is full");
+      }
+      return res.status(409).send("You are already in this carpool");
     }
-    // Add the user to the carpool
-    const updatedCarpool = await Carpool.findByIdAndUpdate(
-      carpoolS,
-      { $push: { carpoolers: newUser } },
-      { new: true },
-    );
-    // Send the updated carpool as a JSON response
-    res.status(200).send(updatedCarpool);
-    // If there is an error, send a 500 status code and an error message
+
+    return res.status(200).json(updatedCarpool);
+
   } catch (error) {
-    console.error("Error:", error);
-    res.status(500).send("Internal Server Error");
+    console.error("Error joining carpool:", error);
+    return res.status(500).send("Internal Server Error");
   }
-  // Send a 200 status code because everything is chill here and the user has been added to the carpool
-  res.status(200);
 });
 
 // Route to get all events
