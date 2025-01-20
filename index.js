@@ -25,13 +25,15 @@ const {
   ensureNoToken,
 } = require("./utils/authUtils");
 
+// Initialize Express server
+const app = express();
+
 // Import Routes
 const authRoutes = require("./routes/authRoutes");
 const apiRoutes = require("./routes/apiRoutes");
-const rateLimit = require('express-rate-limit');
 
-// Initialize Express server
-const app = express();
+// Import Rate Limiter
+const rateLimit = require('express-rate-limit');
 
 // Configure Auth0 Server settings
 const config = {
@@ -40,7 +42,7 @@ const config = {
   secret: process.env["AUTH0_SECRET"],
   baseURL: process.env["BASE_URL"],
   clientID: process.env["AUTH0_CLIENTID"],
-  issuerBaseURL: "https://dev-1tui2vdlhhsdtl30.us.auth0.com",
+  issuerBaseURL: process.env["ISSUER_BASE_URL"],
 };
 
 app.set("view engine", "ejs"); // Set view engine to EJS
@@ -49,6 +51,8 @@ app.use(express.static(__dirname + "/public")); // Serve static files
 app.use(cookieParser()); // Parse cookies
 app.use(express.json({ limit: "100mb" })); // Set JSON body limit to 100mb
 app.use(express.urlencoded({ extended: true, limit: "100mb" })); // Parse URL-encoded bodies with limit
+app.use('/', authRoutes); // Use Auth Routes
+app.use('/', apiRoutes); //TODO: Put apiRoutes under /api
 
 app.use(auth(config)); // Use auth middleware with config
 
