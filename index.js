@@ -43,7 +43,6 @@ const config = {
   issuerBaseURL: "https://dev-1tui2vdlhhsdtl30.us.auth0.com",
 };
 
-app.set("trust proxy", true); // Trust the first proxy
 app.set("view engine", "ejs"); // Set view engine to EJS
 app.use(express.json()); // Parse JSON requests
 app.use(express.static(__dirname + "/public")); // Serve static files
