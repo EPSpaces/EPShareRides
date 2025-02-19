@@ -65,24 +65,16 @@
               </div>
 
               <button class="button is-fullwidth is-link is-outlined"
-                style="margin: 5px;margin-top: 5px;  width: calc(100% - 10px)" onclick="signin()">
-                Log in with EPS
+                id = "sign-in"
+                style="margin: 5px;margin-top: 5px;  width: calc(100% - 10px)">
+                @EASTSIDEPREP.ORG LOGIN
               </button>
 
             </article>
             <!-- <p class="has-text-centered" style="top: calc(100% - 40px); width: 100%; bottom: 0px; position: absolute;">Don't have an account? <a href="/signup">Sign up here</a></p> -->
 
   </main>
-  <script src="./index_signup.js"></script>
-  <script>
-    function signin() {
-      window.location.href = "/login";
-
-
-
-    }
-  </script>
-
+  <script type="module" src="./signin.js"></script>
 </body>
 
 </html>

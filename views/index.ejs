@@ -934,6 +934,7 @@
             var promise = new Promise((resolve, reject) => {
               currentPromiseReject = reject;
 
+              // TODO: Fix this
               var apiKey = "992ef3d60d434f2283ea8c6d70a4898d";
               var url = `https://api.geoapify.com/v1/geocode/autocomplete?text=${encodeURIComponent(currentValue)}&limit=5&apiKey=${apiKey}`;
 
