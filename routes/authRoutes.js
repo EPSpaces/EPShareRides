@@ -8,8 +8,7 @@ const jwt = require("jsonwebtoken");
 const rateLimit = require("express-rate-limit");
 const {
   ensureNoToken,
-  authenticateToken,
-  auth
+  authenticateToken
 } = require("../utils/authUtils.js");
 // Create the express router
 const router = express.Router();
@@ -29,11 +28,8 @@ router.get("/signin", homeLimiter, ensureNoToken, (req, res) => {
 // Route to log out the user and clear the auth token
 router.get("/logout", (req, res) => {
   // Clear the auth token cookie and redirect to signin page
-  signOut(auth).then(() => {
-    res.redirect("/signin?message=You have been signed out.");
-  }).catch((error) => {
-    console.error("Error signing out: " + error);
-  });
+  res.clearCookie("idToken");
+  res.redirect("/signin?message=You have been signed out.");
 });
 
 // Route to handle user sign in

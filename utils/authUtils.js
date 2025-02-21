@@ -7,26 +7,27 @@ const auth = getAuth();
 
 // Middleware to verify the token sent and set req.email to the user's email
 function authenticateToken(req, res, next) {
-  const token = req.headers["authorization"];
-
-  if (token == null) {
+  let idToken = req.cookies["idToken"];
+  
+  if (idToken == null) {
     return res.redirect("/signin");
   }
-  
+
   auth.verifyIdToken(idToken).then((decodedToken) => {
-    console.log(decodedToken);
     next();
   })
   .catch((err) => {
     console.error(err);
+    res.clearCookie("idToken");
+    res.redirect("/signin");
   });
 }
 
 // Middleware to only allow the user to proceed if they do not have a token
 function ensureNoToken(req, res, next) {
-  const token = req.headers["authorization"];
-  if (token != null) {
-    console.log("HI");
+  let idToken = req.cookies["idToken"];;
+  
+  if (idToken != null) {
     return res.redirect("/");
   }
   next();

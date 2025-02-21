@@ -98,7 +98,8 @@ router.post("/joinCarpool", homeLimiter, authenticateToken, async (req, res) => 
     // Get user data
     const user = await User.findOne({ email });
     if (!user) {
-      // Clear the auth token
+      // Clear the id token
+      res.clearCookie("idToken");
       return res.status(401).send("User not found");
     }
 
@@ -182,7 +183,8 @@ router.post("/events", homeLimiter, authenticateToken, async (req, res) => {
     userInData = await User.findOne({ email });
     // If the user is not found, clear the auth token and redirect to the sign in page because they are not signed in with the right credentials
     if (!userInData) {
-      // Clear the auth token
+      // Clear the id token
+      res.clearCookie("idToken");
       res.redirect(
         "/signin?err=Error with verifing privileges, please try again",
       );
@@ -192,6 +194,7 @@ router.post("/events", homeLimiter, authenticateToken, async (req, res) => {
   } catch (err) {
     // Log the error
     console.error("Error finding user: " + err);
+    res.clearCookie("idToken");
     res.redirect("/signin?err=Internal server error, please sign in again");
     return;
   }
