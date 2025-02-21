@@ -17,12 +17,12 @@ const Event = require("./schemas/Event.model.js");
 const Carpool = require("./schemas/Carpool.model.js");
 const UserSettings = require("./schemas/UserSettings.model.js");
 
-//These API keys are public information and are safe to be stored in the code
-const firebaseConfig = require("./public/config.js");
-
 // Initialize Firebase app
-const { initializeApp } = require("firebase-admin/app");
-const firebaseapp = initializeApp(firebaseConfig.config);
+const admin = require('firebase-admin');
+var serviceAccount = require("./service_account.json");
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+});
 
 // Import Util Functions
 const {
@@ -66,14 +66,17 @@ app.get("/", homeLimiter, authenticateToken, async (req, res) => {
   try {
     userInData = await User.findOne({ email }); // Find user by email
     if (!userInData) {
+      res.clearCookie("idToken");
       res.redirect("/signin?err=Error with system finding User, please try again");
       return;
     }
   } catch (err) {
     console.error("Error finding user: " + err);
+    res.clearCookie("idToken");
     res.redirect("/signin?err=Internal server error, please sign in again");
     return;
   }
+
   firstName = userInData["firstName"];
   lastName = userInData["lastName"];
   admin = userInData["admin"];
@@ -96,8 +99,14 @@ app.get("/mycarpools", homeLimiter, authenticateToken, async (req, res) => {
 
   try {
     userInData = await User.findOne({ email }); // Find user by email
+    if (!userInData) {
+      res.clearCookie("idToken");
+      res.redirect("/signin?err=Error with system finding User, please try again");
+      return;
+    }
   } catch (err) {
     console.error("Error finding user: " + err);
+    res.clearCookie("idToken");
     res.redirect("/signin?err=Internal server error, please sign in again");
     return;
   }
@@ -124,8 +133,14 @@ app.get("/updateSettings", homeLimiter, authenticateToken, async (req, res) => {
 
   try {
     userInData = await User.findOne({ email }); // Find user by email
+    if (!userInData) {
+      res.clearCookie("idToken");
+      res.redirect("/signin?err=Error with system finding User, please try again");
+      return;
+    }
   } catch (err) {
     console.error("Error finding user: " + err);
+    res.clearCookie("idToken");
     res.redirect("/signin?err=Internal server error, please sign in again");
     return;
   }
@@ -144,6 +159,7 @@ app.get("/friends", homeLimiter, authenticateToken, async (req, res) => {
   try {
     users = await User.find({}); // Find all users
   } catch (err) {
+    res.clearCookie("idToken");
     res.status(500).send("Error retrieving users");
   }
   users.forEach((u) => {
@@ -163,8 +179,14 @@ app.get("/friends", homeLimiter, authenticateToken, async (req, res) => {
 
   try {
     userInData = await User.findOne({ email }); // Find user by email
+    if (!userInData) {
+      res.clearCookie("idToken");
+      res.redirect("/signin?err=Error with system finding User, please try again");
+      return;
+    }
   } catch (err) {
     console.error("Error finding user: " + err);
+    res.clearCookie("idToken");
     res.redirect("/signin?err=Internal server error, please sign in again");
     return;
   }
