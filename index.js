@@ -18,10 +18,12 @@ const Carpool = require("./schemas/Carpool.model.js");
 const UserSettings = require("./schemas/UserSettings.model.js");
 
 // Initialize Firebase app
-const admin = require('firebase-admin');
+const firebaseadmin = require('firebase-admin');
 var serviceAccount = require("./service_account.json");
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
+process.env.GOOGLE_APPLICATION_CREDENTIALS = "./service_account.json";
+
+firebaseadmin.initializeApp({
+  credential: firebaseadmin.credential.cert(serviceAccount)
 });
 
 // Import Util Functions
@@ -39,14 +41,13 @@ const apiRoutes = require("./routes/apiRoutes");
 // Import Rate Limiter
 const rateLimit = require('express-rate-limit');
 
-
 app.set("view engine", "ejs"); // Set view engine to EJS
 app.use(express.json()); // Parse JSON requests
 app.use(express.static(__dirname + "/public")); // Serve static files
 app.use(cookieParser()); // Parse cookies
 app.use(express.json({ limit: "100mb" })); // Set JSON body limit to 100mb
 app.use(express.urlencoded({ extended: true, limit: "100mb" })); // Parse URL-encoded bodies with limit
-app.use('/', apiRoutes); //TODO: Put apiRoutes under /api
+app.use('/api/', apiRoutes); //TODO: Put apiRoutes under /api
 app.use('/', authRoutes);
 
 // Home route - Render home page with user information
@@ -132,7 +133,7 @@ app.get("/updateSettings", homeLimiter, authenticateToken, async (req, res) => {
   let userInData;
 
   try {
-    userInData = await User.findOne({ email }); // Find user by email
+    userInData = await User.findOne({ email });;
     if (!userInData) {
       res.clearCookie("idToken");
       res.redirect("/signin?err=Error with system finding User, please try again");
@@ -178,7 +179,7 @@ app.get("/friends", homeLimiter, authenticateToken, async (req, res) => {
   let userInData;
 
   try {
-    userInData = await User.findOne({ email }); // Find user by email
+    userInData = await User.findOne({ email });;
     if (!userInData) {
       res.clearCookie("idToken");
       res.redirect("/signin?err=Error with system finding User, please try again");
