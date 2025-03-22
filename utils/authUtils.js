@@ -14,6 +14,7 @@ function authenticateToken(req, res, next) {
   }
 
   auth.verifyIdToken(idToken).then((decodedToken) => {
+    req.email = decodedToken.email;
     next();
   })
   .catch((err) => {

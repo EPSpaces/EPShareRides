@@ -23,13 +23,12 @@ function toggleSignIn() {
 
     provider.addScope('User.Read');
     signInWithPopup(auth, provider)
-      .then(function (result) {
+      .then((result) => {
         const user = result.user;
         const email = user.email;
 
         auth.currentUser.getIdToken(/* forceRefresh */ false).then(function(idToken) {
           document.cookie = `idToken=${idToken};`;
-          document.cookie = `email=${email};`;
         }).catch(function(error) {
           console.error(error);
         });
@@ -44,7 +43,7 @@ function toggleSignIn() {
         }).catch((error) => {
           console.error("Error:", error)
         });
-      }).catch(function (error) {
+      }).catch((error) => {
         console.error(error);
       });
   } else {
