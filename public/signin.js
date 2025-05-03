@@ -18,7 +18,7 @@ function toggleSignIn() {
   if (!auth.currentUser) {
     const provider = new OAuthProvider('microsoft.com');
     provider.setCustomParameters({
-      tenant: 'kagreaterseattle.com',
+      tenant: 'eastsideprep.org',
     });
 
     provider.addScope('User.Read');
