@@ -10,7 +10,6 @@ const fs = require("fs");
 const jwt = require("jsonwebtoken");
 const cookieParser = require("cookie-parser");
 const mongoose = require("mongoose");
-const { auth } = require("express-openid-connect");
 
 // Import Schemas from MongoDB
 const User = require("./schemas/User.model.js");
@@ -18,11 +17,18 @@ const Event = require("./schemas/Event.model.js");
 const Carpool = require("./schemas/Carpool.model.js");
 const UserSettings = require("./schemas/UserSettings.model.js");
 
+// Initialize Firebase app
+const firebaseadmin = require('firebase-admin');
+var serviceAccount = require("./service_account.json");
+process.env.GOOGLE_APPLICATION_CREDENTIALS = "./service_account.json";
+
+firebaseadmin.initializeApp({
+  credential: firebaseadmin.credential.cert(serviceAccount)
+});
+
 // Import Util Functions
 const {
   authenticateToken,
-  getToken,
-  ensureNoToken,
 } = require("./utils/authUtils");
 
 // Initialize Express server
@@ -35,26 +41,14 @@ const apiRoutes = require("./routes/apiRoutes");
 // Import Rate Limiter
 const rateLimit = require('express-rate-limit');
 
-// Configure Auth0 Server settings
-const config = {
-  authRequired: false,
-  auth0Logout: true,
-  secret: process.env["AUTH0_SECRET"],
-  baseURL: process.env["BASE_URL"],
-  clientID: process.env["AUTH0_CLIENTID"],
-  issuerBaseURL: process.env["ISSUER_BASE_URL"],
-};
-
 app.set("view engine", "ejs"); // Set view engine to EJS
 app.use(express.json()); // Parse JSON requests
 app.use(express.static(__dirname + "/public")); // Serve static files
 app.use(cookieParser()); // Parse cookies
 app.use(express.json({ limit: "100mb" })); // Set JSON body limit to 100mb
 app.use(express.urlencoded({ extended: true, limit: "100mb" })); // Parse URL-encoded bodies with limit
-app.use('/', authRoutes); // Use Auth Routes
-app.use('/', apiRoutes); //TODO: Put apiRoutes under /api
-
-app.use(auth(config)); // Use auth middleware with config
+app.use('/api/', apiRoutes); //TODO: Put apiRoutes under /api
+app.use('/', authRoutes);
 
 // Home route - Render home page with user information
 // Simple rate limiter to prevent abuse
@@ -63,7 +57,7 @@ const homeLimiter = rateLimit({
   max: 100 // limit each IP to 100 requests per windowMs
 });
 
-app.get("/", homeLimiter, getToken, authenticateToken, async (req, res) => {
+app.get("/", homeLimiter, authenticateToken, async (req, res) => {
   const email = req.email;
   let firstName;
   let lastName;
@@ -73,16 +67,17 @@ app.get("/", homeLimiter, getToken, authenticateToken, async (req, res) => {
   try {
     userInData = await User.findOne({ email }); // Find user by email
     if (!userInData) {
-      res.clearCookie("authToken");
+      res.clearCookie("idToken");
       res.redirect("/signin?err=Error with system finding User, please try again");
       return;
     }
   } catch (err) {
     console.error("Error finding user: " + err);
-    res.clearCookie("authToken");
+    res.clearCookie("idToken");
     res.redirect("/signin?err=Internal server error, please sign in again");
     return;
   }
+
   firstName = userInData["firstName"];
   lastName = userInData["lastName"];
   admin = userInData["admin"];
@@ -96,7 +91,7 @@ app.get("/sustainabilityStatement", (req, res) => {
 });
 
 // My carpools route - Render user's carpools
-app.get("/mycarpools", homeLimiter, getToken, authenticateToken, async (req, res) => {
+app.get("/mycarpools", homeLimiter, authenticateToken, async (req, res) => {
   const email = req.email;
   let firstName;
   let lastName;
@@ -105,9 +100,14 @@ app.get("/mycarpools", homeLimiter, getToken, authenticateToken, async (req, res
 
   try {
     userInData = await User.findOne({ email }); // Find user by email
+    if (!userInData) {
+      res.clearCookie("idToken");
+      res.redirect("/signin?err=Error with system finding User, please try again");
+      return;
+    }
   } catch (err) {
     console.error("Error finding user: " + err);
-    res.clearCookie("authToken");
+    res.clearCookie("idToken");
     res.redirect("/signin?err=Internal server error, please sign in again");
     return;
   }
@@ -125,7 +125,7 @@ app.get("/mycarpools", homeLimiter, getToken, authenticateToken, async (req, res
 });
 
 // Update settings route - Allow user to update their settings
-app.get("/updateSettings", homeLimiter, getToken, authenticateToken, async (req, res) => {
+app.get("/updateSettings", homeLimiter, authenticateToken, async (req, res) => {
   const email = req.email;
   let firstName;
   let lastName;
@@ -133,10 +133,15 @@ app.get("/updateSettings", homeLimiter, getToken, authenticateToken, async (req,
   let userInData;
 
   try {
-    userInData = await User.findOne({ email }); // Find user by email
+    userInData = await User.findOne({ email });;
+    if (!userInData) {
+      res.clearCookie("idToken");
+      res.redirect("/signin?err=Error with system finding User, please try again");
+      return;
+    }
   } catch (err) {
     console.error("Error finding user: " + err);
-    res.clearCookie("authToken");
+    res.clearCookie("idToken");
     res.redirect("/signin?err=Internal server error, please sign in again");
     return;
   }
@@ -148,13 +153,14 @@ app.get("/updateSettings", homeLimiter, getToken, authenticateToken, async (req,
 });
 
 // Friends route - Display list of all users
-app.get("/friends", homeLimiter, getToken, authenticateToken, async (req, res) => {
+app.get("/friends", homeLimiter, authenticateToken, async (req, res) => {
   let people = [];
   let i = 0;
   let users;
   try {
     users = await User.find({}); // Find all users
   } catch (err) {
+    res.clearCookie("idToken");
     res.status(500).send("Error retrieving users");
   }
   users.forEach((u) => {
@@ -173,10 +179,15 @@ app.get("/friends", homeLimiter, getToken, authenticateToken, async (req, res) =
   let userInData;
 
   try {
-    userInData = await User.findOne({ email }); // Find user by email
+    userInData = await User.findOne({ email });;
+    if (!userInData) {
+      res.clearCookie("idToken");
+      res.redirect("/signin?err=Error with system finding User, please try again");
+      return;
+    }
   } catch (err) {
     console.error("Error finding user: " + err);
-    res.clearCookie("authToken");
+    res.clearCookie("idToken");
     res.redirect("/signin?err=Internal server error, please sign in again");
     return;
   }
