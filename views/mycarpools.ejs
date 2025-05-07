@@ -349,20 +349,40 @@
       <section class="modal-card-body">
 
          <div class="container">
-
-            <label>Type of route </label>
+            <div class="field">
+               <a class="panel-block" style="border-radius: 5px; padding:0px;">
+                  <input style="margin-right: 10px;" id="email" class="input" type="email" placeholder="Driver email">
+                  <input id="phone" class="input" type="tel" placeholder="Driver phone number">
+               </a>
+            </div>
             <div class="field" style="margin-bottom: 10px;">
-               <div class="control">
-                  <div class="select" style="margin-right: 10px; ">
-                     <form>
-                        <select id="route-type">
-                           <option value="route">Home to home</option>
-                           <option value="point">Common meeting point</option>
-                        </select>
-
-                     </form>
+               <input class="input" id="carmake" type="text" placeholder="Car make and model">
+            </div>
+            <div class="field" style="margin-bottom: 10px;">
+               <input class="input" id="seats" type="number" min="1" max="9" placeholder="Number of available car seats">
+            </div>
+            <div style="display: flex; gap: 10px;">
+               <div>
+                  <label>Pickup Location </label>
+                  <div class="field" style="margin-bottom: 10px;">
+                     <div class="control">
+                        <div class="select">
+                           <form>
+                              <select id="route-type">
+                                 <option value="route">Riders' Homes</option>
+                                 <option value="point">Common meeting point</option>
+                                 <option value="eps-campus">EPS Campus</option>
+                              </select>
+                           </form>
+                        </div>
+                     </div>
                   </div>
-
+               </div>
+               <div>
+                  <label>Arrival time</label>
+                  <div class="field" style="margin-bottom: 10px;">
+                     <input class="input" id="arrivaltime" type="time" placeholder="Time to arrive">
+                  </div>
                </div>
             </div>
          </div>
@@ -374,12 +394,21 @@
                const addressLabel123 = document.getElementById('address-label');
 
                function updateAddressLabel123() {
-
                   const selectedOption123 = routeTypeSelect123.value;
                   if (selectedOption123 === 'route') {
                      addressLabel123.innerHTML = 'Your home address';
-                  } else {
+                     document.getElementById("address-input").disabled = false;
+                     if (value2 != "none") {
+                        document.getElementById("address-input").value = value2;
+                     }
+                  } else if (selectedOption123 === 'point') {
                      addressLabel123.innerHTML = 'Meeting point';
+                     document.getElementById("address-input").value = "";
+                     document.getElementById("address-input").disabled = false;
+                  } else if (selectedOption123 === 'eps-campus') {
+                     addressLabel123.innerHTML = 'EPS Campus';
+                     document.getElementById("address-input").value = "10613 NE 38th Place, Kirkland, WA 98033";
+                     document.getElementById("address-input").disabled = true;
                   }
                }
 
@@ -615,29 +644,31 @@
          newCarpoolers.push(offeredCarpools[i].carpoolers[k])
       }
 
-
       for (let k = 0; k < offeredCarpools[i].carpoolers.length; k++) {
          console.log(offeredCarpools[i].carpoolers.length)
          console.log(k)
          document.getElementById("friendsInCarpool").innerHTML += `<tr id="person_` + offeredCarpools[i].carpoolers[k]._id + `"><th><a href="mailto:` + offeredCarpools[i].carpoolers[k].email + `">` + offeredCarpools[i].carpoolers[k].firstName + " " + offeredCarpools[i].carpoolers[k].lastName + `</a></th><td><a style="color: black" onclick="removePerson('` + offeredCarpools[i].carpoolers[k]._id + `')">X</a></td></tr>`
          continue;
       }
+
+      // Populate driver information fields
+      document.getElementById("email").value = offeredCarpools[i].email || '';
+      document.getElementById("phone").value = offeredCarpools[i].phone || '';
+      document.getElementById("carmake").value = offeredCarpools[i].carMake || '';
+      document.getElementById("seats").value = offeredCarpools[i].seats || '';
+      document.getElementById("arrivaltime").value = offeredCarpools[i].arrivalTime || '';
+
       if (offeredCarpools[i].route === "route") {
          document.getElementById("route-type").value = "route"
+      }
+      else if (offeredCarpools[i].route === "eps-campus") {
+         document.getElementById("route-type").value = "eps-campus"
       }
       else {
          document.getElementById("route-type").value = "point"
       }
 
       document.getElementById("address-input").value = offeredCarpools[i].wlocation
-
-
-      /*for (var i = 0; i < offeredCarpools.length; i++) {
-             for (var k = 0; k < offeredCarpools[i].carpoolers.length; k++) {
-                //document.getElementById("friendsInCarpool").innerHTML += `<tr><th><a href="mailto:` + offeredCarpools[i].carpoolers[k].email + `">` + offeredCarpools[i].carpoolers[k].firstName + " " + offeredCarpools[i].carpoolers[k].lastName + `</a></th><td><a style="color: black">X</a></td></tr>`
-                console.log(offeredCarpools[i].carpoolers[k].firstName)
-             }
-         }*/
    }
 
    function removePerson(id) {
@@ -1007,20 +1038,31 @@
 
 
    function test() {
-      let newData = document.getElementById("address-input").value
-
-      let value3 = document.getElementById("route-type").value
-      console.log("Current ID:");
-
+      let newData = document.getElementById("address-input").value;
+      let value3 = document.getElementById("route-type").value;
+      let email = document.getElementById("email").value;
+      let phone = document.getElementById("phone").value;
+      let carMake = document.getElementById("carmake").value;
+      let seats = document.getElementById("seats").value;
+      let arrivalTime = document.getElementById("arrivaltime").value;
       let cutCarpoolers = newCarpoolers;
 
-      console.log("Updating route to " + value3)
+      console.log("Updating carpool with ID:", current);
       fetch(`/api/carpools/updateRoute/${current}`, {
          method: "PATCH",
          headers: {
             'Content-Type': 'application/json',
          },
-         body: JSON.stringify({ route: value3, wlocation: newData, carpoolers: cutCarpoolers })
+         body: JSON.stringify({ 
+            route: value3, 
+            wlocation: newData, 
+            carpoolers: cutCarpoolers,
+            email: email,
+            phone: phone,
+            carMake: carMake,
+            seats: seats,
+            arrivalTime: arrivalTime
+         })
       })
          .then(response => {
             if (!response.ok) {
