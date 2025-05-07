@@ -27,10 +27,16 @@
             <div class="navbar-brand">
               <a class="navbar-item">
                 <img src="EPS Logo - Transparent-4.png" alt="Logo">
-                <h1 class="title is-3" style="margin-left: 10px">EPShare Rides
-                </h1>
+                <h1 class="title is-3" style="margin-left: 10px">EPShare Rides</h1>
               </a>
-              <span class="navbar-burger " data-target="navbarMenuHeroC" id="nav-toggle">
+              <div class="navbar-item" style="padding: 0.5rem 0.75rem;">
+                <button class="button is-info is-light" onclick="showDisclaimer()">
+                  <span class="icon">
+                    <i class="fas fa-info-circle"></i>
+                  </span>
+                </button>
+              </div>
+              <span class="navbar-burger" data-target="navbarMenuHeroC" id="nav-toggle">
                 <span></span>
                 <span></span>
                 <span></span>
@@ -107,6 +113,16 @@
             </div>
 
             <div class="container" style="margin-bottom: 30px;margin-top: 10px">
+              <p class="subtitle is-6" style=" width: 100%;  text-align: left; margin-bottom: 10px"><strong>Contact Information</strong></p>
+              <div class="field" style="margin-bottom: 10px;">
+                <input class="input" type="tel" id="phone" placeholder="Phone number">
+              </div>
+              <div class="field">
+                <input class="input" type="email" id="email" placeholder="Email" value="<%= email %>" disabled>
+              </div>
+            </div>
+
+            <div class="container" style="margin-bottom: 30px;margin-top: 10px">
               <p class="subtitle is-6" style=" width: 100%;  text-align: left; margin-bottom: 10px"><strong>Save my
                   address</strong></p>
               <div class="autocomplete-container" id="">
@@ -129,6 +145,20 @@
         </div>
       </section>
   </main>
+
+  <div class="modal" id="disclaimer-modal">
+    <div class="modal-background"></div>
+    <div class="modal-card">
+      <section class="modal-card-body">
+        <p class="has-text-centered is-size-5">This is an app maintained by Eastside Prep's Hack Club, a group of Upper School students that meet every Thursday at 11:05 pm in TMAC-007. Please email Hack Club Co-President Anmol Singh Josan, ajosan@eastsideprep.org, if you have any questions.</p>
+        <br>
+        <p class="has-text-centered is-size-5">Eastside Preparatory School does not mandate or encourage the use of this application. They do not claim any responsibility for the maintenance, upkeep, and development of this application. This is entirely student-run.</p>
+      </section>
+      <footer class="modal-card-foot">
+        <button class="button is-info" onclick="closeDisclaimer()">Close</button>
+      </footer>
+    </div>
+  </div>
 </body>
 </html>
 <script>
@@ -151,6 +181,9 @@
         if (carpoools[k].email === "<%= email %>") {
           if (carpoools[k].address != "none") {
             document.getElementById("address-input").value = carpoools[k].address;
+          }
+          if (carpoools[k].cell != "none") {
+            document.getElementById("phone").value = carpoools[k].cell;
           }
           document.getElementById("switch").checked = carpoools[k].privacy;
         }
@@ -415,6 +448,7 @@
   function update() {
     let privacy = document.getElementById("switch").checked;
     let address = document.getElementById("address-input").value;
+    let phone = document.getElementById("phone").value;
     let _id;
 
 
@@ -423,8 +457,11 @@
     if (address == "") {
       address = "none"
     }
+    if (phone == "") {
+      phone = "none"
+    }
 
-    console.log(privacy + " " + address);
+    console.log(privacy + " " + address + " " + phone);
 
     for (let j = 0; j < carpoools.length; j++) {
       console.log(carpoools[j].email)
@@ -436,7 +473,7 @@
       }
     }
 
-    console.log(_id + " " + address + " " + privacy)
+    console.log(_id + " " + address + " " + privacy + " " + phone)
 
 
     fetch(`/api/users/update`, {
@@ -445,7 +482,7 @@
         Accept: 'application/json',
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ _id: _id, address: address, privacy: privacy })
+      body: JSON.stringify({ _id: _id, address: address, privacy: privacy, cell: phone })
     })
       .then(response => {
         if (response.ok) {
@@ -459,5 +496,13 @@
         console.error('A network error occurred:', error);
         alert('A network error occurred. Please try again later.');
       });
+  }
+
+  function showDisclaimer() {
+    document.getElementById('disclaimer-modal').classList.add('is-active');
+  }
+
+  function closeDisclaimer() {
+    document.getElementById('disclaimer-modal').classList.remove('is-active');
   }
 </script>

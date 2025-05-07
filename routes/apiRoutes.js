@@ -523,13 +523,13 @@ router.patch("/carpools/:id", homeLimiter, authenticateToken, async (req, res) =
 router.patch("/users/update", homeLimiter, async (req, res) => {
   try {
     // Get the user ID from the request
-    const { _id, address, privacy } = req.body;
+    const { _id, address, privacy, cell } = req.body;
     // Update the user with the new data
     const users = await User.updateOne(
       // Find the user by ID
       { _id: new ObjectId(_id) },
-      // Update the user's address and privacy settings
-      { $set: { address: address, privacy: privacy } },
+      // Update the user's address, privacy settings, and phone number
+      { $set: { address: address, privacy: privacy, cell: cell } },
     );
 
     // Send the updated user as a JSON response
@@ -578,6 +578,57 @@ router.post("/carpools", homeLimiter, authenticateToken, async (req, res) => {
   } catch (err) {
     console.error("Error creating carpool:", err);
     res.status(500).send("Error creating carpool");
+  }
+});
+
+// Route to get all users
+// Why do we have a req here?
+router.get("/users", homeLimiter, authenticateToken, async (req, res) => {
+  // Get all the users from the DB
+  let users;
+  // Try to get the users from the DB
+  try {
+    // Get all the users from the DB and wait for the response
+    users = await User.find({});
+  } catch (err) {
+    // Log the error
+    console.error("Error getting users: " + err);
+    res.status(500).send("Error getting users");
+    return;
+  }
+  // Send the users as a JSON response
+  res.json(users);
+});
+
+// Route to get contact information for a carpool group
+router.get("/carpools/:id/contact-info", homeLimiter, authenticateToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const carpool = await Carpool.findById(id);
+    
+    if (!carpool) {
+      return res.status(404).send("Carpool not found");
+    }
+
+    // Get all emails and phone numbers
+    const emails = [carpool.email]; // Driver's email
+    const phones = carpool.phone ? [carpool.phone] : []; // Driver's phone
+
+    // Add carpoolers' contact info
+    for (const carpooler of carpool.carpoolers) {
+      const user = await User.findOne({ email: carpooler.email });
+      if (user) {
+        emails.push(user.email);
+        if (user.cell && user.cell !== "none") {
+          phones.push(user.cell);
+        }
+      }
+    }
+
+    res.json({ emails, phones });
+  } catch (err) {
+    console.error("Error getting contact info:", err);
+    res.status(500).send("Error getting contact information");
   }
 });
 

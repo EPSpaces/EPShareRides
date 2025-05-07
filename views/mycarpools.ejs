@@ -25,8 +25,8 @@
          <article class="message is-danger" id="error">
             <div class="message-header">
                <p>Warning</p>
-               <button class="delete" aria-label="delete" onclick="const element = document.getElementById('error');
-                element.remove();"></button>
+               <button class="delete" aria-label="delete" onclick="const errorElement = document.getElementById('error');
+                errorElement.remove();"></button>
             </div>
             <div class="message-body">
                <%= error %>
@@ -38,8 +38,8 @@
                <article class="message is-success" id="error">
                   <div class="message-header">
                      <p>Success</p>
-                     <button class="delete" aria-label="delete" onclick="const element = document.getElementById('error');
-                  element.remove();"></button>
+                     <button class="delete" aria-label="delete" onclick="const successElement = document.getElementById('error');
+                  successElement.remove();"></button>
                   </div>
                   <div class="message-body">
                      <%= message %>
@@ -53,11 +53,20 @@
                            <div class="container">
                               <div class="navbar-brand">
                                  <a class="navbar-item">
-                                    <img src="EPS Logo - Transparent-4.png" alt="Logo">
-                                    <h1 class="title is-3" style="margin-left: 10px">EPShare Rides
-                                    </h1>
+                                    <div style="position: relative; display: flex; align-items: center;">
+                                       <img src="EPS Logo - Transparent-4.png" alt="Logo">
+                                       <h1 class="title is-3" style="margin-left: 10px">EPShare Rides</h1>
+                                       <span style="position: absolute; top: -5px; right: -25px; background: #3273DC; color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.7em; font-weight: bold;">BETA</span>
+                                    </div>
                                  </a>
-                                 <span class="navbar-burger " data-target="navbarMenuHeroC" id="nav-toggle">
+                                 <div class="navbar-item" style="padding: 0.5rem 0.75rem;">
+                                    <button class="button is-info is-light" onclick="showDisclaimer()">
+                                       <span class="icon">
+                                          <i class="fas fa-info-circle"></i>
+                                       </span>
+                                    </button>
+                                 </div>
+                                 <span class="navbar-burger" data-target="navbarMenuHeroC" id="nav-toggle">
                                     <span></span>
                                     <span></span>
                                     <span></span>
@@ -433,6 +442,8 @@
                <thead>
                   <tr>
                      <th><abbr title="Friend">Carpooler</abbr></th>
+                     <th>Email</th>
+                     <th>Phone</th>
                      <th>Remove</th>
                   </tr>
                </thead>
@@ -647,7 +658,12 @@
       for (let k = 0; k < offeredCarpools[i].carpoolers.length; k++) {
          console.log(offeredCarpools[i].carpoolers.length)
          console.log(k)
-         document.getElementById("friendsInCarpool").innerHTML += `<tr id="person_` + offeredCarpools[i].carpoolers[k]._id + `"><th><a href="mailto:` + offeredCarpools[i].carpoolers[k].email + `">` + offeredCarpools[i].carpoolers[k].firstName + " " + offeredCarpools[i].carpoolers[k].lastName + `</a></th><td><a style="color: black" onclick="removePerson('` + offeredCarpools[i].carpoolers[k]._id + `')">X</a></td></tr>`
+         document.getElementById("friendsInCarpool").innerHTML += `<tr id="person_` + offeredCarpools[i].carpoolers[k]._id + `">
+            <th><a>` + offeredCarpools[i].carpoolers[k].firstName + " " + offeredCarpools[i].carpoolers[k].lastName + `</a></th>
+            <td><a href="mailto:` + offeredCarpools[i].carpoolers[k].email + `">` + offeredCarpools[i].carpoolers[k].email + `</a></td>
+            <td>` + (offeredCarpools[i].carpoolers[k].cell && offeredCarpools[i].carpoolers[k].cell !== "none" ? offeredCarpools[i].carpoolers[k].cell : "Not provided") + `</td>
+            <td><a style="color: black" onclick="removePerson('` + offeredCarpools[i].carpoolers[k]._id + `')">X</a></td>
+         </tr>`
          continue;
       }
 
@@ -801,9 +817,18 @@
       </p>
       <div class="buttons" id="action-buttons" style="margin-right: -10px; display: inline-block">
          <div class="button upcoming-carpools-button is-link is-light" style="margin-right: 10px;" 
-            onclick="add('` + offeredCarpools[i]._id + `')">View >></div>
+            onclick="add('` + offeredCarpools[i]._id + `')">View Route >></div>
          <div class="button js-modal-trigger upcoming-carpools-button" style="margin-right: 10px;" data-target="modal-js-edit" id="` + offeredCarpools[i]._id + `" onclick="queGuay('` + offeredCarpools[i]._id + `')">Edit</div>
-        
+         <button class="button is-info is-light" style="margin-right: 10px;" onclick="emailGroup('` + offeredCarpools[i]._id + `')">
+            <span class="icon">
+               <i class="fas fa-envelope"></i>
+            </span>
+         </button>
+         <button class="button is-info is-light" style="margin-right: 10px;" onclick="textGroup('` + offeredCarpools[i]._id + `')">
+            <span class="icon">
+               <i class="fas fa-comment"></i>
+            </span>
+         </button>
       </div>
    </div>
 </article>`
@@ -829,6 +854,7 @@
                         if (eventsW[j]._id == joinedCarpools[i].nameOfEvent) {
                            eventName = eventsW[j].eventName
                            date = eventsW[j].date
+                           date = formatDate(date)
                         }
                      }
                      document.getElementById('carpoolsJS').innerHTML += `<article class="panel is-link" style="position: relative" >
@@ -861,8 +887,18 @@
                                  </p>
                                  <div class="buttons" id="action-buttons" style="margin-right: -10px; display: inline-block">
                                     <div class="button upcoming-carpools-button is-link is-light" style="margin-right: 10px;" 
-                                       onclick="add('` + joinedCarpools[i]._id + `')">View >></div>
+                                       onclick="add('` + joinedCarpools[i]._id + `')">View Route >></div>
                                     <div class="button upcoming-carpools-button " style="margin-right: 10px;" id="` + joinedCarpools[i]._id + `" onclick="leaveIt('` + i + `')">Unregister</div>
+                                    <button class="button is-info is-light" style="margin-right: 10px;" onclick="emailGroup('` + joinedCarpools[i]._id + `')">
+                                       <span class="icon">
+                                          <i class="fas fa-envelope"></i>
+                                       </span>
+                                    </button>
+                                    <button class="button is-info is-light" style="margin-right: 10px;" onclick="textGroup('` + joinedCarpools[i]._id + `')">
+                                       <span class="icon">
+                                          <i class="fas fa-comment"></i>
+                                       </span>
+                                    </button>
                                  </div>
                               </div>
                            </article>`
@@ -1394,4 +1430,68 @@
       }
       clearInterval(myTimer);
    }
+</script>
+<script>
+   function emailGroup(carpoolId) {
+      fetch(`/api/carpools/${carpoolId}/contact-info`, {
+         method: "GET",
+         headers: {
+            'Content-Type': 'application/json',
+         }
+      })
+      .then(response => response.json())
+      .then(data => {
+         const emails = data.emails.join(',');
+         window.location.href = `mailto:${emails}`;
+      })
+      .catch(error => {
+         console.error('Error:', error);
+         alert('Failed to get contact information. Please try again.');
+      });
+   }
+
+   function textGroup(carpoolId) {
+      fetch(`/api/carpools/${carpoolId}/contact-info`, {
+         method: "GET",
+         headers: {
+            'Content-Type': 'application/json',
+         }
+      })
+      .then(response => response.json())
+      .then(data => {
+         const phones = data.phones.filter(phone => phone && phone !== "none").join(',');
+         if (phones) {
+            window.location.href = `sms:${phones}`;
+         } else {
+            alert('No phone numbers available for this group.');
+         }
+      })
+      .catch(error => {
+         console.error('Error:', error);
+         alert('Failed to get contact information. Please try again.');
+      });
+   }
+</script>
+<div class="modal" id="disclaimer-modal">
+  <div class="modal-background"></div>
+  <div class="modal-card">
+    <section class="modal-card-body">
+      <p class="has-text-centered is-size-5">This is an app maintained by Eastside Prep's Hack Club, a group of Upper School students that meet every Thursday at 11:05 pm in TMAC-007. Please email Hack Club Co-President Anmol Singh Josan, ajosan@eastsideprep.org, if you have any questions.</p>
+      <br>
+      <p class="has-text-centered is-size-5">Eastside Preparatory School does not mandate or encourage the use of this application. They do not claim any responsibility for the maintenance, upkeep, and development of this application. This is entirely student-run.</p>
+    </section>
+    <footer class="modal-card-foot">
+      <button class="button is-info" onclick="closeDisclaimer()">Close</button>
+    </footer>
+  </div>
+</div>
+
+<script>
+function showDisclaimer() {
+  document.getElementById('disclaimer-modal').classList.add('is-active');
+}
+
+function closeDisclaimer() {
+  document.getElementById('disclaimer-modal').classList.remove('is-active');
+}
 </script>
