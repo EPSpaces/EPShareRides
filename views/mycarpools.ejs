@@ -649,6 +649,24 @@
       }
    }
 
+   function getDayOfWeek(string) {
+     const d = new Date(string);
+     const dayOfWeek = d.getDay();
+     // Example: Get the name of the weekday (not just a number)
+     const weekdays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+     const currentDay = weekdays[dayOfWeek];
+     return (currentDay)
+   }
+
+   function formatDate(date) {
+     const weekdays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+     const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+     var date = new Date(date);
+     const day = weekdays[date.getDay()];
+     const month = date.getMonth();
+     const year = date.getFullYear();
+     return `${day}, ${months[month + 1]} ${date.getDate()}, ${year}`;
+   }
 
 
    //Lists events
@@ -719,6 +737,7 @@
                         if (eventsW[j]._id == offeredCarpools[i].nameOfEvent) {
                            eventName = eventsW[j].eventName
                            date = eventsW[j].date
+                           date = formatDate(date)
                         }
                      }
                      document.getElementById('carpoolsJS').innerHTML += `<article class="panel is-link" style="position: relative" >
