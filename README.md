@@ -8,7 +8,7 @@ Download node.js. Then, clone the repository and run:
 ```
 npm install
 ```
-Add in a .env file (email ajosan@eastsideprep.org, nmahesh@eastsideprep.org). Make sure the MODE is set to DEV.  Then, run
+Add in a .env file, service_account.json, and config.js (email ajosan@eastsideprep.org). Make sure the MODE is set to DEV.  Then, run
 ```
 npm run start
 ```
