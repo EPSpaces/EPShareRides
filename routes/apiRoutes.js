@@ -408,14 +408,13 @@ router.get(
 router.patch(
   "/carpools/updateRoute/:id",
   homeLimiter,
-
   authenticateToken,
   async (req, res) => {
     // Get the carpool ID from the request
     const { id } = req.params;
     const objectId = new mongoose.Types.ObjectId(id);
     // Set the route, location, and carpoolers for the carpool
-    const { route, wlocation, carpoolers } = req.body;
+    const { route, wlocation, carpoolers, email, phone, carMake, seats, arrivalTime } = req.body;
     // Check if the route, location, and carpoolers are valid
     if (!route || !wlocation || !carpoolers || !id) {
       res.status(400).send("Bad Request");
@@ -427,7 +426,16 @@ router.patch(
       // Update the carpool and wait for the response
       await Carpool.findByIdAndUpdate(
         objectId,
-        { route, wlocation, carpoolers },
+        { 
+          route, 
+          wlocation, 
+          carpoolers,
+          email,
+          phone,
+          carMake,
+          seats,
+          arrivalTime
+        },
         { new: true },
       );
     } catch (err) {
@@ -515,13 +523,13 @@ router.patch("/carpools/:id", homeLimiter, authenticateToken, async (req, res) =
 router.patch("/users/update", homeLimiter, async (req, res) => {
   try {
     // Get the user ID from the request
-    const { _id, address, privacy } = req.body;
+    const { _id, address, privacy, cell } = req.body;
     // Update the user with the new data
     const users = await User.updateOne(
       // Find the user by ID
       { _id: new ObjectId(_id) },
-      // Update the user's address and privacy settings
-      { $set: { address: address, privacy: privacy } },
+      // Update the user's address, privacy settings, and phone number
+      { $set: { address: address, privacy: privacy, cell: cell } },
     );
 
     // Send the updated user as a JSON response
@@ -534,55 +542,94 @@ router.patch("/users/update", homeLimiter, async (req, res) => {
 
 // Route to create a new carpool
 router.post("/carpools", homeLimiter, authenticateToken, async (req, res) => {
-  // Create a person object with the data
-  const {
-    firstName,
-    lastName,
-    seats,
-    route,
-    wlocation,
-    carpoolers,
-    nameOfEvent,
+  const { 
+    firstName, 
+    lastName, 
     email,
+    phone,
+    carMake,
+    seats, 
+    route, 
+    wlocation, 
+    carpoolers, 
+    nameOfEvent,
+    userEmail,
+    arrivalTime 
   } = req.body;
 
-  // Check if the data is valid
-  if (
-    !firstName ||
-    !lastName ||
-    !seats ||
-    !route ||
-    !wlocation ||
-    !carpoolers ||
-    !nameOfEvent ||
-    !email
-  ) {
-    res.status(400);
-    return;
-  }
-
-  // Create a new carpool object with the data
-  const newCarpool = new Carpool({
-    firstName,
-    lastName,
-    seats,
-    route,
-    wlocation, //location is a used variable
-    carpoolers,
-    nameOfEvent,
-    email,
-  });
-
-  // Try to save the new carpool
   try {
+    const newCarpool = new Carpool({
+      firstName,
+      lastName,
+      email,
+      phone,
+      carMake,
+      seats,
+      route,
+      wlocation,
+      carpoolers,
+      nameOfEvent,
+      userEmail,
+      arrivalTime
+    });
+
     await newCarpool.save();
+    res.status(200).json(newCarpool);
   } catch (err) {
-    console.error("Error creating new carpool: " + err);
-    res.status(500).send("Error creating new carpool");
+    console.error("Error creating carpool:", err);
+    res.status(500).send("Error creating carpool");
+  }
+});
+
+// Route to get all users
+// Why do we have a req here?
+router.get("/users", homeLimiter, authenticateToken, async (req, res) => {
+  // Get all the users from the DB
+  let users;
+  // Try to get the users from the DB
+  try {
+    // Get all the users from the DB and wait for the response
+    users = await User.find({});
+  } catch (err) {
+    // Log the error
+    console.error("Error getting users: " + err);
+    res.status(500).send("Error getting users");
     return;
   }
-  // Send a 200 status code because the carpool was created successfully
-  res.status(200).send("Carpool created");
+  // Send the users as a JSON response
+  res.json(users);
+});
+
+// Route to get contact information for a carpool group
+router.get("/carpools/:id/contact-info", homeLimiter, authenticateToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const carpool = await Carpool.findById(id);
+    
+    if (!carpool) {
+      return res.status(404).send("Carpool not found");
+    }
+
+    // Get all emails and phone numbers
+    const emails = [carpool.email]; // Driver's email
+    const phones = carpool.phone ? [carpool.phone] : []; // Driver's phone
+
+    // Add carpoolers' contact info
+    for (const carpooler of carpool.carpoolers) {
+      const user = await User.findOne({ email: carpooler.email });
+      if (user) {
+        emails.push(user.email);
+        if (user.cell && user.cell !== "none") {
+          phones.push(user.cell);
+        }
+      }
+    }
+
+    res.json({ emails, phones });
+  } catch (err) {
+    console.error("Error getting contact info:", err);
+    res.status(500).send("Error getting contact information");
+  }
 });
 
 // Route to get all users
