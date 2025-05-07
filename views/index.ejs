@@ -22,11 +22,20 @@
           <div class="container">
             <div class="navbar-brand">
               <a class="navbar-item">
-                <img src="EPS Logo - Transparent-4.png" alt="Logo">
-                <h1 class="title is-3" style="margin-left: 10px">EPShare Rides
-                </h1>
+                <div style="position: relative; display: flex; align-items: center;">
+                  <img src="EPS Logo - Transparent-4.png" alt="Logo">
+                  <h1 class="title is-3" style="margin-left: 10px">EPShare Rides</h1>
+                  <span style="position: absolute; top: -5px; right: -25px; background: #3273DC; color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.7em; font-weight: bold;">BETA</span>
+                </div>
               </a>
-              <span class="navbar-burger " data-target="navbarMenuHeroC" id="nav-toggle">
+              <div class="navbar-item" style="padding: 0.5rem 0.75rem;">
+                <button class="button is-info is-light" onclick="showDisclaimer()">
+                  <span class="icon">
+                    <i class="fas fa-info-circle"></i>
+                  </span>
+                </button>
+              </div>
+              <span class="navbar-burger" data-target="navbarMenuHeroC" id="nav-toggle">
                 <span></span>
                 <span></span>
                 <span></span>
@@ -1446,6 +1455,28 @@
     navBurger()
 
 
+  </script>
+  <div class="modal" id="disclaimer-modal">
+    <div class="modal-background"></div>
+    <div class="modal-card">
+      <section class="modal-card-body">
+        <p class="has-text-centered is-size-5">This is an app maintained by Eastside Prep's Hack Club, a group of Upper School students that meet every Thursday at 11:05 pm in TMAC-007. Please email Hack Club Co-President Anmol Singh Josan, ajosan@eastsideprep.org, if you have any questions.</p>
+        <br>
+        <p class="has-text-centered is-size-5">Eastside Preparatory School does not mandate or encourage the use of this application. They do not claim any responsibility for the maintenance, upkeep, and development of this application. This is entirely student-run.</p>
+      </section>
+      <footer class="modal-card-foot">
+        <button class="button is-info" onclick="closeDisclaimer()">Close</button>
+      </footer>
+    </div>
+  </div>
+  <script>
+    function showDisclaimer() {
+      document.getElementById('disclaimer-modal').classList.add('is-active');
+    }
+
+    function closeDisclaimer() {
+      document.getElementById('disclaimer-modal').classList.remove('is-active');
+    }
   </script>
 </body>
 
