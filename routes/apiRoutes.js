@@ -163,7 +163,7 @@ router.get("/events", homeLimiter, authenticateToken, async (req, res) => {
     // Send a 500 status code and an error message
     res.status(500).send("Error getting events");
     return;
-  }
+  };
   // Send the events as a JSON response
   res.json(events);
 });
@@ -339,7 +339,7 @@ router.get(
   // Get the carpool ID from the request
   "/carpoolUserCommunication/:id",
   homeLimiter,
-   
+
   authenticateToken,
   async (req, res) => {
     // Get the carpool ID from the request
@@ -413,7 +413,7 @@ router.get(
 router.patch(
   "/carpools/updateRoute/:id",
   homeLimiter,
-   
+
   authenticateToken,
   async (req, res) => {
     // Get the carpool ID from the request
@@ -450,7 +450,7 @@ router.patch(
 router.delete(
   "/carpools/:id",
   homeLimiter,
-   
+
   authenticateToken,
   async (req, res) => {
     try {
@@ -473,7 +473,7 @@ router.delete(
 router.patch(
   "/carpools/deleteCarpooler",
   homeLimiter,
-   
+
   authenticateToken,
   async (req, res) => {
     // Get the carpool ID from the request
