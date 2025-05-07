@@ -22,11 +22,20 @@
           <div class="container">
             <div class="navbar-brand">
               <a class="navbar-item">
-                <img src="EPS Logo - Transparent-4.png" alt="Logo">
-                <h1 class="title is-3" style="margin-left: 10px">EPShare Rides
-                </h1>
+                <div style="position: relative; display: flex; align-items: center;">
+                  <img src="EPS Logo - Transparent-4.png" alt="Logo">
+                  <h1 class="title is-3" style="margin-left: 10px">EPShare Rides</h1>
+                  <span style="position: absolute; top: -5px; right: -25px; background: #3273DC; color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.7em; font-weight: bold;">BETA</span>
+                </div>
               </a>
-              <span class="navbar-burger " data-target="navbarMenuHeroC" id="nav-toggle">
+              <div class="navbar-item" style="padding: 0.5rem 0.75rem;">
+                <button class="button is-info is-light" onclick="showDisclaimer()">
+                  <span class="icon">
+                    <i class="fas fa-info-circle"></i>
+                  </span>
+                </button>
+              </div>
+              <span class="navbar-burger" data-target="navbarMenuHeroC" id="nav-toggle">
                 <span></span>
                 <span></span>
                 <span></span>
@@ -355,7 +364,6 @@
             <ul>
               <li class="is-active"><a href="/" class="is-active1">Upcoming Events</a></li>
               <li><a href="/mycarpools" class="white">My Carpools</a></li>
-              <li><a href="/friends" class="white">Friends</a></li>
             </ul>
           </div>
         </nav>
@@ -383,18 +391,39 @@
               <input id="lname" class="input" type="lname" placeholder="Driver last name">
             </a>
           </div>
-          <input class="input" id="seats" type="number" min="1" max="9" placeholder="Number of available car seats"
-            style=" margin-top: -5px; margin-bottom: 10px; ">
-          <label>Type of route </label>
+          <div class="field">
+            <a class="panel-block" style="border-radius: 5px; padding:0px;">
+              <input style="margin-right: 10px;" id="email" class="input" type="email" placeholder="Driver email">
+              <input id="phone" class="input" type="tel" placeholder="Driver phone number">
+            </a>
+          </div>
           <div class="field" style="margin-bottom: 10px;">
-            <div class="control">
-              <div class="select" style="margin-right: 10px; ">
-                <form>
-                  <select id="route-type">
-                    <option value="route">Home to home</option>
-                    <option value="point">Common meeting point</option>
-                  </select>
-                </form>
+            <input class="input" id="carmake" type="text" placeholder="Car make and model">
+          </div>
+          <div class="field" style="margin-bottom: 10px;">
+            <input class="input" id="seats" type="number" min="1" max="9" placeholder="Number of available car seats">
+          </div>
+          <div style="display: flex; gap: 10px;">
+            <div>
+              <label>Pickup Location </label>
+              <div class="field" style="margin-bottom: 10px;">
+                <div class="control">
+                  <div class="select">
+                    <form>
+                      <select id="route-type">
+                        <option value="route">Riders' Homes</option>
+                        <option value="point">Common meeting point</option>
+                        <option value="eps-campus">EPS Campus</option>
+                      </select>
+                    </form>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div>
+              <label>Arrival time</label>
+              <div class="field" style="margin-bottom: 10px;">
+                <input class="input" id="arrivaltime" type="time" placeholder="Time to arrive">
               </div>
             </div>
           </div>
@@ -439,7 +468,7 @@
                            <div class="button  selectCarpool" style=" margin-left: 10px; margin-top: 4px; background-color: transparent; float: right" onclick=" if (this.classList[2] == 'is-focused') {unfocus()} else {unfocus(); this.classList.add('is-focused')}">Select</div>
                                    <div style="float: right; margin-top: 3px;"  >2/6 signed up</div>
                                                              Organizer: <a style="color: #3273dc" href="mailto:ajosan@eastsideprep.org">ajosan@eastsideprep.org</a>
-                                     <br>  Route type: Home to home
+                                     <br>  Route type: Riders' Homes
                            <br> 
                                  </div>    -->
             </div>
@@ -563,7 +592,16 @@
           return (currentDay)
         }
 
+        function formatDate(date) {
+          const weekdays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+          const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+          var date = new Date(date);
 
+          const day = weekdays[date.getDay()];
+          const month = date.getMonth();
+          const year = date.getFullYear();
+          return `${day}, ${months[month + 1]} ${date.getDate()}, ${year}`;
+        }
 
         function sendData(data) {
           datarray.push(data);
@@ -592,7 +630,8 @@
             console.log("length:" + eventsW2.length)
             for (var i = 0; i < eventsW2.length; i++) {
               var obj = eventsW2[i];
-              var day = getDayOfWeek(obj["date"]);
+              var date = formatDate(obj["date"]);
+              
 
               document.getElementById("eventsJS").innerHTML += `<article class="panel is-link has-text-centered" style=" margin-top: 10px;" >
          <div style="float: left; margin: 7px; left:0px; position: absolute " class="booker" >
@@ -612,7 +651,7 @@
          <div class="panel-block">
           <p class="control has-icons-left" style="width: 100px;">
 
-            <span style="color: #999999; margin-right: 5px;"><i class="fa-solid fa-location-dot "></i></span>Location: `+ obj["wlocation"] + `<br class="extraspace" style='display: none; '>  <span id="clock"  style="color: #999999; margin-right: 5px; margin-left: 10px;"><i class="fa-solid fa-clock "></i></span> Date: ` + day + `, ` + obj["date"] + `
+            <span style="color: #999999; margin-right: 5px;"><i class="fa-solid fa-location-dot "></i></span>Location: `+ obj["wlocation"] + `<br class="extraspace" style='display: none; '>  <span id="clock"  style="color: #999999; margin-right: 5px; margin-left: 10px;"><i class="fa-solid fa-clock "></i></span> Date: ` + date + `
            </p>
           <div class="buttons upcoming-buttons" style="float: left; display: inline-block;">
 
@@ -655,7 +694,7 @@
               document.getElementById("eventsJS").innerHTML = ``
               for (var i = 0; i < eventsW.length; i++) {
                 var obj = eventsW[i];
-                var day = getDayOfWeek(obj["date"]);
+                var date = formatDate(obj["date"]);
                 if (document.getElementById("filter").value == "all") {
                   // `<div style="float: right; margin: 10px; width: 35px; height: 35px; background-color: hsl(348, 100%, 61%); border-radius: 5px
                   //    " <="" div=""></div>`
@@ -677,7 +716,7 @@
                      <div class="panel-block">
                        <p class="control has-icons-left" style="width: 100px;">
 
-                         <span style="color: #999999; margin-right: 5px;"><i class="fa-solid fa-location-dot "></i></span>Location: `+ obj["wlocation"] + `<br class="extraspace" style='display: none; '>  <span id="clock"  style="color: #999999; margin-right: 5px; margin-left: 10px;"><i class="fa-solid fa-clock "></i></span> Date: ` + day + `, ` + obj["date"] + `
+                         <span style="color: #999999; margin-right: 5px;"><i class="fa-solid fa-location-dot "></i></span>Location: `+ obj["wlocation"] + `<br class="extraspace" style='display: none; '>  <span id="clock"  style="color: #999999; margin-right: 5px; margin-left: 10px;"><i class="fa-solid fa-clock "></i></span> Date: ` + date + `
                         </p>
                        <div class="buttons upcoming-buttons" style="float: left; display: inline-block;">
 
@@ -779,7 +818,7 @@
 
 
                     if (obj["route"] == "route") {
-                      routeType = "Home to home"
+                      routeType = "Riders' Homes"
                     }
                     else if (obj["route"] == "point") {
                       routeType = "Common meeting point"
@@ -790,7 +829,11 @@
                                                       <div class="button  selectCarpool" style=" margin-left: 10px; margin-top: 4px; background-color: transparent; float: right" onclick=" selectCarpool(this)" id="` + obj["_id"] + `">Select</div>
                                                               <div style="float: right; margin-top: 3px;"  >` + obj["carpoolers"].length + `/` + obj["seats"] + ` signed up</div>
                                                                                         Organizer: <a style="color: #3273dc" href="mailto:` + obj["email"] + `">` + obj["email"] + `</a>
-                                                                <br> Driver name: ` + obj["firstName"] + ` ` + obj["lastName"] + `<br> Route type: ` + routeType + `
+                                                                <br> Driver name: ` + obj["firstName"] + ` ` + obj["lastName"] + `
+                                                                <br> Phone: ` + obj["phone"] + `
+                                                                <br> Car: ` + obj["carMake"] + `
+                                                                <br> Route type: ` + routeType + `
+                                                                <br> Arrival time: ` + obj["arrivalTime"] + `
                        <br>                                                                                          </div>   `
                   }
                 }
@@ -1149,9 +1192,20 @@
         function changeLabel() {
           if (route_type.value == "route") {
             address_label.innerText = "Your home address";
+            document.getElementById("address-input").disabled = false;
+            if (value2 != "none") {
+              document.getElementById("address-input").value = value2;
+            }
           }
           else if (route_type.value == "point") {
             address_label.innerText = "Meeting point";
+            document.getElementById("address-input").value = "";
+            document.getElementById("address-input").disabled = false;
+          }
+          else if (route_type.value == "eps-campus") {
+            address_label.innerText = "EPS Campus";
+            document.getElementById("address-input").value = "10613 NE 38th Place, Kirkland, WA 98033";
+            document.getElementById("address-input").disabled = true;
           }
         }
 
@@ -1173,30 +1227,36 @@
 
     function offer(id) {
       let newArray = document.getElementById("address-input").value
-
-      console.log(newArray)
       let DriverFName = document.getElementById("fname").value;
       let DriverLName = document.getElementById("lname").value;
+      let DriverEmail = document.getElementById("email").value;
+      let DriverPhone = document.getElementById("phone").value;
+      let CarMake = document.getElementById("carmake").value;
       let Seats = document.getElementById("seats").value;
+      let ArrivalTime = document.getElementById("arrivaltime").value;
       let route = document.getElementById("route-type").value;
       let Carpoolers = []
-      // var personName = "<%= firstName %> <%= lastName %>";
+      
       console.log(newArray + " " + DriverFName + " " + DriverLName + " " + Seats);
-      offerACar(DriverFName, DriverLName, Seats, route, newArray, Carpoolers, datarray[datarray.length - 1]);
+      offerACar(DriverFName, DriverLName, DriverEmail, DriverPhone, CarMake, Seats, route, newArray, Carpoolers, datarray[datarray.length - 1], ArrivalTime);
     }
 
 
-    function offerACar(firstName, lastName, seats, route, wlocation, carpoolers, nameOfEvent) {
-      let email = "<%= email %>"
+    function offerACar(firstName, lastName, email, phone, carMake, seats, route, wlocation, carpoolers, nameOfEvent, arrivalTime) {
+      let userEmail = "<%= email %>"
       const newcarpools = {
         firstName,
         lastName,
+        email,
+        phone,
+        carMake,
         seats,
         route,
-        wlocation,//location is a used variable
+        wlocation,
         carpoolers,
         nameOfEvent,
-        email
+        userEmail,
+        arrivalTime
       };
       console.log(newcarpools);
 
@@ -1222,15 +1282,30 @@
     function selectCarpool(element) {
       if (element.classList[2] == 'is-focused') {
         unfocus();
-        selectedCarpool = null
+        selectedCarpool = null;
+        // Reset counter display
+        const counterElement = element.parentElement.querySelector('div[style*="float: right; margin-top: 3px;"]');
+        if (counterElement) {
+          const carpool = userData1.find(c => c._id === element.id);
+          if (carpool) {
+            counterElement.innerText = carpool.carpoolers.length + '/' + carpool.seats + ' signed up';
+          }
+        }
       } else {
         unfocus();
         element.classList.add('is-focused');
-        element.innerHTML = "Selected"
-
+        element.innerHTML = "Selected";
         selectedCarpool = element.id;
-      };
 
+        // Update counter display
+        const counterElement = element.parentElement.querySelector('div[style*="float: right; margin-top: 3px;"]');
+        if (counterElement) {
+          const carpool = userData1.find(c => c._id === element.id);
+          if (carpool) {
+            counterElement.innerText = (carpool.carpoolers.length + 1) + '/' + carpool.seats + ' signed up';
+          }
+        }
+      }
     }
 
     function unfocus() {
@@ -1379,6 +1454,28 @@
     navBurger()
 
 
+  </script>
+  <div class="modal" id="disclaimer-modal">
+    <div class="modal-background"></div>
+    <div class="modal-card">
+      <section class="modal-card-body">
+        <p class="has-text-centered is-size-5">This is an app maintained by Eastside Prep's Hack Club, a group of Upper School students that meet every Thursday at 11:05 pm in TMAC-007. Please email Hack Club Co-President Anmol Singh Josan, ajosan@eastsideprep.org, if you have any questions.</p>
+        <br>
+        <p class="has-text-centered is-size-5">Eastside Preparatory School does not mandate or encourage the use of this application. They do not claim any responsibility for the maintenance, upkeep, and development of this application. This is entirely student-run.</p>
+      </section>
+      <footer class="modal-card-foot">
+        <button class="button is-info" onclick="closeDisclaimer()">Close</button>
+      </footer>
+    </div>
+  </div>
+  <script>
+    function showDisclaimer() {
+      document.getElementById('disclaimer-modal').classList.add('is-active');
+    }
+
+    function closeDisclaimer() {
+      document.getElementById('disclaimer-modal').classList.remove('is-active');
+    }
   </script>
 </body>
 

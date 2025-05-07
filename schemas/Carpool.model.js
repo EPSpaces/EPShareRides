@@ -13,12 +13,16 @@ const carpoolerSchema = new mongoose.Schema({
 const carpoolSchema = new mongoose.Schema({
   firstName: String,
   lastName: String,
+  email: String,
+  phone: String,
+  carMake: String,
   seats: Number,
   route: String,
   wlocation: String,
   carpoolers: [carpoolerSchema],
   nameOfEvent: String,
-  email: String,
+  userEmail: String,
+  arrivalTime: String,
   id: String,
 });
 
