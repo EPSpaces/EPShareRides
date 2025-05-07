@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en" id="head">
+
+<head>
+  <!--Header tools-->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>EPShare Rides</title>
+  <!--Bulma install-->
+  <link href="./bulma.min.css" rel="stylesheet" type="text/css" />
+  <link href="./style.css" rel="stylesheet" type="text/css" />
+  <!--Fonts-->
+  <script src="https://kit.fontawesome.com/16ae8e710d.js" crossorigin="anonymous"></script>
+  <!--Icon-->
+  <link rel="icon" href="favicon.png" type="image/x-icon">
+</head>
+
+<body>
+  <main>
+    <section class="hero is-fullheight">
+      <!-- Hero head: will stick at the top -->
+      <div class="hero-head">
+        <header class="navbar">
+          <div class="container">
+            <div class="navbar-brand">
+              <a class="navbar-item">
+                <div style="position: relative; display: flex; align-items: center;">
+                  <img src="EPS Logo - Transparent-4.png" alt="Logo">
+                  <h1 class="title is-3" style="margin-left: 10px">EPShare Rides</h1>
+                  <span style="position: absolute; top: -5px; right: -25px; background: #3273DC; color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.7em; font-weight: bold;">BETA</span>
+                </div>
+              </a>
+              <span class="navbar-burger " data-target="navbarMenuHeroC" id="nav-toggle">
+                <span></span>
+                <span></span>
+                <span></span>
+              </span>
+            </div>
+            <div id="navbarMenuHeroC" class="navbar-menu ">
+              <div class="navbar-end">
+                <div class="is-button is-link">
+                  <div class="navbar-item">
+                    <span style="font-size: 1em; color: #30B700; float: right">
+                      <a class="fa-solid fa-leaf" href="/sustainabilityStatement" style="color: #30B700"></a>
+                    </span>
+                    <div class="buttons" style="margin: 10px;margin-right: 0px;">
+                      <a class="button is-link is-outlined " href="/logout">
+                        Log out
+                      </a>
+                      <div class="navbar-item has-dropdown is-hoverable "
+                        onclick="document.getElementById('navbar-dropdown').style.visibility = 'visible';">
+                        <a class="button is-link" id="name_button"
+                          style="background: linear-gradient(105deg, #3273DC, #275CBF);">
+                          <%= firstName %>
+                            <%= lastName %>
+                              <i style="margin-left: 5px;" class="fas fa-angle-down" aria-hidden="true"></i>
+                        </a>
+                        <div id="filler"
+                          style="width: 130px; background-color: transparent; height: 20px; position: absolute; margin-top: -15px;">
+                        </div>
+                        <div class="navbar-dropdown" id="navbar-dropdown">
+                          <a class="navbar-item" href="/updateSettings">
+                            Update settings
+                          </a>
+                          <a class="navbar-item" href="https://forms.office.com/r/deCSjA7bCR">
+                            Report a bug
+                          </a>
+                          <a class="navbar-item" href="/sustainabilityStatement">
+                            Sustainability statement
+                          </a>
+                          <hr class="navbar-divider">
+                          <div class="navbar-item">
+                            Version Beta 0.1.0
+                          </div>
+                        </div>
+                      </div>
+                      </nav>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </header>
+      </div>
+      <!-- Hero content: will be in the middle -->
+      <div class="hero-body" style="">
+        <div class="container has-text-centered">
+          <!-- <p class="title">
+              Title
+            </p>
+            <p class="subtitle">
+              Subtitle
+            </p> -->
+          <table id="table" class="table "
+            style="margin-left: auto; margin-right: auto; margin-top: -60px; margin-bottom: 30px;">
+            <thead>
+              <tr>
+                <th><abbr title="Friend" class="white">Friend</abbr></th>
+                <th class="white"> Email</th>
+              </tr>
+            </thead>
+            <tbody id="people">
+              <!--<% people.forEach((p) => { %>
+                  <tr>
+                    <th><%= p.firstName %> <%= p.lastName %></th>
+                    <td><a><%= p.email %></a></td>
+                  </tr>
+                <% }) %>-->
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <!-- Hero footer: will stick at the bottom -->
+      <div class="hero-foot">
+        <nav class="tabs is-boxed is-fullwidth">
+          <div class="container">
+            <ul>
+              <li><a href="/" class="white">Upcoming Events</a></li>
+              <li "><a href=" /mycarpools" class="white">My Carpools</a></li>
+              <li class="is-active"><a href="/friends" class="is-active1">Friends</a></li>
+            </ul>
+          </div>
+        </nav>
+      </div>
+    </section>
+  </main>
+  <script defer>
+    function navBurger() {
+      var burger = document.getElementById('nav-toggle');
+      var menu = document.getElementById('navbarMenuHeroC');
+      burger.addEventListener('click', function () {
+        burger.classList.toggle('is-active');
+        menu.classList.toggle('is-active');
+      });
+    }
+    navBurger()
+  </script>
+  <script>
+    //Creates var
+    let userData1;
+
+    //initializes request
+    var request = new Request("/api/users", {
+      //HTTP get request
+      method: "GET",
+      headers: new Headers({
+        //Content Type
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      })
+    });
+    fetch(request)
+      .then((response) => response.json())
+      .then((data) => {
+        //Data we get back is called userData1
+        userData1 = data;
+        //adds all the people from the db to the friends page.
+        for (let k = 0; k < userData1.length; k++) {
+          console.log(userData1[k])
+          console.log(k)
+          if (userData1[k].privacy == false) {
+            document.getElementById("people").innerHTML += `<tr><th class="white">` + userData1[k].firstName + `` + ' ' + `` + userData1[k].lastName + `</th><td><a href="mailto:` + userData1[k].email + `">` + userData1[k].email + `</a></td></tr>`
+          }
+          else {
+            continue;
+          }
+        }
+      })
+  </script>
+  <script>
+    function myTimer(i) {
+      let control = document.getElementsByClassName("control");
+      for (let i = 0; i < control.length; i++) {
+
+        control[i].style.color = "white"
+      }
+      let button = document.getElementsByClassName("button");
+      for (let i = 0; i < button.length; i++) {
+        button[i].style.color = "#ffffff";
+        button[i].style.background = "#3c3c3c"
+      }
+      clearInterval(myTimer);
+    }
+  </script>
+</body>
+
+</html>

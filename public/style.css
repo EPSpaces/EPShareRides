@@ -1,0 +1,578 @@
+
+/* General styling for the entire page */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+}
+
+.wrapper {
+    max-width: 1100px;
+    margin: 15px auto;
+}
+
+.hero-foot {
+  padding-top: 16px;
+  background-color: white;
+  position: fixed; bottom: 0; width: 100%; 
+
+  
+  /* background: linear-gradient(0deg, rgba(255,255,255,1) 0%, rgba(255,255,255,1) 80%, rgba(255,255,255,0) 100%); */
+}
+
+/* Calendar container */
+.container-calendar {
+    background: #ffffff;
+    padding: 15px;
+    max-width: 900px;
+    margin: 0 auto;
+    overflow: auto;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+    display: flex;
+    justify-content: space-between;
+}
+
+/* Event section styling */
+#event-section {
+    padding: 10px;
+    background: #f5f5f5;
+    margin: 20px 0;
+    border: 1px solid #ccc;
+}
+
+.container-calendar #left h1 {
+    color: green;
+    text-align: center;
+    background-color: #f2f2f2;
+    margin: 0;
+    padding: 10px 0;
+}
+
+#event-section h3 {
+    color: green;
+    font-size: 18px;
+    margin: 0;
+}
+
+#event-section input[type="date"],
+#event-section input[type="text"] {
+    margin: 10px 0;
+    padding: 5px;
+    width: 80%;
+}
+
+#event-section button {
+    background: green;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+}
+
+.event-marker {
+    position: relative;
+}
+
+.event-marker::after {
+    content: '';
+    display: block;
+    width: 6px;
+    height: 6px;
+    background-color: red;
+    border-radius: 50%;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+}
+
+/* event tooltip styling */
+.event-tooltip {
+    position: absolute;
+    background-color: rgba(234, 232, 232, 0.763);
+    color: black;
+    padding: 10px;
+    border-radius: 4px;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: none;
+    transition: all 0.3s;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    z-index: 1;
+}
+
+.event-marker:hover .event-tooltip {
+    display: block;
+}
+
+/* Reminder section styling */
+#reminder-section {
+    padding: 10px;
+    background: #f5f5f5;
+    margin: 20px 0;
+    border: 1px solid #ccc;
+}
+
+#reminder-section h3 {
+    color: green;
+    font-size: 18px;
+    margin: 0;
+}
+
+#reminderList {
+    list-style: none;
+    padding: 0;
+}
+
+#reminderList li {
+    margin: 5px 0;
+    font-size: 16px;
+}
+
+/* Style for the delete buttons */
+.delete-event {
+    background: rgb(237, 19, 19);
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+    margin-left: 10px;
+    align-items: right;
+}
+
+.see-event {
+    background: #f97e30;/*hsl(217, 71%, 53%);*/
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+    margin-left: 10px;
+    align-items: right;
+}
+
+/* Buttons in the calendar */
+.button-container-calendar button {
+    cursor: pointer;
+    background: green;
+    color: #fff;
+    border: 1px solid green;
+    border-radius: 4px;
+    padding: 5px 10px;
+}
+
+/* Calendar table */
+.table-calendar {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+.table-calendar td,
+.table-calendar th {
+    padding: 5px;
+    border: 1px solid #e2e2e2;
+    text-align: center;
+    vertical-align: top;
+}
+
+/* Date picker */
+.date-picker.selected {
+    background-color: #f2f2f2;
+    font-weight: bold;
+    outline: 1px dashed #00BCD4;
+}
+
+.date-picker.selected span {
+    border-bottom: 2px solid currentColor;
+}
+
+/* Day-specific styling */
+.date-picker:nth-child(1) {
+    color: red;
+    /* Sunday */
+}
+
+.date-picker:nth-child(6) {
+    color: green;
+    /* Friday */
+}
+
+/* Hover effect for date cells */
+.date-picker:hover {
+    background-color: green;
+    color: white;
+    cursor: pointer;
+}
+
+/* Header for month and year */
+#monthAndYear {
+    text-align: center;
+    margin-top: 0;
+}
+.center {
+  margin: 0;
+  left: 50%;
+  -ms-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
+}
+
+/* Navigation buttons */
+.button-container-calendar {
+    position: relative;
+    margin-bottom: 1em;
+    overflow: hidden;
+    clear: both;
+}
+
+#previous {
+    float: left;
+}
+
+#next {
+    float: right;
+}
+
+/* Footer styling */
+.footer-container-calendar {
+    margin-top: 1em;
+    border-top: 1px solid #dadada;
+    padding: 10px 0;
+}
+
+
+
+.footer-container-calendar select {
+    cursor: pointer;
+    background: #ffffff;
+    color: #585858;
+    border: 1px solid #bfc5c5;
+    border-radius: 3px;
+    padding: 5px 1em;
+}
+
+/* div:hover {
+  cursor: pointer;
+} */
+
+
+.hoverAddress:hover {
+  background-color: #f5f5f5;
+  border-radius: 3px;
+
+}
+.hoverAddress {
+  padding: 3px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+
+#carpoolinfo:hover {
+  background-color: white;
+}
+
+@media only screen and (max-width: 386px) {
+  #topLogo {
+    display: block;
+  }
+  #bottomLogo {
+    display: none;
+  }
+}
+
+@media only screen and (min-width: 386px) {
+  #topLogo {
+    display: none;
+  }
+  #bottomLogo {
+    
+  }
+}
+
+/* mobile */
+@media only screen and (max-width: 768px) {
+  #signup {
+    width: 90%
+  }
+  #signin {
+    width: 90%
+  }
+  #deleteaccount {
+    width: 90% 
+  }
+  #updatesettings {
+    width: 90% 
+  }
+  #map {
+    height: 30vh;
+  }
+  #upcoming-carpools-column {
+    height: 40vh;
+    margin-top: -10vh;
+  }
+  #hero-body {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+  #registered-carpoolers {
+    width: 60%;
+  }
+  #action-buttons {
+    width: 40%
+  }
+  #mycarpools {
+    width: 100%
+  }
+  .white-background {
+    background-color: transparent 
+  }
+  #datez, #spanz {
+    color: white;
+  }
+  .booker {
+    width: 100%;
+    position: relative !important;
+  }
+  .link-heading {
+    height: fit-content;
+  }
+  .extraspace {
+    display: block !important
+  }
+  #clock {
+    margin-left: 0px !important;
+    margin-top: 10px !important;
+  }
+  .upcoming-buttons {
+    width: min-content !important;
+  }
+
+ 
+  
+}
+
+.upcoming-carpools-button {
+  float: right;
+}
+
+/* tablet */
+@media only screen and (min-width: 769px) {
+  #signup {
+    width: 700px
+  }
+  #signin {
+    width: 700px
+  }
+  #deleteaccount {
+    width: 700px 
+  }
+  #updatesettings {
+    width: 500px 
+  }
+  #map {
+    height: 400px;
+  }
+  #upcoming-carpools-column {
+    height: 450px;
+
+  }
+  #mycarpools {
+    width: 500px
+  }
+  .white-background {
+    background-color: white
+  }
+  #datez, #spanz {
+    color: black;
+  }
+
+
+  
+}
+/* desktop */
+@media only screen and (max-width: 1024px) {
+  .navbar-dropdown {
+    display: none; !important;
+    visibility: hidden; !important
+  }
+  #name_button:hover ~ .navbar-dropdown {
+    display: block;
+    background-color: #fff;
+    border-bottom-left-radius: 6px;
+    border-bottom-right-radius: 6px;
+    border-top: 2px solid #dbdbdb;
+    box-shadow: 0 8px 8px rgba(10,10,10,.1);
+    font-size: .875rem;
+    left: 0;
+    min-width: 100%;
+    position: absolute;
+    top: 100%;
+    width: 160px;
+    visibility: visible;
+  }
+  #name_button:hover ~ .navbar-dropdown {
+    display: block;
+    background-color: #fff;
+    border-bottom-left-radius: 6px;
+    border-bottom-right-radius: 6px;
+    border-top: 2px solid #dbdbdb;
+    box-shadow: 0 8px 8px rgba(10,10,10,.1);
+    font-size: .875rem;
+    left: 0;
+    min-width: 100%;
+    position: absolute;
+    top: 100%;
+    width: 160px;
+    visibility: visible;
+  }
+  #filler:hover ~ .navbar-dropdown {
+    display: block;
+    background-color: #fff;
+    border-bottom-left-radius: 6px;
+    border-bottom-right-radius: 6px;
+    border-top: 2px solid #dbdbdb;
+    box-shadow: 0 8px 8px rgba(10,10,10,.1);
+    font-size: .875rem;
+    left: 0;
+    min-width: 100%;
+    position: absolute;
+    top: 100%;
+    width: 160px;
+    visibility: visible;
+  }
+  .navbar-dropdown:hover {
+    display: block;
+    background-color: #fff;
+    border-bottom-left-radius: 6px;
+    border-bottom-right-radius: 6px;
+    border-top: 2px solid #dbdbdb;
+    box-shadow: 0 8px 8px rgba(10,10,10,.1);
+    font-size: .875rem;
+    left: 0;
+    min-width: 100%;
+    position: absolute;
+    top: 100%;
+    width: 160px;
+    visibility: visible;
+  }
+  .navbar-item:hover {
+    background-color: #F5F5F5;
+  }
+}
+
+
+.vertical-center {
+  margin: 0;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  -ms-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
+}
+
+
+
+
+
+
+
+
+.switch-input[type=checkbox]{
+  height: 0;
+  width: 0;
+  visibility: hidden;
+}
+
+.switch-label {
+  cursor: pointer;
+  text-indent: -9999px;
+  width: 60px;
+  height: 30px;
+  background: grey;
+  display: block;
+  border-radius: 100px;
+  position: relative;
+}
+
+.switch-label:after {
+  content: '';
+  position: absolute;
+  top: 2.5px;
+  left: 2.75px;
+  width: 25px;
+  height: 25px;
+  background: #fff;
+  border-radius: 90px;
+  transition: 0.3s;
+}
+
+.switch-input:checked + label {
+  background: hsl(217, 71%, 53%);
+}
+
+.switch-input:checked + label:after {
+  left: calc(100% - 2.75px);
+  transform: translateX(-100%);
+}
+
+.switch-label:active:after {
+
+}
+
+.App {
+  font-family: sans-serif;
+  height: 95vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.code-input {
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+}
+.code-label {
+  margin-bottom: 16px;
+}
+.code-inputs {
+  display: flex;
+  justify-content: start;
+  align-items: center;
+}
+.code-inputs input {
+  border: none;
+  background-image: none;
+  background-color: transparent;
+  -webkit-box-shadow: none;
+  -moz-box-shadow: none;
+  box-shadow: none;
+  text-align: center;
+  height: 60px;
+  width: 40px;
+  border-radius: 10px;
+  margin: 0 4px;
+  border: 2px solid #4f5b66;
+  font-size: 38px;
+}
+.code-inputs input:focus {
+  outline: none;
+}
+.code-inputs input:nth-child(3n) {
+  margin-right: 24px;
+}
+
+#filter {
+  background-color: #EFEFEF;
+  border: none;
+  border-radius: 5px;
+  padding: 2px;
+  padding-top: 1px;
+}
+
+#filter:hover {
+  background-color: #E5E5E5;
+  cursor: pointer;
+}
+#filter:focus {
+  outline: 0;
+}
