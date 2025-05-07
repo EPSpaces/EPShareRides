@@ -408,14 +408,13 @@ router.get(
 router.patch(
   "/carpools/updateRoute/:id",
   homeLimiter,
-
   authenticateToken,
   async (req, res) => {
     // Get the carpool ID from the request
     const { id } = req.params;
     const objectId = new mongoose.Types.ObjectId(id);
     // Set the route, location, and carpoolers for the carpool
-    const { route, wlocation, carpoolers } = req.body;
+    const { route, wlocation, carpoolers, email, phone, carMake, seats, arrivalTime } = req.body;
     // Check if the route, location, and carpoolers are valid
     if (!route || !wlocation || !carpoolers || !id) {
       res.status(400).send("Bad Request");
@@ -427,7 +426,16 @@ router.patch(
       // Update the carpool and wait for the response
       await Carpool.findByIdAndUpdate(
         objectId,
-        { route, wlocation, carpoolers },
+        { 
+          route, 
+          wlocation, 
+          carpoolers,
+          email,
+          phone,
+          carMake,
+          seats,
+          arrivalTime
+        },
         { new: true },
       );
     } catch (err) {
@@ -534,55 +542,43 @@ router.patch("/users/update", homeLimiter, async (req, res) => {
 
 // Route to create a new carpool
 router.post("/carpools", homeLimiter, authenticateToken, async (req, res) => {
-  // Create a person object with the data
-  const {
-    firstName,
-    lastName,
-    seats,
-    route,
-    wlocation,
-    carpoolers,
-    nameOfEvent,
+  const { 
+    firstName, 
+    lastName, 
     email,
+    phone,
+    carMake,
+    seats, 
+    route, 
+    wlocation, 
+    carpoolers, 
+    nameOfEvent,
+    userEmail,
+    arrivalTime 
   } = req.body;
 
-  // Check if the data is valid
-  if (
-    !firstName ||
-    !lastName ||
-    !seats ||
-    !route ||
-    !wlocation ||
-    !carpoolers ||
-    !nameOfEvent ||
-    !email
-  ) {
-    res.status(400);
-    return;
-  }
-
-  // Create a new carpool object with the data
-  const newCarpool = new Carpool({
-    firstName,
-    lastName,
-    seats,
-    route,
-    wlocation, //location is a used variable
-    carpoolers,
-    nameOfEvent,
-    email,
-  });
-
-  // Try to save the new carpool
   try {
+    const newCarpool = new Carpool({
+      firstName,
+      lastName,
+      email,
+      phone,
+      carMake,
+      seats,
+      route,
+      wlocation,
+      carpoolers,
+      nameOfEvent,
+      userEmail,
+      arrivalTime
+    });
+
     await newCarpool.save();
+    res.status(200).json(newCarpool);
   } catch (err) {
-    console.error("Error creating new carpool: " + err);
-    res.status(500).send("Error creating new carpool");
-    return;
+    console.error("Error creating carpool:", err);
+    res.status(500).send("Error creating carpool");
   }
-  // Send a 200 status code because the carpool was created successfully
-  res.status(200).send("Carpool created");
 });
 
 // Route to get all users
