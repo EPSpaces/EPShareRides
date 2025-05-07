@@ -200,12 +200,7 @@ router.post("/events", homeLimiter, authenticateToken, async (req, res) => {
   }
   // Get the user's first name and last name from the user data
   const { firstName, lastName, admin } = userInData;
-  // Check if the user is an admin because only admins can create events
-  if (!admin) {
-    // Send a 401 status code because the user is not an admin
-    res.sendStatus(401);
-    return;
-  }
+
   // Check if the event data is valid
   try {
     // Check if the event name, location, date, and category are valid
