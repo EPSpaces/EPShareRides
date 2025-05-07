@@ -82,10 +82,13 @@ router.post("/login", homeLimiter, async (req, res) => {
       return;
     }
 
+    firstName = user.name.split(" ")[0];
+    lastName = user.name.split(" ", 2)[1];
+
     // Create a new user in the database
     const newUser = new User({
-      firstName: user.name,
-      lastName: " ",
+      firstName: firstName,
+      lastName: lastName,
       email: email,
       admin: false,
       address: false,
