@@ -240,7 +240,9 @@
                               <ul>
                                  <li><a href="/" class="white">Upcoming Events</a></li>
                                  <li class="is-active" class="white"><a href="/mycarpools" class="is-active1">My
-                                       Carpools</a></li>
+                                       Carpools
+                                       <span id="pending-badge" style="background: #ff3860; color: white; border-radius: 10px; padding: 2px 8px; font-size: 0.8em; margin-left: 5px; display: none;"></span>
+                                    </a></li>
                               </ul>
                            </div>
                         </nav>
@@ -595,8 +597,11 @@
          if (newCarpoolers[i]._id == id) {
             newCarpoolers.splice(i, 1)
             document.getElementById("person_" + id).remove()
+            return; // Exit after finding and removing the person
          }
       }
+      // If we get here, the person wasn't found in newCarpoolers
+      console.error("Person with ID " + id + " not found in carpoolers list");
    }
 
    function getDayOfWeek(string) {
@@ -632,7 +637,7 @@
       .then((data) => {
          eventsW = data;
 
-         var request = new Request("/api/carpools", {
+         var request = new Request("/api/userCarpools", {
             method: "GET",
             headers: new Headers({
                Accept: 'application/json',
@@ -653,7 +658,7 @@
                }
 
                for (var i = 0; i < userData1.length; i++) {
-                  if (userData1[i].email === "<%= email %>") {
+                  if (userData1[i].userEmail === "<%= email %>") {
                      offeredCarpools.push(userData1[i])
                   }
                }
@@ -733,6 +738,16 @@
             </span>
          </button>
       </div>
+   </div>
+   <div style="margin: 10px 0; padding: 10px; background: #fffbe6; border: 1px solid #ffe08a; border-radius: 6px;">
+      <b>Pending Approvals:</b><br>
+      ${offeredCarpools[i].pendingRequests.map(req => `
+         <div style='margin-bottom: 6px;'>
+            ${req.firstName} ${req.lastName} (${req.email})
+            <button class='button is-small is-success' style='margin-left:8px;' onclick="approveRequest('${offeredCarpools[i]._id}','${req.email}',true)">Approve</button>
+            <button class='button is-small is-danger' style='margin-left:2px;' onclick="approveRequest('${offeredCarpools[i]._id}','${req.email}',false)">Deny</button>
+         </div>
+      `).join('')}
    </div>
 </article>`
 
@@ -1396,5 +1411,51 @@ function showDisclaimer() {
 
 function closeDisclaimer() {
   document.getElementById('disclaimer-modal').classList.remove('is-active');
+}
+
+let pendingCount = 0;
+for (let i = 0; i < offeredCarpools.length; i++) {
+  if (offeredCarpools[i].pendingRequests && offeredCarpools[i].pendingRequests.length > 0) {
+    pendingCount += offeredCarpools[i].pendingRequests.length;
+  }
+}
+if (pendingCount > 0) {
+  document.getElementById('pending-badge').innerText = pendingCount;
+  document.getElementById('pending-badge').style.display = 'inline-block';
+}
+
+function approveRequest(carpoolId, email, approve) {
+  fetch(`/api/carpools/${carpoolId}/approve`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, approve })
+  })
+  .then(res => {
+    if (!res.ok) {
+      return res.text().then(text => { throw new Error(text || 'Request failed'); });
+    }
+    return res.json();
+  })
+  .then(() => {
+    // Display success message
+    alert(approve ? "Request approved successfully!" : "Request denied successfully!");
+    location.reload();
+  })
+  .catch((error) => {
+    console.error('Error:', error);
+    alert(`Failed to update request: ${error.message}`);
+  });
+}
+
+function formatTime12h(timeStr) {
+  if (!timeStr) return '';
+  const d = new Date('1970-01-01T' + timeStr);
+  let h = d.getHours();
+  let m = d.getMinutes();
+  let ampm = h >= 12 ? 'PM' : 'AM';
+  h = h % 12;
+  h = h ? h : 12;
+  m = m < 10 ? '0' + m : m;
+  return h + ':' + m + ' ' + ampm;
 }
 </script>
