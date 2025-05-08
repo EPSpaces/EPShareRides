@@ -87,84 +87,122 @@ router.get("/offerToCarpool", homeLimiter, authenticateToken, (req, res) => {
 // Route to join a carpool
 router.post("/joinCarpool", homeLimiter, authenticateToken, async (req, res) => {
   const { carpool: carpoolId, address } = req.body;
-  const { email } = req;
+  const { email, transporter } = req; // Added transporter
 
-  // Validate required fields
   if (!carpoolId || !address) {
     return res.status(400).send("Invalid request");
   }
 
   try {
-    // Get user data
     const user = await User.findOne({ email });
     if (!user) {
-      // Clear the id token
       res.clearCookie("idToken");
       return res.status(401).send("User not found");
     }
 
-    // Find and update carpool in one operation
-    const updatedCarpool = await Carpool.findOneAndUpdate(
-      {
-        _id: carpoolId,
-        "carpoolers.email": { $ne: email }, // Check user not already in carpool
-        $expr: { $lt: [{ $size: "$carpoolers" }, "$seats"] } // Check carpool not full
-      },
-      {
-        // Add user to carpool
-        $push: {
-          carpoolers: {
-            email,
-            firstName: user.firstName,
-            lastName: user.lastName,
-            address
-          }
-        }
-      },
-      { new: true }
-    );
-
-    // Check if carpool was not updated
-    if (!updatedCarpool) {
-      const carpool = await Carpool.findById(carpoolId);
-      // Check if carpool exists
-      if (!carpool) {
-        // Mission Failed Successfully
-        return res.status(404).send("Carpool not found");
-      }
-      if (carpool.carpoolers.length >= carpool.seats) {
-        // Carpool is full :(
-        return res.status(400).send("Carpool is full");
-      }
-      // Mission failed, we'll get 'em next time
+    const carpool = await Carpool.findById(carpoolId);
+    if (!carpool) return res.status(404).send("Carpool not found");
+    if (carpool.carpoolers.some(c => c.email === email)) {
       return res.status(409).send("You are already in this carpool");
     }
+    if (carpool.pendingRequests.some(c => c.email === email)) {
+      return res.status(409).send("You have already requested to join");
+    }
+    if (carpool.carpoolers.length >= carpool.seats) {
+      return res.status(400).send("Carpool is full");
+    }
+    carpool.pendingRequests.push({
+      email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      address
+    });
+    await carpool.save();
 
-    // Return updated carpool
-    return res.status(200).json(updatedCarpool);
+    // Send email to carpool owner
+    const event = await Event.findById(carpool.nameOfEvent);
+    const mailOptionsToOwner = {
+      from: process.env.SMTP_USER,
+      to: carpool.email, // Email of the carpool owner
+      subject: `New Join Request for Your Carpool: ${event ? event.eventName : 'Unknown Event'}`,
+      text: `${user.firstName} ${user.lastName} (${user.email}) has requested to join your carpool for the event: ${event ? event.eventName : 'Unknown Event'}.\n\nPlease log in to the app to approve or deny this request.`
+    };
+    try {
+      await transporter.sendMail(mailOptionsToOwner);
+    } catch (e) {
+      console.error('Failed to send join request email to owner:', e);
+    }
 
-    // Catch any errors
+    return res.status(200).json({ message: "Request sent for approval" });
   } catch (error) {
     console.error("Error joining carpool:", error);
     return res.status(500).send("Internal Server Error");
   }
 });
 
-// Route to get all events
+// Approve or deny a pending carpool request (owner only)
+router.post("/carpools/:id/approve", homeLimiter, authenticateToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { email: requesterEmail, approve } = req.body; // approve: true/false
+    const { transporter } = req; // Added transporter
+    
+    const carpool = await Carpool.findById(id);
+    if (!carpool) return res.status(404).send("Carpool not found");
+    
+    if (carpool.userEmail !== req.email) {
+      console.log("Auth failed: carpool.userEmail=", carpool.userEmail, "req.email=", req.email);
+      return res.status(403).send("Not authorized");
+    }
+    
+    const idx = carpool.pendingRequests.findIndex(c => c.email === requesterEmail);
+    if (idx === -1) return res.status(404).send("Request not found");
+    
+    const request = carpool.pendingRequests[idx];
+    const event = await Event.findById(carpool.nameOfEvent);
+
+    if (approve) {
+      if (carpool.carpoolers.length >= carpool.seats) {
+        return res.status(400).send("Carpool is full");
+      }
+      carpool.carpoolers.push(request);
+    }
+    
+    carpool.pendingRequests.splice(idx, 1);
+    await carpool.save();
+    
+    // Send email to requester about approval/denial
+    const mailOptionsToRequester = {
+      from: process.env.SMTP_USER,
+      to: requesterEmail,
+      subject: `Carpool Request Update for ${event ? event.eventName : 'Unknown Event'}`,
+      text: `Your request to join the carpool for the event: ${event ? event.eventName : 'Unknown Event'} (Driver: ${carpool.firstName} ${carpool.lastName}) has been ${approve ? 'approved' : 'denied'}.`
+    };
+    try {
+      await transporter.sendMail(mailOptionsToRequester);
+    } catch (e) {
+      console.error('Failed to send approval/denial email to requester:', e);
+    }
+    
+    return res.status(200).json({ message: approve ? "Approved" : "Denied" });
+  } catch (err) {
+    console.error("Error approving/denying carpool request:", err);
+    return res.status(500).send("Error processing request");
+  }
+});
+
+// Route to get all events (future only)
 router.get("/events", homeLimiter, authenticateToken, async (req, res) => {
-  // Get all the events from the DB
   let events;
   try {
-    // Get all the events from the DB and wait for the response
-    events = await Event.find({});
+    const now = new Date();
+    // Only return events with date after now
+    events = await Event.find({ date: { $gt: now.toISOString() } });
   } catch (err) {
-    // Log the error
     console.error("Error getting events: " + err);
-    // Send a 500 status code and an error message
     res.status(500).send("Error getting events");
     return;
-  };
-  // Send the events as a JSON response
+  }
   res.json(events);
 });
 
@@ -230,15 +268,14 @@ router.post("/events", homeLimiter, authenticateToken, async (req, res) => {
 });
 
 // Route to get all carpools
-// Why do we have a req here?
 router.get("/carpools", homeLimiter, authenticateToken, async (req, res) => {
-  // Get all the carpools from the DB
   try {
-    // Get all the carpools from the DB and wait for the response
-    const carpools = await Carpool.find({});
-    // Send the carpools as a JSON response
+    // Only return carpools with arrivalTime after now
+    const now = new Date();
+    const carpools = await Carpool.find({
+      arrivalTime: { $gt: now.toISOString() }
+    });
     res.json(carpools);
-    // If there is an error, send a 500 status code and an error message
   } catch (err) {
     console.error("Error retrieving carpools: " + err);
     res.status(500).send("Error retrieving carpools");
@@ -247,25 +284,19 @@ router.get("/carpools", homeLimiter, authenticateToken, async (req, res) => {
 
 // Route to get user's carpools
 router.get("/userCarpools", homeLimiter, authenticateToken, async (req, res) => {
-  // Let carpools be an empty array to store the carpools
   let carpools = [];
-  // Try to get the carpools from the DB
   try {
-    // Get all the carpools created by the user
-    const carpoolsCreated = await Carpool.find({ email: req.email }).exec();
-    // Get all the carpools joined by the user
-    const carpoolsJoined = await Carpool.find({
-      "carpoolers.email": req.email,
-    }).exec();
-    // Combine the carpools created and joined by the user
+    const now = new Date();
+    // Only return user's carpools with arrivalTime after now
+    // FIX: Use userEmail field for carpools created by the user
+    const carpoolsCreated = await Carpool.find({ userEmail: req.userEmail, arrivalTime: { $gt: now.toISOString() } }).exec();
+    const carpoolsJoined = await Carpool.find({ "carpoolers.userEmail": req.userEmail, arrivalTime: { $gt: now.toISOString() } }).exec();
     carpools = [...carpoolsCreated, ...carpoolsJoined];
-    // Something went wrong that should not have gone wrong
   } catch (err) {
     console.error("Error retrieving carpools: " + err);
     res.status(500).send("Error retrieving carpools");
     return;
   }
-  // Send the carpools as a JSON response
   res.json(carpools);
 });
 
@@ -476,12 +507,14 @@ router.delete(
 router.patch(
   "/carpools/deleteCarpooler",
   homeLimiter,
-
   authenticateToken,
   async (req, res) => {
     // Get the carpool ID from the request
     try {
       const { _id, _id2 } = req.body;
+      
+      console.log("Removing carpooler with ID:", _id, "from carpool with ID:", _id2);
+      
       // Update the carpool to remove the carpooler
       const carpools = await Carpool.updateOne(
         // Find the carpool by ID
@@ -489,6 +522,13 @@ router.patch(
         // Remove the carpooler from the carpool
         { $pull: { carpoolers: { _id: new ObjectId(_id) } } },
       );
+      
+      // Check if the update was successful
+      if (carpools.modifiedCount === 0) {
+        console.error("Failed to remove carpooler, no document matched or no changes made");
+        return res.status(404).send("Failed to remove carpooler");
+      }
+      
       // Send the updated carpool as a JSON response
       res.json(carpools);
     } catch (err) {
@@ -611,11 +651,11 @@ router.get("/carpools/:id/contact-info", homeLimiter, authenticateToken, async (
     }
 
     // Get all emails and phone numbers
-    const emails = [carpool.email]; // Driver's email
+    const emails = [carpool.userEmail]; // Driver's email
     const phones = carpool.phone ? [carpool.phone] : []; // Driver's phone
 
     // Add carpoolers' contact info
-    for (const carpooler of carpool.carpoolers) {
+    for (const carpooler of carpoolers) {
       const user = await User.findOne({ email: carpooler.email });
       if (user) {
         emails.push(user.email);

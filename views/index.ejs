@@ -75,7 +75,7 @@
                           </a>
                           <hr class="navbar-divider">
                           <div class="navbar-item">
-                            Version Beta 0.1.0
+                            Version <%= process.env.VERSION %>
                           </div>
                         </div>
                       </div>
@@ -608,7 +608,11 @@
           console.log(data);
         }
 
-
+        function isFuture(dateStr) {
+          const now = new Date();
+          const d = new Date(dateStr);
+          return d > now;
+        }
 
         var request = new Request("/api/events", {
           method: "GET",
@@ -621,7 +625,7 @@
           .then((response) => response.json())
           .then((data) => {
 
-            eventsW = data;
+            eventsW = data.filter(e => isFuture(e.date));
             console.log(eventsW);
             eventsW2 = sortJSON(eventsW, 'date', '123');
             console.log(eventsW2);
@@ -631,6 +635,7 @@
             for (var i = 0; i < eventsW2.length; i++) {
               var obj = eventsW2[i];
               var date = formatDate(obj["date"]);
+              var time = new Date(obj["date"]).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true });
               
 
               document.getElementById("eventsJS").innerHTML += `<article class="panel is-link has-text-centered" style=" margin-top: 10px;" >
@@ -651,7 +656,7 @@
          <div class="panel-block">
           <p class="control has-icons-left" style="width: 100px;">
 
-            <span style="color: #999999; margin-right: 5px;"><i class="fa-solid fa-location-dot "></i></span>Location: `+ obj["wlocation"] + `<br class="extraspace" style='display: none; '>  <span id="clock"  style="color: #999999; margin-right: 5px; margin-left: 10px;"><i class="fa-solid fa-clock "></i></span> Date: ` + date + `
+            <span style="color: #999999; margin-right: 5px;"><i class="fa-solid fa-location-dot "></i></span>Location: `+ obj["wlocation"] + `<br class="extraspace" style='display: none; '>  <span id="clock"  style="color: #999999; margin-right: 5px; margin-left: 10px;"><i class="fa-solid fa-clock "></i></span> Date: ` + date + `, ` + time + `
            </p>
           <div class="buttons upcoming-buttons" style="float: left; display: inline-block;">
 
@@ -695,6 +700,7 @@
               for (var i = 0; i < eventsW.length; i++) {
                 var obj = eventsW[i];
                 var date = formatDate(obj["date"]);
+                var time = new Date(obj["date"]).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true });
                 if (document.getElementById("filter").value == "all") {
                   // `<div style="float: right; margin: 10px; width: 35px; height: 35px; background-color: hsl(348, 100%, 61%); border-radius: 5px
                   //    " <="" div=""></div>`
@@ -716,7 +722,7 @@
                      <div class="panel-block">
                        <p class="control has-icons-left" style="width: 100px;">
 
-                         <span style="color: #999999; margin-right: 5px;"><i class="fa-solid fa-location-dot "></i></span>Location: `+ obj["wlocation"] + `<br class="extraspace" style='display: none; '>  <span id="clock"  style="color: #999999; margin-right: 5px; margin-left: 10px;"><i class="fa-solid fa-clock "></i></span> Date: ` + date + `
+                         <span style="color: #999999; margin-right: 5px;"><i class="fa-solid fa-location-dot "></i></span>Location: `+ obj["wlocation"] + `<br class="extraspace" style='display: none; '>  <span id="clock"  style="color: #999999; margin-right: 5px; margin-left: 10px;"><i class="fa-solid fa-clock "></i></span> Date: ` + date + `, ` + time + `
                         </p>
                        <div class="buttons upcoming-buttons" style="float: left; display: inline-block;">
 
@@ -751,7 +757,7 @@
                 <div class="panel-block">
                   <p class="control has-icons-left" style="width: 100px;">
 
-                    <span style="color: #999999; margin-right: 5px;"><i class="fa-solid fa-location-dot "></i></span>Location: `+ obj["wlocation"] + `<br class="extraspace" style='display: none; '>  <span id="clock"  style="color: #999999; margin-right: 5px; margin-left: 10px;"><i class="fa-solid fa-clock "></i></span> Date: ` + day + `, ` + obj["date"] + `
+                    <span style="color: #999999; margin-right: 5px;"><i class="fa-solid fa-location-dot "></i></span>Location: `+ obj["wlocation"] + `<br class="extraspace" style='display: none; '>  <span id="clock"  style="color: #999999; margin-right: 5px; margin-left: 10px;"><i class="fa-solid fa-clock "></i></span> Date: ` + date + `, ` + time + `
                    </p>
                   <div class="buttons upcoming-buttons" style="float: left; display: inline-block;">
 
@@ -838,7 +844,7 @@
                   }
                 }
 
-                if (value2 != "none") {
+                if (value2 != "none" && value2 != null && value2 != false) {
                   document.getElementById("address-input").value = value2;
                   document.getElementById("address-input2").value = value2;
                 }
@@ -1193,7 +1199,7 @@
           if (route_type.value == "route") {
             address_label.innerText = "Your home address";
             document.getElementById("address-input").disabled = false;
-            if (value2 != "none") {
+            if (value2 != "none" && value2 != false) {
               document.getElementById("address-input").value = value2;
             }
           }

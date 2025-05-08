@@ -24,7 +24,9 @@
     "firebase-admin": "^13.1.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.1.1",
+    "node-cron": "^3.0.3",
     "node-fetch": "^3.2.6",
+    "nodemailer": "^7.0.2",
     "uuid": "^9.0.1"
   },
   "devDependencies": {
