@@ -10,6 +10,8 @@ const fs = require("fs");
 const jwt = require("jsonwebtoken");
 const cookieParser = require("cookie-parser");
 const mongoose = require("mongoose");
+const cron = require('node-cron');
+const nodemailer = require('nodemailer');
 
 // Import Schemas from MongoDB
 const User = require("./schemas/User.model.js");
@@ -47,7 +49,13 @@ app.use(express.static(__dirname + "/public")); // Serve static files
 app.use(cookieParser()); // Parse cookies
 app.use(express.json({ limit: "100mb" })); // Set JSON body limit to 100mb
 app.use(express.urlencoded({ extended: true, limit: "100mb" })); // Parse URL-encoded bodies with limit
-app.use('/api/', apiRoutes); //TODO: Put apiRoutes under /api
+
+// Pass transporter to apiRoutes
+app.use('/api/', (req, res, next) => {
+  req.transporter = transporter;
+  next();
+}, apiRoutes);
+
 app.use('/', authRoutes);
 
 // Home route - Render home page with user information
@@ -201,6 +209,54 @@ app.get("/friends", homeLimiter, authenticateToken, async (req, res) => {
 // Setup 404 page - Handle undefined routes
 app.use((req, res) => {
   res.status(404).render("404"); // Render 404 page
+});
+
+// Configure nodemailer (replace with your SMTP credentials)
+const transporter = nodemailer.createTransport({
+  service: "Gmail",
+  host: "smtp.gmail.com",
+  port: 465,
+  secure: true,
+  auth: {
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASS
+  }
+});
+
+// Cron job: every 5 minutes, check for carpools 2 hours from now
+cron.schedule('*/5 * * * *', async () => {
+  const now = new Date();
+  const twoHoursLater = new Date(now.getTime() + 2 * 60 * 60 * 1000);
+  // Find carpools where arrivalTime is within 5 minutes of two hours from now, and not already locked
+  const carpools = await Carpool.find({
+    arrivalTime: { $gte: twoHoursLater.toISOString(), $lt: new Date(twoHoursLater.getTime() + 5 * 60 * 1000).toISOString() },
+    'pendingRequests.0': { $exists: true }
+  });
+  for (const carpool of carpools) {
+    // Close signups: clear pendingRequests
+    carpool.pendingRequests = [];
+    await carpool.save();
+    // Gather emails
+    const emails = [carpool.email, ...carpool.carpoolers.map(c => c.email)];
+    // Compose email
+    const mailOptions = {
+      from: process.env.SMTP_USER,
+      to: emails.join(','),
+      subject: 'Carpool Reminder: ' + (carpool.nameOfEvent || ''),
+      text: `Reminder: Your carpool for event ${carpool.nameOfEvent || ''} is scheduled to arrive at ${carpool.arrivalTime}.
+
+Driver: ${carpool.firstName} ${carpool.lastName}
+Car: ${carpool.carMake}
+Pickup: ${carpool.wlocation}
+If you have questions, contact your driver at ${carpool.email} or ${carpool.phone}.
+`
+    };
+    try {
+      await transporter.sendMail(mailOptions);
+    } catch (e) {
+      console.error('Failed to send carpool reminder email:', e);
+    }
+  }
 });
 
 // Connect to the database and start the server
