@@ -49,7 +49,13 @@ app.use(express.static(__dirname + "/public")); // Serve static files
 app.use(cookieParser()); // Parse cookies
 app.use(express.json({ limit: "100mb" })); // Set JSON body limit to 100mb
 app.use(express.urlencoded({ extended: true, limit: "100mb" })); // Parse URL-encoded bodies with limit
-app.use('/api/', apiRoutes); //TODO: Put apiRoutes under /api
+
+// Pass transporter to apiRoutes
+app.use('/api/', (req, res, next) => {
+  req.transporter = transporter;
+  next();
+}, apiRoutes);
+
 app.use('/', authRoutes);
 
 // Home route - Render home page with user information

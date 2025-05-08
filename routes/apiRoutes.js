@@ -87,7 +87,7 @@ router.get("/offerToCarpool", homeLimiter, authenticateToken, (req, res) => {
 // Route to join a carpool
 router.post("/joinCarpool", homeLimiter, authenticateToken, async (req, res) => {
   const { carpool: carpoolId, address } = req.body;
-  const { email } = req;
+  const { email, transporter } = req; // Added transporter
 
   if (!carpoolId || !address) {
     return res.status(400).send("Invalid request");
@@ -100,7 +100,6 @@ router.post("/joinCarpool", homeLimiter, authenticateToken, async (req, res) => 
       return res.status(401).send("User not found");
     }
 
-    // Add to pendingRequests if not already requested or in carpoolers
     const carpool = await Carpool.findById(carpoolId);
     if (!carpool) return res.status(404).send("Carpool not found");
     if (carpool.carpoolers.some(c => c.email === email)) {
@@ -120,8 +119,19 @@ router.post("/joinCarpool", homeLimiter, authenticateToken, async (req, res) => 
     });
     await carpool.save();
 
-    // Send email to carpool owner (pseudo, replace with actual email logic)
-    // await sendEmail(carpool.email, `New join request for your carpool`, `${user.firstName} ${user.lastName} requested to join your carpool.`);
+    // Send email to carpool owner
+    const event = await Event.findById(carpool.nameOfEvent);
+    const mailOptionsToOwner = {
+      from: process.env.SMTP_USER,
+      to: carpool.email, // Email of the carpool owner
+      subject: `New Join Request for Your Carpool: ${event ? event.eventName : 'Unknown Event'}`,
+      text: `${user.firstName} ${user.lastName} (${user.email}) has requested to join your carpool for the event: ${event ? event.eventName : 'Unknown Event'}.\n\nPlease log in to the app to approve or deny this request.`
+    };
+    try {
+      await transporter.sendMail(mailOptionsToOwner);
+    } catch (e) {
+      console.error('Failed to send join request email to owner:', e);
+    }
 
     return res.status(200).json({ message: "Request sent for approval" });
   } catch (error) {
@@ -135,11 +145,11 @@ router.post("/carpools/:id/approve", homeLimiter, authenticateToken, async (req,
   try {
     const { id } = req.params;
     const { email: requesterEmail, approve } = req.body; // approve: true/false
+    const { transporter } = req; // Added transporter
     
     const carpool = await Carpool.findById(id);
     if (!carpool) return res.status(404).send("Carpool not found");
     
-    // Fix: Check userEmail (logged in user) instead of email field
     if (carpool.userEmail !== req.email) {
       console.log("Auth failed: carpool.userEmail=", carpool.userEmail, "req.email=", req.email);
       return res.status(403).send("Not authorized");
@@ -149,6 +159,8 @@ router.post("/carpools/:id/approve", homeLimiter, authenticateToken, async (req,
     if (idx === -1) return res.status(404).send("Request not found");
     
     const request = carpool.pendingRequests[idx];
+    const event = await Event.findById(carpool.nameOfEvent);
+
     if (approve) {
       if (carpool.carpoolers.length >= carpool.seats) {
         return res.status(400).send("Carpool is full");
@@ -159,7 +171,19 @@ router.post("/carpools/:id/approve", homeLimiter, authenticateToken, async (req,
     carpool.pendingRequests.splice(idx, 1);
     await carpool.save();
     
-    // Optionally: send email to requester about approval/denial
+    // Send email to requester about approval/denial
+    const mailOptionsToRequester = {
+      from: process.env.SMTP_USER,
+      to: requesterEmail,
+      subject: `Carpool Request Update for ${event ? event.eventName : 'Unknown Event'}`,
+      text: `Your request to join the carpool for the event: ${event ? event.eventName : 'Unknown Event'} (Driver: ${carpool.firstName} ${carpool.lastName}) has been ${approve ? 'approved' : 'denied'}.`
+    };
+    try {
+      await transporter.sendMail(mailOptionsToRequester);
+    } catch (e) {
+      console.error('Failed to send approval/denial email to requester:', e);
+    }
+    
     return res.status(200).json({ message: approve ? "Approved" : "Denied" });
   } catch (err) {
     console.error("Error approving/denying carpool request:", err);
@@ -631,7 +655,7 @@ router.get("/carpools/:id/contact-info", homeLimiter, authenticateToken, async (
     const phones = carpool.phone ? [carpool.phone] : []; // Driver's phone
 
     // Add carpoolers' contact info
-    for (const carpooler of carpool.carpoolers) {
+    for (const carpooler of carpoolers) {
       const user = await User.findOne({ email: carpooler.email });
       if (user) {
         emails.push(user.email);
