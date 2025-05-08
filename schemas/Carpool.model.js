@@ -20,6 +20,7 @@ const carpoolSchema = new mongoose.Schema({
   route: String,
   wlocation: String,
   carpoolers: [carpoolerSchema],
+  pendingRequests: [carpoolerSchema],
   nameOfEvent: String,
   userEmail: String,
   arrivalTime: String,
