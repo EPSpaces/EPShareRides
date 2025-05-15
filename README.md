@@ -10,6 +10,6 @@ npm install
 ```
 Add in a .env file, service_account.json, and config.js (email ajosan@eastsideprep.org). Make sure the MODE is set to DEV.  Then, run
 ```
-npm run start
+npm run dev
 ```
 and the app will start.
