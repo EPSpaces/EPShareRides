@@ -1,0 +1,6 @@
+runtime: nodejs18
+
+env_variables:
+  MODE: ${{ secrets.MODE }}
+  PORT: ${{ secrets.PORT }}
+  MONGO_URI: ${{ secrets.MONGO_URI }}
