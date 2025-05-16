@@ -33,3 +33,6 @@ jobs:
         with:
           deliverables: app.yaml
           project_id: ${{ secrets.GCP_PROJECT }}
+          env_vars: |-
+            MODE=${{ secrets.MODE }}
+            MONGO_URI=${{ secrets.MONGO_URI }}

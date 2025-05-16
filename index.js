@@ -259,14 +259,16 @@ If you have questions, contact your driver at ${carpool.email} or ${carpool.phon
   }
 });
 
+const port = process.env["PORT"] || 8080;
+
 // Connect to the database and start the server
 mongoose
   .connect(process.env["MONGO_URI"]) // Connect to MongoDB
   .then(() => {
     console.log("Connected to db");
 
-    app.listen(process.env["PORT"], () => {
-      console.log("Server started on port " + process.env["PORT"]); // Start server
+    app.listen(port, () => {
+      console.log("Server started on port " + port); // Start server
     });
   })
   .catch((err) => {
