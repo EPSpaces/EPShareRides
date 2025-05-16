@@ -1,4 +1,4 @@
-runtime: nodejs18
+runtime: nodejs22
 
 env_variables:
   MODE: ${{ secrets.MODE }}
