@@ -1,0 +1,7 @@
+runtime: nodejs22
+
+automatic_scaling:
+  min_idle_instances: 1
+  max_idle_instances: 2
+  min_instances: 1
+  max_instances: 10

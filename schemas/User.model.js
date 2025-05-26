@@ -10,7 +10,11 @@ const userSchema = new Schema({
   lastName: { type: String, required: true },
   email: { type: String, required: true },
   admin: { type: Boolean, default: false },
+<<<<<<< HEAD
   address: { type: String, default: "none" },
+=======
+  address: { type: String, default: "My home address" },
+>>>>>>> internot/main
   cell: { type: String, default: "none" },
   // Controls if they appear in the directory
   privacy: { type: Boolean, default: false },

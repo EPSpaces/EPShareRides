@@ -5,7 +5,11 @@
    <meta charset="UTF-8">
    <meta name="viewport" content="width=device-width, initial-scale=1.0">
    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+<<<<<<< HEAD
    <title>EPShare Rides</title>
+=======
+   <title>EPCarpool</title>
+>>>>>>> internot/main
    <link href="./bulma.min.css" rel="stylesheet" type="text/css" />
    <link href="./style.css" rel="stylesheet" type="text/css" />
    <script src="https://kit.fontawesome.com/16ae8e710d.js" crossorigin="anonymous"></script>
@@ -55,11 +59,19 @@
                                  <a class="navbar-item">
                                     <div style="position: relative; display: flex; align-items: center;">
                                        <img src="EPS Logo - Transparent-4.png" alt="Logo">
+<<<<<<< HEAD
                                        <h1 class="title is-3" style="margin-left: 10px">EPShare Rides</h1>
                                        <span style="position: absolute; top: -5px; right: -25px; background: #3273DC; color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.7em; font-weight: bold;">BETA</span>
                                     </div>
                                  </a>
                                  <div class="navbar-item" style="padding: 0.5rem 0.75rem;">
+=======
+                                       <h1 class="title is-3" style="margin-left: 10px; margin-bottom: -10px">EPCarpool</h1>
+                                       <span style="position: absolute; top: -5px; right: -25px; background: #3273DC; color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.7em; font-weight: bold;">BETA</span>
+                                    </div>
+                                 </a>
+                                 <div class="navbar-item" style="padding: 0.5rem 1.25rem;">
+>>>>>>> internot/main
                                     <button class="button is-info is-light" onclick="showDisclaimer()">
                                        <span class="icon">
                                           <i class="fas fa-info-circle"></i>
@@ -108,7 +120,11 @@
                                                    </a>
                                                    <hr class="navbar-divider">
                                                    <div class="navbar-item">
+<<<<<<< HEAD
                                                       Version Beta 0.1.0
+=======
+                                                        Version <%= process.env.VERSION %>
+>>>>>>> internot/main
                                                    </div>
                                                 </div>
                                              </div>
@@ -240,7 +256,13 @@
                               <ul>
                                  <li><a href="/" class="white">Upcoming Events</a></li>
                                  <li class="is-active" class="white"><a href="/mycarpools" class="is-active1">My
+<<<<<<< HEAD
                                        Carpools</a></li>
+=======
+                                       Carpools
+                                       <span id="pending-badge" style="background: #ff3860; color: white; border-radius: 10px; padding: 2px 8px; font-size: 0.8em; margin-left: 5px; display: none;"></span>
+                                    </a></li>
+>>>>>>> internot/main
                               </ul>
                            </div>
                         </nav>
@@ -595,8 +617,16 @@
          if (newCarpoolers[i]._id == id) {
             newCarpoolers.splice(i, 1)
             document.getElementById("person_" + id).remove()
+<<<<<<< HEAD
          }
       }
+=======
+            return; // Exit after finding and removing the person
+         }
+      }
+      // If we get here, the person wasn't found in newCarpoolers
+      console.error("Person with ID " + id + " not found in carpoolers list");
+>>>>>>> internot/main
    }
 
    function getDayOfWeek(string) {
@@ -632,7 +662,11 @@
       .then((data) => {
          eventsW = data;
 
+<<<<<<< HEAD
          var request = new Request("/api/carpools", {
+=======
+         var request = new Request("/api/userCarpools", {
+>>>>>>> internot/main
             method: "GET",
             headers: new Headers({
                Accept: 'application/json',
@@ -653,7 +687,11 @@
                }
 
                for (var i = 0; i < userData1.length; i++) {
+<<<<<<< HEAD
                   if (userData1[i].email === "<%= email %>") {
+=======
+                  if (userData1[i].userEmail === "<%= email %>") {
+>>>>>>> internot/main
                      offeredCarpools.push(userData1[i])
                   }
                }
@@ -734,6 +772,19 @@
          </button>
       </div>
    </div>
+<<<<<<< HEAD
+=======
+   <div style="margin: 10px 0; padding: 10px; background: #fffbe6; border: 1px solid #ffe08a; border-radius: 6px;">
+      <b>Pending Approvals:</b><br>
+      ${offeredCarpools[i].pendingRequests.map(req => `
+         <div style='margin-bottom: 6px;'>
+            ${req.firstName} ${req.lastName} (${req.email})
+            <button class='button is-small is-success' style='margin-left:8px;' onclick="approveRequest('${offeredCarpools[i]._id}','${req.email}',true)">Approve</button>
+            <button class='button is-small is-danger' style='margin-left:2px;' onclick="approveRequest('${offeredCarpools[i]._id}','${req.email}',false)">Deny</button>
+         </div>
+      `).join('')}
+   </div>
+>>>>>>> internot/main
 </article>`
 
                   }
@@ -1378,7 +1429,11 @@
 <div class="modal" id="disclaimer-modal">
   <div class="modal-background"></div>
   <div class="modal-card">
+<<<<<<< HEAD
     <section class="modal-card-body">
+=======
+    <section class="modal-card-body" style="border-radius: 6px 6px 0px 0px;">
+>>>>>>> internot/main
       <p class="has-text-centered is-size-5">This is an app maintained by Eastside Prep's Hack Club, a group of Upper School students that meet every Thursday at 11:05 pm in TMAC-007. Please email Hack Club Co-President Anmol Singh Josan, ajosan@eastsideprep.org, if you have any questions.</p>
       <br>
       <p class="has-text-centered is-size-5">Eastside Preparatory School does not mandate or encourage the use of this application. They do not claim any responsibility for the maintenance, upkeep, and development of this application. This is entirely student-run.</p>
@@ -1397,4 +1452,54 @@ function showDisclaimer() {
 function closeDisclaimer() {
   document.getElementById('disclaimer-modal').classList.remove('is-active');
 }
+<<<<<<< HEAD
 </script>
+=======
+
+let pendingCount = 0;
+for (let i = 0; i < offeredCarpools.length; i++) {
+  if (offeredCarpools[i].pendingRequests && offeredCarpools[i].pendingRequests.length > 0) {
+    pendingCount += offeredCarpools[i].pendingRequests.length;
+  }
+}
+if (pendingCount > 0) {
+  document.getElementById('pending-badge').innerText = pendingCount;
+  document.getElementById('pending-badge').style.display = 'inline-block';
+}
+
+function approveRequest(carpoolId, email, approve) {
+  fetch(`/api/carpools/${carpoolId}/approve`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, approve })
+  })
+  .then(res => {
+    if (!res.ok) {
+      return res.text().then(text => { throw new Error(text || 'Request failed'); });
+    }
+    return res.json();
+  })
+  .then(() => {
+    // Display success message
+    alert(approve ? "Request approved successfully!" : "Request denied successfully!");
+    location.reload();
+  })
+  .catch((error) => {
+    console.error('Error:', error);
+    alert(`Failed to update request: ${error.message}`);
+  });
+}
+
+function formatTime12h(timeStr) {
+  if (!timeStr) return '';
+  const d = new Date('1970-01-01T' + timeStr);
+  let h = d.getHours();
+  let m = d.getMinutes();
+  let ampm = h >= 12 ? 'PM' : 'AM';
+  h = h % 12;
+  h = h ? h : 12;
+  m = m < 10 ? '0' + m : m;
+  return h + ':' + m + ' ' + ampm;
+}
+</script>
+>>>>>>> internot/main

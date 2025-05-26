@@ -87,22 +87,33 @@ router.get("/offerToCarpool", homeLimiter, authenticateToken, (req, res) => {
 // Route to join a carpool
 router.post("/joinCarpool", homeLimiter, authenticateToken, async (req, res) => {
   const { carpool: carpoolId, address } = req.body;
+<<<<<<< HEAD
   const { email } = req;
 
   // Validate required fields
+=======
+  const { email, transporter } = req; // Added transporter
+
+>>>>>>> internot/main
   if (!carpoolId || !address) {
     return res.status(400).send("Invalid request");
   }
 
   try {
+<<<<<<< HEAD
     // Get user data
     const user = await User.findOne({ email });
     if (!user) {
       // Clear the id token
+=======
+    const user = await User.findOne({ email });
+    if (!user) {
+>>>>>>> internot/main
       res.clearCookie("idToken");
       return res.status(401).send("User not found");
     }
 
+<<<<<<< HEAD
     // Find and update carpool in one operation
     const updatedCarpool = await Carpool.findOneAndUpdate(
       {
@@ -144,12 +155,49 @@ router.post("/joinCarpool", homeLimiter, authenticateToken, async (req, res) => 
     return res.status(200).json(updatedCarpool);
 
     // Catch any errors
+=======
+    const carpool = await Carpool.findById(carpoolId);
+    if (!carpool) return res.status(404).send("Carpool not found");
+    if (carpool.carpoolers.some(c => c.email === email)) {
+      return res.status(409).send("You are already in this carpool");
+    }
+    if (carpool.pendingRequests.some(c => c.email === email)) {
+      return res.status(409).send("You have already requested to join");
+    }
+    if (carpool.carpoolers.length >= carpool.seats) {
+      return res.status(400).send("Carpool is full");
+    }
+    carpool.pendingRequests.push({
+      email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      address
+    });
+    await carpool.save();
+
+    // Send email to carpool owner
+    const event = await Event.findById(carpool.nameOfEvent);
+    const mailOptionsToOwner = {
+      from: process.env.SMTP_USER,
+      to: carpool.email, // Email of the carpool owner
+      subject: `New Join Request for Your Carpool: ${event ? event.eventName : 'Unknown Event'}`,
+      text: `${user.firstName} ${user.lastName} (${user.email}) has requested to join your carpool for the event: ${event ? event.eventName : 'Unknown Event'}.\n\nPlease log in to the app to approve or deny this request.`
+    };
+    try {
+      await transporter.sendMail(mailOptionsToOwner);
+    } catch (e) {
+      console.error('Failed to send join request email to owner:', e);
+    }
+
+    return res.status(200).json({ message: "Request sent for approval" });
+>>>>>>> internot/main
   } catch (error) {
     console.error("Error joining carpool:", error);
     return res.status(500).send("Internal Server Error");
   }
 });
 
+<<<<<<< HEAD
 // Route to get all events
 router.get("/events", homeLimiter, authenticateToken, async (req, res) => {
   // Get all the events from the DB
@@ -165,6 +213,71 @@ router.get("/events", homeLimiter, authenticateToken, async (req, res) => {
     return;
   };
   // Send the events as a JSON response
+=======
+// Approve or deny a pending carpool request (owner only)
+router.post("/carpools/:id/approve", homeLimiter, authenticateToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { email: requesterEmail, approve } = req.body; // approve: true/false
+    const { transporter } = req; // Added transporter
+    
+    const carpool = await Carpool.findById(id);
+    if (!carpool) return res.status(404).send("Carpool not found");
+    
+    if (carpool.userEmail !== req.email) {
+      console.log("Auth failed: carpool.userEmail=", carpool.userEmail, "req.email=", req.email);
+      return res.status(403).send("Not authorized");
+    }
+    
+    const idx = carpool.pendingRequests.findIndex(c => c.email === requesterEmail);
+    if (idx === -1) return res.status(404).send("Request not found");
+    
+    const request = carpool.pendingRequests[idx];
+    const event = await Event.findById(carpool.nameOfEvent);
+
+    if (approve) {
+      if (carpool.carpoolers.length >= carpool.seats) {
+        return res.status(400).send("Carpool is full");
+      }
+      carpool.carpoolers.push(request);
+    }
+    
+    carpool.pendingRequests.splice(idx, 1);
+    await carpool.save();
+    
+    // Send email to requester about approval/denial
+    const mailOptionsToRequester = {
+      from: process.env.SMTP_USER,
+      to: requesterEmail,
+      subject: `Carpool Request Update for ${event ? event.eventName : 'Unknown Event'}`,
+      text: `Your request to join the carpool for the event: ${event ? event.eventName : 'Unknown Event'} (Driver: ${carpool.firstName} ${carpool.lastName}) has been ${approve ? 'approved' : 'denied'}.`
+    };
+    try {
+      await transporter.sendMail(mailOptionsToRequester);
+    } catch (e) {
+      console.error('Failed to send approval/denial email to requester:', e);
+    }
+    
+    return res.status(200).json({ message: approve ? "Approved" : "Denied" });
+  } catch (err) {
+    console.error("Error approving/denying carpool request:", err);
+    return res.status(500).send("Error processing request");
+  }
+});
+
+// Route to get all events (future only)
+router.get("/events", homeLimiter, authenticateToken, async (req, res) => {
+  let events;
+  try {
+    const now = new Date();
+    // Only return events with date after now
+    events = await Event.find({ date: { $gt: now.toISOString() } });
+  } catch (err) {
+    console.error("Error getting events: " + err);
+    res.status(500).send("Error getting events");
+    return;
+  }
+>>>>>>> internot/main
   res.json(events);
 });
 
@@ -230,6 +343,7 @@ router.post("/events", homeLimiter, authenticateToken, async (req, res) => {
 });
 
 // Route to get all carpools
+<<<<<<< HEAD
 // Why do we have a req here?
 router.get("/carpools", homeLimiter, authenticateToken, async (req, res) => {
   // Get all the carpools from the DB
@@ -239,6 +353,16 @@ router.get("/carpools", homeLimiter, authenticateToken, async (req, res) => {
     // Send the carpools as a JSON response
     res.json(carpools);
     // If there is an error, send a 500 status code and an error message
+=======
+router.get("/carpools", homeLimiter, authenticateToken, async (req, res) => {
+  try {
+    // Only return carpools with arrivalTime after now
+    const now = new Date();
+    const carpools = await Carpool.find({
+      arrivalTime: { $gt: now.toISOString() }
+    });
+    res.json(carpools);
+>>>>>>> internot/main
   } catch (err) {
     console.error("Error retrieving carpools: " + err);
     res.status(500).send("Error retrieving carpools");
@@ -247,6 +371,7 @@ router.get("/carpools", homeLimiter, authenticateToken, async (req, res) => {
 
 // Route to get user's carpools
 router.get("/userCarpools", homeLimiter, authenticateToken, async (req, res) => {
+<<<<<<< HEAD
   // Let carpools be an empty array to store the carpools
   let carpools = [];
   // Try to get the carpools from the DB
@@ -260,12 +385,25 @@ router.get("/userCarpools", homeLimiter, authenticateToken, async (req, res) => 
     // Combine the carpools created and joined by the user
     carpools = [...carpoolsCreated, ...carpoolsJoined];
     // Something went wrong that should not have gone wrong
+=======
+  let carpools = [];
+  try {
+    const now = new Date();
+    // Only return user's carpools with arrivalTime after now
+    // FIX: Use userEmail field for carpools created by the user
+    const carpoolsCreated = await Carpool.find({ userEmail: req.userEmail, arrivalTime: { $gt: now.toISOString() } }).exec();
+    const carpoolsJoined = await Carpool.find({ "carpoolers.userEmail": req.userEmail, arrivalTime: { $gt: now.toISOString() } }).exec();
+    carpools = [...carpoolsCreated, ...carpoolsJoined];
+>>>>>>> internot/main
   } catch (err) {
     console.error("Error retrieving carpools: " + err);
     res.status(500).send("Error retrieving carpools");
     return;
   }
+<<<<<<< HEAD
   // Send the carpools as a JSON response
+=======
+>>>>>>> internot/main
   res.json(carpools);
 });
 
@@ -476,12 +614,21 @@ router.delete(
 router.patch(
   "/carpools/deleteCarpooler",
   homeLimiter,
+<<<<<<< HEAD
 
+=======
+>>>>>>> internot/main
   authenticateToken,
   async (req, res) => {
     // Get the carpool ID from the request
     try {
       const { _id, _id2 } = req.body;
+<<<<<<< HEAD
+=======
+      
+      console.log("Removing carpooler with ID:", _id, "from carpool with ID:", _id2);
+      
+>>>>>>> internot/main
       // Update the carpool to remove the carpooler
       const carpools = await Carpool.updateOne(
         // Find the carpool by ID
@@ -489,6 +636,16 @@ router.patch(
         // Remove the carpooler from the carpool
         { $pull: { carpoolers: { _id: new ObjectId(_id) } } },
       );
+<<<<<<< HEAD
+=======
+      
+      // Check if the update was successful
+      if (carpools.modifiedCount === 0) {
+        console.error("Failed to remove carpooler, no document matched or no changes made");
+        return res.status(404).send("Failed to remove carpooler");
+      }
+      
+>>>>>>> internot/main
       // Send the updated carpool as a JSON response
       res.json(carpools);
     } catch (err) {
@@ -611,11 +768,19 @@ router.get("/carpools/:id/contact-info", homeLimiter, authenticateToken, async (
     }
 
     // Get all emails and phone numbers
+<<<<<<< HEAD
     const emails = [carpool.email]; // Driver's email
     const phones = carpool.phone ? [carpool.phone] : []; // Driver's phone
 
     // Add carpoolers' contact info
     for (const carpooler of carpool.carpoolers) {
+=======
+    const emails = [carpool.userEmail]; // Driver's email
+    const phones = carpool.phone ? [carpool.phone] : []; // Driver's phone
+
+    // Add carpoolers' contact info
+    for (const carpooler of carpoolers) {
+>>>>>>> internot/main
       const user = await User.findOne({ email: carpooler.email });
       if (user) {
         emails.push(user.email);
