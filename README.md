@@ -34,6 +34,6 @@ and the app will start in dev using nodemon.
    - Handle errors with try/catch blocks.
    - Comment complex logic and business rules.
 
-2. **Submitting Issues**: (Add instructions for submitting issues if applicable)
+2. **Submitting Issues**: Just do it
 
-3. **Creating Pull Requests**: (Add instructions for creating pull requests if applicable)
+3. **Creating Pull Requests**: Yes
