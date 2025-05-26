@@ -119,11 +119,11 @@
     </div>
     <div class='field'>
       <label class='label' for='address'>Address:</label>
-      <div class='control'>
-        <div class='autocomplete-container' id='autocomplete-container3'>
-          <!-- ...existing autocomplete code gets inserted here... -->
-        </div>
-      </div>
+      <div class="autocomplete-container " id="">
+            <div class='control' id="autocomplete-container3">
+              <!-- South Kirkland Park and Ride, Bellevue, WA 98004, United States of America -->
+            </div>
+          </div>
     </div>
     <div class='field'>
       <label class='label' for='edate'>Date and time:</label>
@@ -716,6 +716,7 @@
           if (document.getElementById('address-input') != null) {
             document.getElementById("autocomplete-container").classList.remove("is-loading");
             document.getElementById("autocomplete-container2").classList.remove("is-loading");
+            document.getElementById("autocomplete-container3").classList.remove("is-loading");
           }
 
         }
@@ -761,6 +762,7 @@
 
             document.getElementById("autocomplete-container").classList.add("is-loading");
             document.getElementById("autocomplete-container2").classList.add("is-loading");
+            document.getElementById("autocomplete-container3").classList.add("is-loading");
 
             /* Close any already open dropdown list */
             closeDropDownList();
@@ -807,6 +809,7 @@
             promise.then((data) => {
               document.getElementById("autocomplete-container").classList.remove("is-loading");
               document.getElementById("autocomplete-container2").classList.remove("is-loading");
+              document.getElementById("autocomplete-container3").classList.remove("is-loading");
               currentItems = data.features;
 
               /*create a DIV element that will contain the items (values):*/
@@ -946,7 +949,16 @@
 
         });
 
+        addressAutocomplete(document.getElementById("autocomplete-container3"), "create_address", (data) => {
+          console.log("Selected option: ");
+          console.log(data);
+          console.log(data.properties.formatted);
+          arr.push(data.properties.formatted);
+        }, {
 
+          placeholder: "Enter an address here"
+
+        });
 
 
         // Code for the second function
