@@ -15,3 +15,25 @@ Add in the .env file, service_account.json, and config.js (email ajosan@eastside
 npm run dev
 ```
 and the app will start in dev using nodemon.
+
+## Project Structure
+- `index.js`: Initializes the Express server, sets up routes, and handles various functionalities.
+- `package.json`: Lists the dependencies and scripts for the project.
+- `public/`: Contains static files such as CSS, JavaScript, and configuration files.
+- `routes/`: Contains route handlers for API and authentication.
+- `schemas/`: Contains Mongoose schemas for the database models.
+- `utils/`: Contains utility functions for authentication.
+
+## Contributing
+1. **Code Style Guidelines**:
+   - Use camelCase for variables and functions.
+   - Use PascalCase for classes and models.
+   - Organize routes in separate files based on functionality.
+   - Follow MongoDB/Mongoose patterns for database operations.
+   - Use async/await for asynchronous operations.
+   - Handle errors with try/catch blocks.
+   - Comment complex logic and business rules.
+
+2. **Submitting Issues**: (Add instructions for submitting issues if applicable)
+
+3. **Creating Pull Requests**: (Add instructions for creating pull requests if applicable)
