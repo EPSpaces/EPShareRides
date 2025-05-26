@@ -1,4 +1,4 @@
-# EPShareRides Development Guide
+# EPCarpool Development Guide
 
 ## Commands
 - Start development server: `npm run dev`
