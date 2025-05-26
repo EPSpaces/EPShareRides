@@ -258,7 +258,7 @@
    <div class="modal-card" style="">
       <p class="panel-heading has-text-centered" style="padding: 15px;">
          Edit Carpool
-         <button class="delete" aria-label="close" onclick="closeAllModals()" style="float: right"></button>
+         <button class="delete" aria-label="" onclick="AllModals()" style="float: right"></button>
       </p>
       <section class="modal-card-body">
 
@@ -375,7 +375,7 @@
          <div class="buttons" style="margin-left: 0px;">
             <button class="button is-link " style="background: linear-gradient(105deg, #3273DC, #275CBF);"
                onclick="test()">Apply</button>
-            <button class="button" aria-label="close" onclick="closeAllModals()">Cancel</button>
+            <button class="button" aria-label="" onclick="AllModals()">Cancel</button>
          </div>
       </footer>
    </div>
@@ -847,14 +847,14 @@
          $el.classList.add('is-active');
       }
 
-      function closeModal($el) {
+      function Modal($el) {
          $el.classList.remove('is-active');
          returnBack()
       }
 
-      function closeAllModals() {
+      function AllModals() {
          (document.querySelectorAll('.modal') || []).forEach(($modal) => {
-            closeModal($modal);
+            Modal($modal);
          });
       }
 
@@ -1399,7 +1399,10 @@
       <p class="has-text-centered is-size-5">Eastside Preparatory School does not mandate or encourage the use of this application. They do not claim any responsibility for the maintenance, upkeep, and development of this application. This is entirely student-run.</p>
     </section>
     <footer class="modal-card-foot">
-      <button class="button is-info" onclick="closeDisclaimer()">Close</button>
+       <div class="buttons">
+            <div class="button center is-link" onclick="closeDisclaimer()"
+              style="background: linear-gradient(105deg, #3273DC, #275CBF); margin-top: 20px">Close</div>
+          </div>
     </footer>
   </div>
 </div>
