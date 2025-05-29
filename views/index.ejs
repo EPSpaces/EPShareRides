@@ -492,7 +492,19 @@ function addressAutocomplete(containerElement, idName, callback, options) {
 
 
           }
-
+    /* Close the autocomplete dropdown when the document is clicked. 
+          Skip, when a user clicks on the input field */
+          document.addEventListener("click", function (e) {
+            if (e.target !== inputElement) {
+              closeDropDownList();
+            } else if (!containerElement.querySelector(".autocomplete-items")) {
+              // open dropdown list again
+              var event = document.createEvent('Event');
+              event.initEvent('input', true, true);
+              inputElement.dispatchEvent(event);
+            }
+          });
+        }
 
     function createEventInputs() {
         addressAutocomplete(document.getElementById("autocomplete-container3"), "create_address", (data) => {
@@ -931,20 +943,8 @@ function addressAutocomplete(containerElement, idName, callback, options) {
 
 
         
-          /* Close the autocomplete dropdown when the document is clicked. 
-          Skip, when a user clicks on the input field */
-          document.addEventListener("click", function (e) {
-            if (e.target !== inputElement) {
-              closeDropDownList();
-            } else if (!containerElement.querySelector(".autocomplete-items")) {
-              // open dropdown list again
-              var event = document.createEvent('Event');
-              event.initEvent('input', true, true);
-              inputElement.dispatchEvent(event);
-            }
-          });
-
-        }
+      
+        
 
         addressAutocomplete(document.getElementById("autocomplete-container"), "address-input", (data) => {
           console.log("Selected option: ");
