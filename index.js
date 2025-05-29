@@ -1,17 +1,17 @@
-if (process.env.MODE != 'PROD') {
-  require('dotenv').config(); // Load environment variables from .env file in non-production mode
-}
-
 // Import libraries
+const fs = require("fs");
 const express = require("express");
 const ejs = require("ejs");
 const axios = require("axios").default;
-const fs = require("fs");
 const jwt = require("jsonwebtoken");
 const cookieParser = require("cookie-parser");
 const mongoose = require("mongoose");
 const cron = require('node-cron');
 const nodemailer = require('nodemailer');
+
+// Load environment variables from env.local or .env file
+const envPath = fs.existsSync('./env.local') ? './env.local' : './.env';
+require('dotenv').config({ path: envPath });
 
 // Import Schemas from MongoDB
 const User = require("./schemas/User.model.js");
