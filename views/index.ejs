@@ -158,7 +158,7 @@
     </div>
     <div class='field'>
       <div class='control'>
-        <div class='button is-link' type='button' onclick='createevent(); location.reload();'>Submit</div>
+        <div class='button is-link' type='button' onclick='createevent();'>Submit</div>
       </div>
     </div>
   </form>`; createEventInputs()">
@@ -1258,6 +1258,7 @@ function addressAutocomplete(containerElement, idName, callback, options) {
         .then((response) => {
           console.log(response);
           // Open verification checker
+          location.reload();
         })
         .catch((error) => console.error("Error:", error));
     }
