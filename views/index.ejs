@@ -104,7 +104,10 @@
             </select>
 
             <span id="createEventButton">
-              <button id="buttonzx" onclick="var create_event = document.getElementById('create_event'); create_event.style.marginBottom='50px'; create_event.innerHTML = `<form class='box'>
+              <button id="buttonzx" onclick="var create_event = document.getElementById('create_event'); create_event.style.marginBottom='50px'; create_event.innerHTML = `<form class='box'><div class='modal-card-head' style='padding: 0px;margin-bottom: 20px;background-color: white;border: none;'>
+        <div class='modal-card-title'>Create Event</div>
+    <button class='delete' aria-label='close' onclick='var create_event = document.getElementById(${create_event}); create_event.style.marginBottom=${50px}; create_event.innerHTML = ${}'></button>
+    </div>
     <div class='field'>
       <label class='label' for='ename'>Event name:</label>
       <div class='control'>
@@ -146,10 +149,7 @@
     </div>
     <div class='field'>
       <div class='control'>
-        <div class='buttons'>
-            <div class='button center is-link' type='button' onclick='createevent(); createEventInputs()'
-              style='background: linear-gradient(105deg, #3273DC, #275CBF);'>Submit</div>
-          </div>
+        <div class="button is-link" type="button" onclick="createevent(); createEventInputs()" style="background: linear-gradient(105deg, #3273DC, #275CBF);">Submit</div>
       </div>
     </div>
   </form>`; runAddressAutocomplete()">
@@ -720,7 +720,7 @@
             document.getElementById("autocomplete-container").classList.remove("is-loading");
             document.getElementById("autocomplete-container2").classList.remove("is-loading");
           }
-          if (document.getElementById('create-address') != null {
+          if (document.getElementById('create-address') != null) {
             document.getElementById("autocomplete-container3").classList.remove("is-loading");
           }
         }
