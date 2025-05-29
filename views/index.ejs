@@ -147,7 +147,7 @@
     <div class='field'>
       <div class='control'>
         <div class='buttons'>
-            <div class='button center is-link' type='button' onclick='createevent()'
+            <div class='button center is-link' type='button' onclick='createevent(); createEventInputs()'
               style='background: linear-gradient(105deg, #3273DC, #275CBF);'>Submit</div>
           </div>
       </div>
@@ -719,9 +719,10 @@
           if (document.getElementById('address-input') != null) {
             document.getElementById("autocomplete-container").classList.remove("is-loading");
             document.getElementById("autocomplete-container2").classList.remove("is-loading");
+          }
+          if (document.getElementById('create-address') != null {
             document.getElementById("autocomplete-container3").classList.remove("is-loading");
           }
-
         }
 
 
@@ -941,6 +942,7 @@
 
         });
 
+        function createEventInputs() {
         addressAutocomplete(document.getElementById("autocomplete-container2"), "address-input2", (data) => {
           console.log("Selected option: ");
           console.log(data);
@@ -951,6 +953,8 @@
           placeholder: "Enter an address here"
 
         });
+        }
+
 
         addressAutocomplete(document.getElementById("autocomplete-container3"), "create_address", (data) => {
           console.log("Selected option: ");
