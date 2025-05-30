@@ -16,6 +16,8 @@ const userSchema = new Schema({
   privacy: { type: Boolean, default: false },
   // Dark mode does not work yet
   dark: { type: Boolean, default: false },
+  // Track CO2 savings in kg
+  co2Saved: { type: Number, default: 0 }
 });
 
 // Export the User model
