@@ -11,7 +11,28 @@ const nodemailer = require('nodemailer');
 
 // Load environment variables from env.local or .env file
 const envPath = fs.existsSync('./env.local') ? './env.local' : './.env';
+console.log(`Loading environment variables from: ${envPath}`);
+
+// Log the content of the env file
+if (fs.existsSync(envPath)) {
+  console.log('Environment file content:');
+  console.log(fs.readFileSync(envPath, 'utf-8'));
+} else {
+  console.log('Environment file not found at:', envPath);
+}
+
+// Load environment variables
 require('dotenv').config({ path: envPath });
+
+// Log all environment variables (be careful with sensitive data in production)
+console.log('Loaded environment variables:');
+console.log({
+  NODE_ENV: process.env.NODE_ENV,
+  MODE: process.env.MODE,
+  PORT: process.env.PORT,
+  MONGO_URI: process.env.MONGO_URI ? 'MONGO_URI is set' : 'MONGO_URI is NOT set',
+  MONGO_URI_LENGTH: process.env.MONGO_URI ? process.env.MONGO_URI.length : 0
+});
 
 // Import Schemas from MongoDB
 const User = require("./schemas/User.model.js");
@@ -160,6 +181,34 @@ app.get("/updateSettings", homeLimiter, authenticateToken, async (req, res) => {
   res.render("updateSettings", { email, firstName, lastName }); // Render update settings page
 });
 
+// Find Rides route - Display available rides
+app.get("/findrides", homeLimiter, authenticateToken, async (req, res) => {
+  const email = req.email;
+  let firstName;
+  let lastName;
+
+  let userInData;
+
+  try {
+    userInData = await User.findOne({ email });
+    if (!userInData) {
+      res.clearCookie("idToken");
+      res.redirect("/signin?err=Error with system finding User, please try again");
+      return;
+    }
+  } catch (err) {
+    console.error("Error finding user: " + err);
+    res.clearCookie("idToken");
+    res.redirect("/signin?err=Internal server error, please sign in again");
+    return;
+  }
+
+  firstName = userInData["firstName"];
+  lastName = userInData["lastName"];
+
+  res.render("findrides", { email, firstName, lastName });
+});
+
 // Friends route - Display list of all users
 app.get("/friends", homeLimiter, authenticateToken, async (req, res) => {
   let people = [];
@@ -260,13 +309,28 @@ If you have questions, contact your driver at ${carpool.email} or ${carpool.phon
 });
 
 // Connect to the database and start the server
-mongoose
-  .connect(process.env["MONGO_URI"]) // Connect to MongoDB
-  .then(() => {
-    console.log("Connected to db");
+const mongoUri = 'mongodb://127.0.0.1:27017/epcarpool?directConnection=true';
+console.log('Attempting to connect to MongoDB with URI:', mongoUri);
+console.log('Current environment variables:', {
+  NODE_ENV: process.env.NODE_ENV,
+  MODE: process.env.MODE,
+  PORT: process.env.PORT,
+  MONGO_URI: process.env.MONGO_URI ? 'SET' : 'NOT SET'
+});
 
-    app.listen(process.env["PORT"], () => {
-      console.log("Server started on port " + process.env["PORT"]); // Start server
+mongoose
+  .connect(mongoUri, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    serverSelectionTimeoutMS: 5000,
+    socketTimeoutMS: 45000,
+  })
+  .then(() => {
+    console.log("Successfully connected to MongoDB");
+    console.log("MongoDB connection state:", mongoose.connection.readyState);
+
+    app.listen(process.env.PORT, () => {
+      console.log(`Server started on port ${process.env.PORT}`);
     });
   })
   .catch((err) => {
