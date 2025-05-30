@@ -272,14 +272,19 @@ router.get("/carpools", homeLimiter, authenticateToken, async (req, res) => {
   try {
     // Only return carpools with arrivalTime after now
     const carpools = await Carpool.find();
-    // Change carpools.arrivalTime to 12 hour format
-    // carpools.forEach(carpool => {
-    //   if (carpool.arrivalTime) {
-    //     const date = new Date(carpool.arrivalTime);
-    //     carpool.arrivalTime = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    //   }
-    // });
-    res.json(carpools);
+    // Format arrivalTime to 12-hour AM/PM if present
+    const formattedCarpools = carpools.map(carpool => {
+      let formatted = carpool.toObject();
+      if (formatted.arrivalTime && typeof formatted.arrivalTime === "string" && formatted.arrivalTime.match(/^\d{2}:\d{2}$/)) {
+        // Convert "HH:mm" to 12-hour format
+        const [hour, minute] = formatted.arrivalTime.split(":");
+        const date = new Date();
+        date.setHours(Number(hour), Number(minute));
+        formatted.arrivalTime = date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true });
+      }
+      return formatted;
+    });
+    res.json(formattedCarpools);
   } catch (err) {
     console.error("Error retrieving carpools: " + err);
     res.status(500).send("Error retrieving carpools");
