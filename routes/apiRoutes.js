@@ -271,10 +271,7 @@ router.post("/events", homeLimiter, authenticateToken, async (req, res) => {
 router.get("/carpools", homeLimiter, authenticateToken, async (req, res) => {
   try {
     // Only return carpools with arrivalTime after now
-    const now = new Date();
-    const carpools = await Carpool.find({
-      arrivalTime: { $gt: now.toISOString() }
-    });
+    const carpools = await Carpool.find();
     res.json(carpools);
   } catch (err) {
     console.error("Error retrieving carpools: " + err);
@@ -286,11 +283,8 @@ router.get("/carpools", homeLimiter, authenticateToken, async (req, res) => {
 router.get("/userCarpools", homeLimiter, authenticateToken, async (req, res) => {
   let carpools = [];
   try {
-    const now = new Date();
-    // Only return user's carpools with arrivalTime after now
-    // FIX: Use userEmail field for carpools created by the user
-    const carpoolsCreated = await Carpool.find({ userEmail: req.userEmail, arrivalTime: { $gt: now.toISOString() } }).exec();
-    const carpoolsJoined = await Carpool.find({ "carpoolers.userEmail": req.userEmail, arrivalTime: { $gt: now.toISOString() } }).exec();
+    const carpoolsCreated = await Carpool.find({ userEmail: req.userEmail }).exec();
+    const carpoolsJoined = await Carpool.find({ "carpoolers.userEmail": req.userEmail }).exec();
     carpools = [...carpoolsCreated, ...carpoolsJoined];
   } catch (err) {
     console.error("Error retrieving carpools: " + err);
