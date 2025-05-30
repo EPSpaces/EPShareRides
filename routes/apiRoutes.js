@@ -11,7 +11,8 @@ const RATE_LIMITER_REQUESTS = 100;
 
 const User = require("../schemas/User.model.js");
 const Event = require("../schemas/Event.model.js");
-const { calculateDistance, calculateCO2Savings } = require("../utils/distanceUtils");
+const { calculateDistance } = require("../utils/distanceUtils");
+const { calculateCO2Savings, calculateCO2SavingsPerPassenger } = require("../utils/co2Calculator");
 // ObjectId is a class that is used to convert a string into a MongoDB ObjectId
 const ObjectId = require("mongodb").ObjectId;
 
@@ -166,7 +167,40 @@ router.post("/carpools/:id/approve", homeLimiter, authenticateToken, async (req,
       if (carpool.carpoolers.length >= carpool.seats) {
         return res.status(400).send("Carpool is full");
       }
+      
+      // Add the user to the carpool
       carpool.carpoolers.push(request);
+      
+      // Calculate CO2 savings for this new passenger
+      const distanceMiles = carpool.distanceMiles || 10; // Default to 10 miles if not set
+      const totalPassengers = carpool.carpoolers.length + 1; // +1 for the driver
+      
+      // Calculate CO2 savings per passenger for this carpool
+      const co2SavingsPerPassenger = calculateCO2SavingsPerPassenger(distanceMiles, totalPassengers);
+      
+      // Update the carpool's total CO2 savings
+      const totalCarpoolSavings = calculateCO2Savings(distanceMiles, totalPassengers);
+      carpool.co2Savings = totalCarpoolSavings;
+      
+      // Update the carpool owner's total CO2 savings
+      await User.findOneAndUpdate(
+        { email: carpool.userEmail },
+        { $inc: { co2Saved: co2SavingsPerPassenger } },
+        { new: true, upsert: false }
+      );
+      
+      // Update the requester's CO2 savings
+      await User.findOneAndUpdate(
+        { email: requesterEmail },
+        { $inc: { co2Saved: co2SavingsPerPassenger } },
+        { new: true, upsert: false }
+      );
+      
+      // Add CO2 savings to the carpooler's record
+      const requesterIndex = carpool.carpoolers.findIndex(c => c.email === requesterEmail);
+      if (requesterIndex !== -1) {
+        carpool.carpoolers[requesterIndex].co2Savings = co2SavingsPerPassenger;
+      }
     }
     
     carpool.pendingRequests.splice(idx, 1);
@@ -177,7 +211,9 @@ router.post("/carpools/:id/approve", homeLimiter, authenticateToken, async (req,
       from: process.env.SMTP_USER,
       to: requesterEmail,
       subject: `Carpool Request Update for ${event ? event.eventName : 'Unknown Event'}`,
-      text: `Your request to join the carpool for the event: ${event ? event.eventName : 'Unknown Event'} (Driver: ${carpool.firstName} ${carpool.lastName}) has been ${approve ? 'approved' : 'denied'}.`
+      text: `Your request to join the carpool for the event: ${event ? event.eventName : 'Unknown Event'} (Driver: ${carpool.firstName} ${carpool.lastName}) has been ${approve ? 'approved' : 'denied'}.
+      
+${approve ? `🌱 By joining this carpool, you've helped save approximately ${(carpool.distanceMiles * 0.4).toFixed(2)} kg of CO2 emissions!` : ''}`
     };
     try {
       await transporter.sendMail(mailOptionsToRequester);
@@ -592,13 +628,15 @@ router.post("/carpools", homeLimiter, authenticateToken, async (req, res) => {
     seats, 
     route, 
     wlocation, 
-    carpoolers, 
+    carpoolers = [], 
     nameOfEvent,
     userEmail,
-    arrivalTime 
+    arrivalTime,
+    distanceMiles = 10 // Default distance, should be calculated based on actual route in a real app
   } = req.body;
 
   try {
+    // Create and save the new carpool
     const newCarpool = new Carpool({
       firstName,
       lastName,
@@ -611,11 +649,41 @@ router.post("/carpools", homeLimiter, authenticateToken, async (req, res) => {
       carpoolers,
       nameOfEvent,
       userEmail,
-      arrivalTime
+      arrivalTime,
+      distanceMiles // Save the distance for future reference
     });
 
     await newCarpool.save();
-    res.status(200).json(newCarpool);
+    
+    // Calculate CO2 savings for the carpool (1 driver + carpoolers.length passengers)
+    const numPassengers = 1 + carpoolers.length; // Driver + passengers
+    
+    // Calculate total CO2 savings for the carpool
+    const co2Savings = calculateCO2Savings(distanceMiles, numPassengers);
+    
+    // Calculate CO2 savings per passenger
+    const co2SavingsPerPassenger = calculateCO2SavingsPerPassenger(distanceMiles, numPassengers);
+    
+    // Update the carpool with CO2 savings data
+    newCarpool.co2Savings = co2Savings;
+    newCarpool.distanceMiles = distanceMiles;
+    
+    // Save the updated carpool
+    await newCarpool.save();
+    
+    // Update the driver's total CO2 savings
+    await User.findOneAndUpdate(
+      { email: userEmail },
+      { $inc: { co2Saved: co2SavingsPerPassenger } },
+      { new: true, upsert: false }
+    );
+    
+    // Prepare response with CO2 savings data
+    const response = newCarpool.toObject();
+    response.co2Savings = co2Savings;
+    response.co2SavingsPerPassenger = co2SavingsPerPassenger;
+    
+    res.status(200).json(response);
   } catch (err) {
     console.error("Error creating carpool:", err);
     res.status(500).send("Error creating carpool");
@@ -724,42 +792,162 @@ router.get("/carpools/:id/contact-info", homeLimiter, authenticateToken, async (
   }
 });
 
-// Route to get user's CO2 savings
-router.get("/user/co2-savings", homeLimiter, authenticateToken, async (req, res) => {
+/**
+ * @route GET /api/user/co2-total
+ * @description Get the current user's total CO2 savings from all carpools
+ * @access Private (requires authentication)
+ * @returns {Object} Object containing the user's total CO2 savings in kg
+ */
+router.get("/user/co2-total", homeLimiter, authenticateToken, async (req, res) => {
   try {
     const user = await User.findOne({ email: req.email });
     if (!user) {
-      return res.status(404).json({ error: 'User not found' });
+      return res.status(404).json({ 
+        success: false, 
+        error: 'User not found' 
+      });
     }
-    res.json({ co2Saved: user.co2Saved || 0 });
+    
+    // Get all carpools where the user is a passenger or driver
+    const userCarpools = await Carpool.find({
+      $or: [
+        { 'carpoolers.email': user.email },
+        { driverEmail: user.email }
+      ],
+      date: { $lte: new Date() } // Only count completed carpools
+    });
+    
+    // Calculate total CO2 savings
+    let totalCO2Savings = 0;
+    userCarpools.forEach(carpool => {
+      const userCarpooler = carpool.carpoolers.find(c => c.email === user.email);
+      if (userCarpooler?.co2Savings) {
+        totalCO2Savings += userCarpooler.co2Savings;
+      }
+    });
+    
+    // Update user's total CO2 savings
+    user.totalCO2Savings = totalCO2Savings;
+    await user.save();
+    
+    res.json({ 
+      success: true,
+      totalCO2Savings: parseFloat(totalCO2Savings.toFixed(2))
+    });
   } catch (error) {
-    console.error('Error fetching CO2 savings:', error);
-    res.status(500).json({ error: 'Failed to fetch CO2 savings' });
+    console.error("Error fetching user's CO2 savings:", error);
+    res.status(500).json({ 
+      success: false,
+      error: "Failed to fetch CO2 savings",
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
   }
 });
 
-// Route to update CO2 savings when a carpool is created or joined
+/**
+ * @route GET /api/user/co2-savings
+ * @description Get the current user's total CO2 savings in kilograms
+ * @access Private (requires authentication)
+ * @returns {Object} Object containing the user's CO2 savings in kg
+ */
+router.get("/user/co2-savings", homeLimiter, authenticateToken, async (req, res) => {
+  try {
+    // Find the user by email from the authenticated token
+    const user = await User.findOne({ email: req.email });
+    
+    if (!user) {
+      console.error(`User not found with email: ${req.email}`);
+      return res.status(404).json({ 
+        success: false,
+        error: 'User not found' 
+      });
+    }
+    
+    // Return the user's CO2 savings, defaulting to 0 if not set
+    res.json({ 
+      success: true,
+      co2Saved: user.co2Saved || 0 
+    });
+    
+  } catch (error) {
+    console.error('Error fetching CO2 savings:', error);
+    res.status(500).json({ 
+      success: false,
+      error: 'Failed to fetch CO2 savings',
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+});
+
+/**
+ * @route POST /api/update-co2-savings
+ * @description Update a user's CO2 savings when they create or join a carpool
+ * @access Private (requires authentication)
+ * @param {number} distanceMiles - Distance of the trip in miles
+ * @param {number} numPassengers - Number of people in the carpool (including driver)
+ * @returns {Object} Object indicating success and the amount of CO2 saved in kg
+ */
 router.post("/update-co2-savings", homeLimiter, authenticateToken, async (req, res) => {
   try {
     const { distanceMiles, numPassengers } = req.body;
     
+    // Input validation
     if (distanceMiles === undefined || numPassengers === undefined) {
-      return res.status(400).json({ error: 'Missing required fields' });
+      return res.status(400).json({ 
+        success: false,
+        error: 'Missing required fields: distanceMiles and numPassengers are required' 
+      });
     }
     
-    const co2Savings = calculateCO2Savings(parseFloat(distanceMiles), parseInt(numPassengers, 10));
+    const distance = parseFloat(distanceMiles);
+    const passengers = parseInt(numPassengers, 10);
+    
+    if (isNaN(distance) || distance <= 0) {
+      return res.status(400).json({ 
+        success: false,
+        error: 'Invalid distance: must be a positive number' 
+      });
+    }
+    
+    if (isNaN(passengers) || passengers < 1) {
+      return res.status(400).json({ 
+        success: false,
+        error: 'Invalid number of passengers: must be at least 1' 
+      });
+    }
+    
+    // Calculate CO2 savings
+    const co2Savings = calculateCO2Savings(distance, passengers);
     
     // Update user's CO2 savings in the database
-    await User.findOneAndUpdate(
+    const updatedUser = await User.findOneAndUpdate(
       { email: req.email },
       { $inc: { co2Saved: co2Savings } },
-      { new: true }
+      { new: true, upsert: false }
     );
     
-    res.json({ success: true, co2Savings });
+    if (!updatedUser) {
+      console.error(`Failed to update CO2 savings for user: ${req.email}`);
+      return res.status(404).json({
+        success: false,
+        error: 'User not found or could not be updated'
+      });
+    }
+    
+    // Return success response with the amount of CO2 saved
+    res.json({ 
+      success: true, 
+      co2Savings: parseFloat(co2Savings.toFixed(2)),
+      totalCo2Saved: updatedUser.co2Saved
+    });
+    
   } catch (error) {
     console.error('Error updating CO2 savings:', error);
-    res.status(500).json({ error: 'Failed to update CO2 savings' });
+    res.status(500).json({ 
+      success: false,
+      error: 'Failed to update CO2 savings',
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
   }
 });
 

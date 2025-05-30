@@ -1326,7 +1326,7 @@
 
 
 
-    function joinCarpool() {
+    async function joinCarpool() {
       let newArray = document.getElementById("address-input2").value
       var personName = "<%= firstName %> <%= lastName %>";
       var email = "<%= email %>";
@@ -1335,6 +1335,10 @@
         for (var i = 0; i < userData1.length; i++) {
           carpoool = userData1[i]
           if (carpoool["_id"] == selectedCarpool) {
+            // Calculate distance for CO2 savings (simplified - in a real app, you'd calculate the actual distance)
+            const distanceMiles = 10; // Default value, replace with actual calculation
+            const numPassengers = carpoool.carpoolers.length + 1; // Including the new passenger
+            
             carpoool["carpoolers"].push({
               "address": newArray,
               "carpool": selectedCarpool
@@ -1342,7 +1346,9 @@
 
             const addNewMember = {
               address: newArray,
-              carpool: selectedCarpool
+              carpool: selectedCarpool,
+              distanceMiles: distanceMiles,
+              numPassengers: numPassengers
             }
 
             console.log(carpoool)
@@ -1350,18 +1356,29 @@
 
             url = "/api/joinCarpool"
 
-            fetch(url, {
-              method: 'POST',
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: jsonData,
-            })
-              .then((response) => {
-                if (response.redirected) {
-                  window.location.href = response.url;
-                }
-              })
+            try {
+              const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: jsonData,
+              });
+
+              if (response.redirected) {
+                // Emit event for CO2 savings update
+                document.dispatchEvent(new CustomEvent('carpool-joined', {
+                  detail: {
+                    distanceMiles: distanceMiles,
+                    numPassengers: numPassengers
+                  }
+                }));
+                
+                window.location.href = response.url;
+              }
+            } catch (error) {
+              console.error('Error joining carpool:', error);
+            }
           }
         }
       }
@@ -1378,7 +1395,7 @@
     }
 
 
-    function createevent() {
+    async function createevent() {
       firstName = "<%= firstName %> "
       lastName = "<%= lastName %> "
       eventName = document.getElementById("ename").value
@@ -1401,32 +1418,48 @@
         hour12: true
       });
       category = document.getElementById("ecategory").value
+      
+      // Calculate distance for CO2 savings (simplified - in a real app, you'd calculate the actual distance)
+      const distanceMiles = 10; // Default value, replace with actual calculation
+      const numPassengers = 1; // Just the driver initially
+      
       const data = {
         eventName,
         wlocation,
         date,
         category,
-        addressToPut: address
+        addressToPut: address,
+        distanceMiles,
+        numPassengers
       };
       console.log(data);
 
       const jsonData = JSON.stringify(data);
-
       const url = "/api/events";
 
-
-      fetch(url, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: jsonData,
-      })
-        .then((response) => {
-          console.log(response);
-          // Open verification checker
-        })
-        .catch((error) => console.error("Error:", error));
+      try {
+        const response = await fetch(url, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: jsonData,
+        });
+        
+        console.log(response);
+        
+        // Emit event for CO2 savings update
+        if (response.ok) {
+          document.dispatchEvent(new CustomEvent('carpool-created', {
+            detail: {
+              distanceMiles: distanceMiles,
+              numPassengers: numPassengers
+            }
+          }));
+        }
+      } catch (error) {
+        console.error("Error creating event:", error);
+      }
     }
 
 
@@ -1484,6 +1517,51 @@
     function closeDisclaimer() {
       document.getElementById('disclaimer-modal').classList.remove('is-active');
     }
+  </script>
+  
+  <!-- CO2 Tracking Scripts -->
+  <script src="/js/co2Utils.js"></script>
+  <script>
+    // Listen for carpool creation/join events and update CO2 savings
+    document.addEventListener('carpool-created', async (event) => {
+      try {
+        const { distanceMiles, numPassengers } = event.detail;
+        const result = await updateCO2SavingsForCarpool(distanceMiles, numPassengers);
+        
+        if (result.success) {
+          console.log(`CO2 savings updated: ${formatCO2Savings(result.co2Savings)}`);
+          
+          // Show a success message to the user
+          const notification = document.createElement('div');
+          notification.className = 'notification is-success is-light';
+          notification.style.position = 'fixed';
+          notification.style.bottom = '20px';
+          notification.style.right = '20px';
+          notification.style.zIndex = '1000';
+          notification.innerHTML = `
+            <button class="delete" onclick="this.parentElement.remove()"></button>
+            <strong>🌱 Great job!</strong>
+            <p>You've saved approximately <strong>${formatCO2Savings(result.co2Savings)}</strong> by carpooling!</p>
+            <p>Your total CO₂ savings: <strong>${formatCO2Savings(parseFloat(document.getElementById('co2-savings').textContent) + result.co2Savings)}</strong></p>
+          `;
+          document.body.appendChild(notification);
+          
+          // Auto-remove notification after 5 seconds
+          setTimeout(() => {
+            notification.remove();
+          }, 10000);
+        } else {
+          console.error('Failed to update CO2 savings:', result.error);
+        }
+      } catch (error) {
+        console.error('Error handling carpool creation:', error);
+      }
+    });
+    
+    // Also listen for carpool-joined events (same as created for now)
+    document.addEventListener('carpool-joined', (event) => {
+      document.dispatchEvent(new CustomEvent('carpool-created', { detail: event.detail }));
+    });
   </script>
 </body>
 

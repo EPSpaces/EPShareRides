@@ -719,24 +719,46 @@
          </div>
       </div>
    </div>
-   <div class="panel-block">
-      <p class="control has-icons-left" id="registered-carpoolers" style=" margin-right: 10px; width: 40%">
-         Registered carpoolers: ` + carpoolers.join(", ") + `
-      </p>
-      <div class="buttons" id="action-buttons" style="margin-right: -10px; display: inline-block">
-         <div class="button upcoming-carpools-button is-link is-light" style="margin-right: 10px;" 
-            onclick="getPhoneRoute('` + offeredCarpools[i]._id + `')">View Route >></div>
-         <div class="button js-modal-trigger upcoming-carpools-button" style="margin-right: 10px;" data-target="modal-js-edit" id="` + offeredCarpools[i]._id + `" onclick="queGuay('` + offeredCarpools[i]._id + `')">Edit</div>
-         <button class="button is-info is-light" style="margin-right: 10px;" onclick="emailGroup('` + offeredCarpools[i]._id + `')">
-            <span class="icon">
-               <i class="fas fa-envelope"></i>
-            </span>
-         </button>
-         <button class="button is-info is-light" style="margin-right: 10px;" onclick="textGroup('` + offeredCarpools[i]._id + `')">
-            <span class="icon">
-               <i class="fas fa-comment"></i>
-            </span>
-         </button>
+   <div class="panel-block" style="display: block; padding: 1rem 1.25rem;">
+      <div class="columns is-mobile is-vcentered" style="width: 100%; margin: 0;">
+         <div class="column is-6" style="padding: 0.5rem;">
+            <p class="control" id="registered-carpoolers">
+               <strong>Riders:</strong> ` + carpoolers.join(", ") + `
+               <br>
+               <span class="icon-text" style="margin-top: 0.5rem; display: inline-flex; align-items: center;">
+                  <span class="icon has-text-success">
+                     <i class="fas fa-leaf"></i>
+                  </span>
+                  <span>CO₂ Saved: <strong>${offeredCarpools[i].co2Savings ? offeredCarpools[i].co2Savings.toFixed(2) + ' kg' : 'Calculating...'}</strong></span>
+               </span>
+            </p>
+         </div>
+         <div class="column is-6" style="padding: 0.5rem; text-align: right;">
+            <div class="buttons is-justify-content-flex-end" style="margin: 0;">
+               <button class="button is-link is-light is-small" onclick="getPhoneRoute('` + offeredCarpools[i]._id + `')">
+                  <span class="icon">
+                     <i class="fas fa-route"></i>
+                  </span>
+                  <span>Route</span>
+               </button>
+               <button class="button is-info is-light is-small js-modal-trigger" data-target="modal-js-edit" id="` + offeredCarpools[i]._id + `" onclick="queGuay('` + offeredCarpools[i]._id + `')">
+                  <span class="icon">
+                     <i class="fas fa-edit"></i>
+                  </span>
+                  <span>Edit</span>
+               </button>
+               <button class="button is-info is-light is-small" onclick="emailGroup('` + offeredCarpools[i]._id + `')">
+                  <span class="icon">
+                     <i class="fas fa-envelope"></i>
+                  </span>
+               </button>
+               <button class="button is-info is-light is-small" onclick="textGroup('` + offeredCarpools[i]._id + `')">
+                  <span class="icon">
+                     <i class="fas fa-comment"></i>
+                  </span>
+               </button>
+            </div>
+         </div>
       </div>
    </div>
    <div style="margin: 10px 0; padding: 10px; background: #fffbe6; border: 1px solid #ffe08a; border-radius: 6px;">
@@ -799,24 +821,46 @@
                                     </div>
                                  </div>
                               </div>
-                              <div class="panel-block">
-                                 <p class="control has-icons-left" id="registered-carpoolers" style=" margin-right: 10px; width: 40%">
-                                    Registered carpoolers: ` + carpoolers.join(", ") + `
-                                 </p>
-                                 <div class="buttons" id="action-buttons" style="margin-right: -10px; display: inline-block">
-                                    <div class="button upcoming-carpools-button is-link is-light" style="margin-right: 10px;" 
-                                       onclick="getPhoneRoute('` + joinedCarpools[i]._id + `')">View Route >></div>
-                                    <div class="button upcoming-carpools-button " style="margin-right: 10px;" id="` + joinedCarpools[i]._id + `" onclick="leaveIt('` + i + `')">Unregister</div>
-                                    <button class="button is-info is-light" style="margin-right: 10px;" onclick="emailGroup('` + joinedCarpools[i]._id + `')">
-                                       <span class="icon">
-                                          <i class="fas fa-envelope"></i>
-                                       </span>
-                                    </button>
-                                    <button class="button is-info is-light" style="margin-right: 10px;" onclick="textGroup('` + joinedCarpools[i]._id + `')">
-                                       <span class="icon">
-                                          <i class="fas fa-comment"></i>
-                                       </span>
-                                    </button>
+                              <div class="panel-block" style="display: block; padding: 1rem 1.25rem;">
+                                 <div class="columns is-mobile is-vcentered" style="width: 100%; margin: 0;">
+                                    <div class="column is-6" style="padding: 0.5rem;">
+                                       <p class="control" id="registered-carpoolers">
+                                          <strong>Riders:</strong> ` + carpoolers.join(", ") + `
+                                          <br>
+                                          <span class="icon-text" style="margin-top: 0.5rem; display: inline-flex; align-items: center;">
+                                             <span class="icon has-text-success">
+                                                <i class="fas fa-leaf"></i>
+                                             </span>
+                                             <span>CO₂ Saved: <strong>${joinedCarpools[i].co2Savings ? (joinedCarpools[i].carpoolers.find(c => c.email === '<%= email %>')?.co2Savings || 0).toFixed(2) + ' kg' : 'Calculating...'}</strong></span>
+                                          </span>
+                                       </p>
+                                    </div>
+                                    <div class="column is-6" style="padding: 0.5rem; text-align: right;">
+                                       <div class="buttons is-justify-content-flex-end" style="margin: 0;">
+                                          <button class="button is-link is-light is-small" onclick="getPhoneRoute('` + joinedCarpools[i]._id + `')">
+                                             <span class="icon">
+                                                <i class="fas fa-route"></i>
+                                             </span>
+                                             <span>Route</span>
+                                          </button>
+                                          <button class="button is-danger is-light is-small" id="` + joinedCarpools[i]._id + `" onclick="leaveIt('` + i + `')">
+                                             <span class="icon">
+                                                <i class="fas fa-sign-out-alt"></i>
+                                             </span>
+                                             <span>Leave</span>
+                                          </button>
+                                          <button class="button is-info is-light is-small" onclick="emailGroup('` + joinedCarpools[i]._id + `')">
+                                             <span class="icon">
+                                                <i class="fas fa-envelope"></i>
+                                             </span>
+                                          </button>
+                                          <button class="button is-info is-light is-small" onclick="textGroup('` + joinedCarpools[i]._id + `')">
+                                             <span class="icon">
+                                                <i class="fas fa-comment"></i>
+                                             </span>
+                                          </button>
+                                       </div>
+                                    </div>
                                  </div>
                               </div>
                            </article>`
