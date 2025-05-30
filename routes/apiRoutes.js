@@ -18,6 +18,7 @@ const ObjectId = require("mongodb").ObjectId;
 
 // Carpool model
 const Carpool = require("../schemas/Carpool.model.js");
+const Version = require("../schemas/Version.model.js");
 
 // Create a new router to handle all the API routes
 const router = express.Router();
@@ -308,11 +309,20 @@ router.post("/events", homeLimiter, authenticateToken, async (req, res) => {
 router.get("/carpools", homeLimiter, authenticateToken, async (req, res) => {
   try {
     // Only return carpools with arrivalTime after now
-    const now = new Date();
-    const carpools = await Carpool.find({
-      arrivalTime: { $gt: now.toISOString() }
+    const carpools = await Carpool.find();
+    // Format arrivalTime to 12-hour AM/PM if present
+    const formattedCarpools = carpools.map(carpool => {
+      let formatted = carpool.toObject();
+      if (formatted.arrivalTime && typeof formatted.arrivalTime === "string" && formatted.arrivalTime.match(/^\d{2}:\d{2}$/)) {
+        // Convert "HH:mm" to 12-hour format
+        const [hour, minute] = formatted.arrivalTime.split(":");
+        const date = new Date();
+        date.setHours(Number(hour), Number(minute));
+        formatted.arrivalTime = date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true });
+      }
+      return formatted;
     });
-    res.json(carpools);
+    res.json(formattedCarpools);
   } catch (err) {
     console.error("Error retrieving carpools: " + err);
     res.status(500).send("Error retrieving carpools");
@@ -323,11 +333,8 @@ router.get("/carpools", homeLimiter, authenticateToken, async (req, res) => {
 router.get("/userCarpools", homeLimiter, authenticateToken, async (req, res) => {
   let carpools = [];
   try {
-    const now = new Date();
-    // Only return user's carpools with arrivalTime after now
-    // FIX: Use userEmail field for carpools created by the user
-    const carpoolsCreated = await Carpool.find({ userEmail: req.userEmail, arrivalTime: { $gt: now.toISOString() } }).exec();
-    const carpoolsJoined = await Carpool.find({ "carpoolers.userEmail": req.userEmail, arrivalTime: { $gt: now.toISOString() } }).exec();
+    const carpoolsCreated = await Carpool.find({ userEmail: req.userEmail }).exec();
+    const carpoolsJoined = await Carpool.find({ "carpoolers.userEmail": req.userEmail }).exec();
     carpools = [...carpoolsCreated, ...carpoolsJoined];
   } catch (err) {
     console.error("Error retrieving carpools: " + err);
@@ -381,6 +388,12 @@ router.get("/mapRoute/:id", homeLimiter, authenticateToken, async (req, res) => 
     res.json({
       final,
       stops: [carpool.wlocation],
+    });
+  } else if (carpool.route == "eps-campus") {
+    // EPS campus as the only stop
+    res.json({
+      final: "10613 NE 38th Place, Kirkland, WA 98033",
+      stops: ["10613 NE 38th Place, Kirkland, WA 98033"],
     });
   } else {
     // If the carpool route is a route, send the route as the stops
@@ -724,7 +737,7 @@ router.get("/carpools/:id/contact-info", homeLimiter, authenticateToken, async (
     const phones = carpool.phone ? [carpool.phone] : []; // Driver's phone
 
     // Add carpoolers' contact info
-    for (const carpooler of carpoolers) {
+    for (const carpooler of carpool.carpoolers) { // changed: used carpool.carpoolers instead of undefined carpoolers
       const user = await User.findOne({ email: carpooler.email });
       if (user) {
         emails.push(user.email);
@@ -948,6 +961,21 @@ router.post("/update-co2-savings", homeLimiter, authenticateToken, async (req, r
       error: 'Failed to update CO2 savings',
       details: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
+  }
+});
+
+// Route to get the most recent version from MongoDB
+router.get("/version", homeLimiter, async (req, res) => {
+  try {
+    // Find the most recent version by createdAt descending
+    const latestVersion = await Version.findOne({}, {}, { sort: { createdAt: -1 } });
+    if (!latestVersion) {
+      return res.status(404).json({ error: "No version found" });
+    }
+    res.json(latestVersion);
+  } catch (err) {
+    console.error("Error retrieving version: " + err);
+    res.status(500).send("Error retrieving version");
   }
 });
 
