@@ -308,6 +308,10 @@ If you have questions, contact your driver at ${carpool.email} or ${carpool.phon
   }
 });
 
+const port = process.env["PORT"] || 8080;
+
+console.log(process.env["MONGO_URI"]);
+
 // Connect to the database and start the server
 const mongoUri = 'mongodb://127.0.0.1:27017/epcarpool?directConnection=true';
 console.log('Attempting to connect to MongoDB with URI:', mongoUri);

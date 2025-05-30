@@ -1,7 +1,0 @@
-{
-    email pieces-daubs-0e@icloud.com
-}
-
-https://glowing-waddle-wrvxq4767xgr3g9w4-3000.app.github.dev {
-    reverse_proxy app:3000
-}
