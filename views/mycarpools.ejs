@@ -55,8 +55,10 @@
                                  <a class="navbar-item">
                                     <div style="position: relative; display: flex; align-items: center;">
                                        <img src="EPS Logo - Transparent-4.png" alt="Logo">
-                                       <h1 class="title is-3" style="margin-left: 10px; margin-bottom: -10px">EPCarpool</h1>
-                                       <span style="position: absolute; top: -5px; right: -25px; background: #3273DC; color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.7em; font-weight: bold;">BETA</span>
+                                       <h1 class="title is-3" style="margin-left: 10px; margin-bottom: -10px">EPCarpool
+                                       </h1>
+                                       <span
+                                          style="position: absolute; top: -5px; right: -25px; background: #3273DC; color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.7em; font-weight: bold;">BETA</span>
                                     </div>
                                  </a>
                                  <div class="navbar-item" style="padding: 0.5rem 1.25rem;">
@@ -108,7 +110,7 @@
                                                    </a>
                                                    <hr class="navbar-divider">
                                                    <div class="navbar-item">
-                                                        Version <%= process.env.VERSION %>
+                                                      Version <%= process.env.VERSION %>
                                                    </div>
                                                 </div>
                                              </div>
@@ -241,7 +243,8 @@
                                  <li><a href="/" class="white">Upcoming Events</a></li>
                                  <li class="is-active" class="white"><a href="/mycarpools" class="is-active1">My
                                        Carpools
-                                       <span id="pending-badge" style="background: #ff3860; color: white; border-radius: 10px; padding: 2px 8px; font-size: 0.8em; margin-left: 5px; display: none;"></span>
+                                       <span id="pending-badge"
+                                          style="background: #ff3860; color: white; border-radius: 10px; padding: 2px 8px; font-size: 0.8em; margin-left: 5px; display: none;"></span>
                                     </a></li>
                               </ul>
                            </div>
@@ -253,7 +256,7 @@
 
 </body>
 <!-- start here -->
-<div class="modal " id="modal-js-edit">
+<div class="modal" id="modal-js-edit">
    <div class="modal-background" style="background-color: rgba(10,10,10,.50)"></div>
    <div class="modal-card" style="">
       <p class="panel-heading has-text-centered" style="padding: 15px;">
@@ -273,7 +276,8 @@
                <input class="input" id="carmake" type="text" placeholder="Car make and model">
             </div>
             <div class="field" style="margin-bottom: 10px;">
-               <input class="input" id="seats" type="number" min="1" max="9" placeholder="Number of available car seats">
+               <input class="input" id="seats" type="number" min="1" max="9"
+                  placeholder="Number of available car seats">
             </div>
             <div style="display: flex; gap: 10px;">
                <div>
@@ -375,7 +379,7 @@
          <div class="buttons" style="margin-left: 0px;">
             <button class="button is-link " style="background: linear-gradient(105deg, #3273DC, #275CBF);"
                onclick="test()">Apply</button>
-            <button class="button" aria-label="" onclick="AllModals()">Cancel</button>
+            <button class="button" aria-label="" onclick='document.getElementById("modal-js-edit").classList.remove("is-active");'>Cancel</button>
          </div>
       </footer>
    </div>
@@ -605,22 +609,22 @@
    }
 
    function getDayOfWeek(string) {
-     const d = new Date(string);
-     const dayOfWeek = d.getDay();
-     // Example: Get the name of the weekday (not just a number)
-     const weekdays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-     const currentDay = weekdays[dayOfWeek];
-     return (currentDay)
+      const d = new Date(string);
+      const dayOfWeek = d.getDay();
+      // Example: Get the name of the weekday (not just a number)
+      const weekdays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+      const currentDay = weekdays[dayOfWeek];
+      return (currentDay)
    }
 
    function formatDate(date) {
-     const weekdays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-     const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-     var date = new Date(date);
-     const day = weekdays[date.getDay()];
-     const month = date.getMonth();
-     const year = date.getFullYear();
-     return `${day}, ${months[month + 1]} ${date.getDate()}, ${year}`;
+      const weekdays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+      const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+      var date = new Date(date);
+      const day = weekdays[date.getDay()];
+      const month = date.getMonth();
+      const year = date.getFullYear();
+      return `${day}, ${months[month + 1]} ${date.getDate()}, ${year}`;
    }
 
 
@@ -1007,9 +1011,9 @@
          headers: {
             'Content-Type': 'application/json',
          },
-         body: JSON.stringify({ 
-            route: value3, 
-            wlocation: newData, 
+         body: JSON.stringify({
+            route: value3,
+            wlocation: newData,
             carpoolers: cutCarpoolers,
             email: email,
             phone: phone,
@@ -1357,15 +1361,15 @@
             'Content-Type': 'application/json',
          }
       })
-      .then(response => response.json())
-      .then(data => {
-         const emails = data.emails.join(',');
-         window.location.href = `mailto:${emails}`;
-      })
-      .catch(error => {
-         console.error('Error:', error);
-         alert('Failed to get contact information. Please try again.');
-      });
+         .then(response => response.json())
+         .then(data => {
+            const emails = data.emails.join(',');
+            window.location.href = `mailto:${emails}`;
+         })
+         .catch(error => {
+            console.error('Error:', error);
+            alert('Failed to get contact information. Please try again.');
+         });
    }
 
    function textGroup(carpoolId) {
@@ -1375,90 +1379,95 @@
             'Content-Type': 'application/json',
          }
       })
-      .then(response => response.json())
-      .then(data => {
-         const phones = data.phones.filter(phone => phone && phone !== "none").join(',');
-         if (phones) {
-            window.location.href = `sms:${phones}`;
-         } else {
-            alert('No phone numbers available for this group.');
-         }
-      })
-      .catch(error => {
-         console.error('Error:', error);
-         alert('Failed to get contact information. Please try again.');
-      });
+         .then(response => response.json())
+         .then(data => {
+            const phones = data.phones.filter(phone => phone && phone !== "none").join(',');
+            if (phones) {
+               window.location.href = `sms:${phones}`;
+            } else {
+               alert('No phone numbers available for this group.');
+            }
+         })
+         .catch(error => {
+            console.error('Error:', error);
+            alert('Failed to get contact information. Please try again.');
+         });
    }
 </script>
 <div class="modal" id="disclaimer-modal">
-  <div class="modal-background"></div>
-  <div class="modal-card">
-    <section class="modal-card-body" style="border-radius: 6px 6px 0px 0px;">
-      <p class="has-text-centered is-size-5">This is an app maintained by Eastside Prep's Hack Club, a group of Upper School students that meet every Thursday at 11:05 pm in TMAC-007. Please email Hack Club Co-President Anmol Singh Josan, ajosan@eastsideprep.org, if you have any questions.</p>
-      <br>
-      <p class="has-text-centered is-size-5">Eastside Preparatory School does not mandate or encourage the use of this application. They do not claim any responsibility for the maintenance, upkeep, and development of this application. This is entirely student-run.</p>
-    </section>
-    <footer class="modal-card-foot">
-       <div class="buttons">
+   <div class="modal-background"></div>
+   <div class="modal-card">
+      <section class="modal-card-body" style="border-radius: 6px 6px 0px 0px;">
+         <p class="has-text-centered is-size-5">This is an app maintained by Eastside Prep's Hack Club, a group of Upper
+            School students that meet every Thursday at 11:05 pm in TMAC-007. Please email Hack Club Co-President Anmol
+            Singh Josan, ajosan@eastsideprep.org, if you have any questions.</p>
+         <br>
+         <p class="has-text-centered is-size-5">Eastside Preparatory School does not mandate or encourage the use of
+            this application. They do not claim any responsibility for the maintenance, upkeep, and development of this
+            application. This is entirely student-run.</p>
+      </section>
+      <footer class="modal-card-foot">
+         <div class="buttons">
             <div class="button center is-link" onclick="closeDisclaimer()"
-              style="background: linear-gradient(105deg, #3273DC, #275CBF); margin-top: 20px; margin-bottom: -20px">Close</div>
-          </div>
-    </footer>
-  </div>
+               style="background: linear-gradient(105deg, #3273DC, #275CBF); margin-top: 20px; margin-bottom: -20px">
+               Close</div>
+         </div>
+      </footer>
+   </div>
 </div>
 
 <script>
-function showDisclaimer() {
-  document.getElementById('disclaimer-modal').classList.add('is-active');
-}
+   function showDisclaimer() {
+      document.getElementById('disclaimer-modal').classList.add('is-active');
+   }
 
-function closeDisclaimer() {
-  document.getElementById('disclaimer-modal').classList.remove('is-active');
-}
+   function closeDisclaimer() {
+      document.getElementById('disclaimer-modal').classList.remove('is-active');
+   }
 
-let pendingCount = 0;
-for (let i = 0; i < offeredCarpools.length; i++) {
-  if (offeredCarpools[i].pendingRequests && offeredCarpools[i].pendingRequests.length > 0) {
-    pendingCount += offeredCarpools[i].pendingRequests.length;
-  }
-}
-if (pendingCount > 0) {
-  document.getElementById('pending-badge').innerText = pendingCount;
-  document.getElementById('pending-badge').style.display = 'inline-block';
-}
+   let pendingCount = 0;
+   for (let i = 0; i < offeredCarpools.length; i++) {
+      if (offeredCarpools[i].pendingRequests && offeredCarpools[i].pendingRequests.length > 0) {
+         pendingCount += offeredCarpools[i].pendingRequests.length;
+      }
+   }
+   if (pendingCount > 0) {
+      document.getElementById('pending-badge').innerText = pendingCount;
+      document.getElementById('pending-badge').style.display = 'inline-block';
+   }
 
-function approveRequest(carpoolId, email, approve) {
-  fetch(`/api/carpools/${carpoolId}/approve`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email, approve })
-  })
-  .then(res => {
-    if (!res.ok) {
-      return res.text().then(text => { throw new Error(text || 'Request failed'); });
-    }
-    return res.json();
-  })
-  .then(() => {
-    // Display success message
-    alert(approve ? "Request approved successfully!" : "Request denied successfully!");
-    location.reload();
-  })
-  .catch((error) => {
-    console.error('Error:', error);
-    alert(`Failed to update request: ${error.message}`);
-  });
-}
+   function approveRequest(carpoolId, email, approve) {
+      fetch(`/api/carpools/${carpoolId}/approve`, {
+         method: 'POST',
+         headers: { 'Content-Type': 'application/json' },
+         body: JSON.stringify({ email, approve })
+      })
+         .then(res => {
+            if (!res.ok) {
+               return res.text().then(text => { throw new Error(text || 'Request failed'); });
+            }
+            return res.json();
+         })
+         .then(() => {
+            // Display success message
+            alert(approve ? "Request approved successfully!" : "Request denied successfully!");
+            location.reload();
+         })
+         .catch((error) => {
+            console.error('Error:', error);
+            alert(`Failed to update request: ${error.message}`);
+         });
+   }
 
-function formatTime12h(timeStr) {
-  if (!timeStr) return '';
-  const d = new Date('1970-01-01T' + timeStr);
-  let h = d.getHours();
-  let m = d.getMinutes();
-  let ampm = h >= 12 ? 'PM' : 'AM';
-  h = h % 12;
-  h = h ? h : 12;
-  m = m < 10 ? '0' + m : m;
-  return h + ':' + m + ' ' + ampm;
-}
+   function formatTime12h(timeStr) {
+      if (!timeStr) return '';
+      const d = new Date('1970-01-01T' + timeStr);
+      let h = d.getHours();
+      let m = d.getMinutes();
+      let ampm = h >= 12 ? 'PM' : 'AM';
+      h = h % 12;
+      h = h ? h : 12;
+      m = m < 10 ? '0' + m : m;
+      return h + ':' + m + ' ' + ampm;
+   }
 </script>

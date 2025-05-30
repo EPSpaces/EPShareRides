@@ -272,6 +272,13 @@ router.get("/carpools", homeLimiter, authenticateToken, async (req, res) => {
   try {
     // Only return carpools with arrivalTime after now
     const carpools = await Carpool.find();
+    // Change carpools.arrivalTime to 12 hour format
+    // carpools.forEach(carpool => {
+    //   if (carpool.arrivalTime) {
+    //     const date = new Date(carpool.arrivalTime);
+    //     carpool.arrivalTime = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    //   }
+    // });
     res.json(carpools);
   } catch (err) {
     console.error("Error retrieving carpools: " + err);
@@ -649,7 +656,7 @@ router.get("/carpools/:id/contact-info", homeLimiter, authenticateToken, async (
     const phones = carpool.phone ? [carpool.phone] : []; // Driver's phone
 
     // Add carpoolers' contact info
-    for (const carpooler of carpoolers) {
+    for (const carpooler of carpool.carpoolers) { // changed: used carpool.carpoolers instead of undefined carpoolers
       const user = await User.findOne({ email: carpooler.email });
       if (user) {
         emails.push(user.email);
