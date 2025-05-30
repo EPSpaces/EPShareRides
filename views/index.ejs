@@ -837,9 +837,9 @@ function addressAutocomplete(containerElement, idName, callback, options) {
                     const weekdays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
                     let day = weekdays[dayOfWeek];
 
-                    eventTime = eventTime.toLocaleTimeString([], { hour: 'numeric', minute: 'numeric' });
+                    // Format time as AM/PM
+                    eventTime = eventTime.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true });
                     console.log(eventTime)
-
 
                     document.getElementById("registerTitle").innerText = "Choose a carpool · " + day + " at " + eventTime
                   }
