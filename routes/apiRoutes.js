@@ -346,6 +346,12 @@ router.get("/mapRoute/:id", homeLimiter, authenticateToken, async (req, res) => 
       final,
       stops: [carpool.wlocation],
     });
+  } else if (carpool.route == "eps-campus") {
+    // EPS campus as the only stop
+    res.json({
+      final: "10613 NE 38th Place, Kirkland, WA 98033",
+      stops: ["10613 NE 38th Place, Kirkland, WA 98033"],
+    });
   } else {
     // If the carpool route is a route, send the route as the stops
     let addresses = [];
