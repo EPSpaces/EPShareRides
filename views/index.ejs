@@ -863,6 +863,9 @@ function addressAutocomplete(containerElement, idName, callback, options) {
                     else if (obj["route"] == "point") {
                       routeType = "Common meeting point"
                     }
+                    else if (obj["route"] == "eps-campus") {
+                      routeType = "EPS Campus"
+                    }
 
                     document.getElementById("registerJS").innerHTML +=
                       `<div class="notification"  style="padding: 10px;   margin-bottom: 10px;">
