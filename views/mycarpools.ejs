@@ -5,7 +5,7 @@
    <meta charset="UTF-8">
    <meta name="viewport" content="width=device-width, initial-scale=1.0">
    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-   <title>EPShare Rides</title>
+   <title>EPCarpool</title>
    <link href="./bulma.min.css" rel="stylesheet" type="text/css" />
    <link href="./style.css" rel="stylesheet" type="text/css" />
    <script src="https://kit.fontawesome.com/16ae8e710d.js" crossorigin="anonymous"></script>
@@ -55,11 +55,11 @@
                                  <a class="navbar-item">
                                     <div style="position: relative; display: flex; align-items: center;">
                                        <img src="EPS Logo - Transparent-4.png" alt="Logo">
-                                       <h1 class="title is-3" style="margin-left: 10px">EPShare Rides</h1>
+                                       <h1 class="title is-3" style="margin-left: 10px; margin-bottom: -10px">EPCarpool</h1>
                                        <span style="position: absolute; top: -5px; right: -25px; background: #3273DC; color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.7em; font-weight: bold;">BETA</span>
                                     </div>
                                  </a>
-                                 <div class="navbar-item" style="padding: 0.5rem 0.75rem;">
+                                 <div class="navbar-item" style="padding: 0.5rem 1.25rem;">
                                     <button class="button is-info is-light" onclick="showDisclaimer()">
                                        <span class="icon">
                                           <i class="fas fa-info-circle"></i>
@@ -258,7 +258,7 @@
    <div class="modal-card" style="">
       <p class="panel-heading has-text-centered" style="padding: 15px;">
          Edit Carpool
-         <button class="delete" aria-label="close" onclick="closeAllModals()" style="float: right"></button>
+         <button class="delete" aria-label="" onclick="AllModals()" style="float: right"></button>
       </p>
       <section class="modal-card-body">
 
@@ -375,7 +375,7 @@
          <div class="buttons" style="margin-left: 0px;">
             <button class="button is-link " style="background: linear-gradient(105deg, #3273DC, #275CBF);"
                onclick="test()">Apply</button>
-            <button class="button" aria-label="close" onclick="closeAllModals()">Cancel</button>
+            <button class="button" aria-label="" onclick="AllModals()">Cancel</button>
          </div>
       </footer>
    </div>
@@ -847,14 +847,14 @@
          $el.classList.add('is-active');
       }
 
-      function closeModal($el) {
+      function Modal($el) {
          $el.classList.remove('is-active');
          returnBack()
       }
 
-      function closeAllModals() {
+      function AllModals() {
          (document.querySelectorAll('.modal') || []).forEach(($modal) => {
-            closeModal($modal);
+            Modal($modal);
          });
       }
 
@@ -1393,13 +1393,16 @@
 <div class="modal" id="disclaimer-modal">
   <div class="modal-background"></div>
   <div class="modal-card">
-    <section class="modal-card-body">
+    <section class="modal-card-body" style="border-radius: 6px 6px 0px 0px;">
       <p class="has-text-centered is-size-5">This is an app maintained by Eastside Prep's Hack Club, a group of Upper School students that meet every Thursday at 11:05 pm in TMAC-007. Please email Hack Club Co-President Anmol Singh Josan, ajosan@eastsideprep.org, if you have any questions.</p>
       <br>
       <p class="has-text-centered is-size-5">Eastside Preparatory School does not mandate or encourage the use of this application. They do not claim any responsibility for the maintenance, upkeep, and development of this application. This is entirely student-run.</p>
     </section>
     <footer class="modal-card-foot">
-      <button class="button is-info" onclick="closeDisclaimer()">Close</button>
+       <div class="buttons">
+            <div class="button center is-link" onclick="closeDisclaimer()"
+              style="background: linear-gradient(105deg, #3273DC, #275CBF); margin-top: 20px; margin-bottom: -20px">Close</div>
+          </div>
     </footer>
   </div>
 </div>
