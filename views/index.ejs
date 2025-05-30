@@ -350,9 +350,13 @@ function addressAutocomplete(containerElement, idName, callback, options) {
           inputElement.addEventListener("input", function (e) {
             var currentValue = this.value;
 
-            document.getElementById("autocomplete-container").classList.add("is-loading");
-            document.getElementById("autocomplete-container2").classList.add("is-loading");
-            document.getElementById("autocomplete-container3").classList.add("is-loading");
+            // Add null checks before accessing classList
+            var ac1 = document.getElementById("autocomplete-container");
+            var ac2 = document.getElementById("autocomplete-container2");
+            var ac3 = document.getElementById("autocomplete-container3");
+            if (ac1) ac1.classList.add("is-loading");
+            if (ac2) ac2.classList.add("is-loading");
+            if (ac3) ac3.classList.add("is-loading");
 
             /* Close any already open dropdown list */
             closeDropDownList();
@@ -397,9 +401,9 @@ function addressAutocomplete(containerElement, idName, callback, options) {
             });
 
             promise.then((data) => {
-              document.getElementById("autocomplete-container").classList.remove("is-loading");
-              document.getElementById("autocomplete-container2").classList.remove("is-loading");
-              document.getElementById("autocomplete-container3").classList.remove("is-loading");
+              if (ac1) ac1.classList.remove("is-loading");
+              if (ac2) ac2.classList.remove("is-loading");
+              if (ac3) ac3.classList.remove("is-loading");
               currentItems = data.features;
 
               /*create a DIV element that will contain the items (values):*/
@@ -940,13 +944,12 @@ function addressAutocomplete(containerElement, idName, callback, options) {
 
 
         document.body.onmousedown = function () {
-          if (document.getElementById('address-input') != null) {
-            document.getElementById("autocomplete-container").classList.remove("is-loading");
-            document.getElementById("autocomplete-container2").classList.remove("is-loading");
-          }
-          if (document.getElementById('create-address') != null) {
-            document.getElementById("autocomplete-container3").classList.remove("is-loading");
-          }
+          var ac1 = document.getElementById('autocomplete-container');
+          var ac2 = document.getElementById('autocomplete-container2');
+          var ac3 = document.getElementById('autocomplete-container3');
+          if (ac1) ac1.classList.remove("is-loading");
+          if (ac2) ac2.classList.remove("is-loading");
+          if (ac3) ac3.classList.remove("is-loading");
         }
 
 
