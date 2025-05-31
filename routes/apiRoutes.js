@@ -16,7 +16,7 @@ const ObjectId = require("mongodb").ObjectId;
 
 // Carpool model
 const Carpool = require("../schemas/Carpool.model.js");
-const Version = require("../schemas/Version.model.js");
+//const Version = require("../schemas/Version.model.js");
 
 // Create a new router to handle all the API routes
 const router = express.Router();
@@ -704,20 +704,20 @@ router.get("/users", homeLimiter, authenticateToken, async (req, res) => {
   res.json(users);
 });
 
-// Route to get the most recent version from MongoDB
-router.get("/version", homeLimiter, async (req, res) => {
-  try {
-    // Find the most recent version by createdAt descending
-    const latestVersion = await Version.findOne({}, {}, { sort: { createdAt: -1 } });
-    if (!latestVersion) {
-      return res.status(404).json({ error: "No version found" });
-    }
-    res.json(latestVersion);
-  } catch (err) {
-    console.error("Error retrieving version: " + err);
-    res.status(500).send("Error retrieving version");
-  }
-});
+// // Route to get the most recent version from MongoDB
+// router.get("/version", homeLimiter, async (req, res) => {
+//   try {
+//     // Find the most recent version by createdAt descending
+//     const latestVersion = await Version.findOne({}, {}, { sort: { createdAt: -1 } });
+//     if (!latestVersion) {
+//       return res.status(404).json({ error: "No version found" });
+//     }
+//     res.json(latestVersion);
+//   } catch (err) {
+//     console.error("Error retrieving version: " + err);
+//     res.status(500).send("Error retrieving version");
+//   }
+// });
 
 // Route to get a specific user
 module.exports = router;
