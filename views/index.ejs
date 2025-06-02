@@ -313,7 +313,7 @@
   <!-- end here -->
   <script type="text/javascript">
     //Don't worry about it
-    console.error("418 I'm a teapot");
+    console.error("HTTP ERROR: 418 I'm a teapot");
 
 function addressAutocomplete(containerElement, idName, callback, options) {
           // create input element
@@ -523,9 +523,6 @@ function addressAutocomplete(containerElement, idName, callback, options) {
 
     function createEventInputs() {
         addressAutocomplete(document.getElementById("autocomplete-container3"), "create_address", (data) => {
-          console.log("Selected option: ");
-          console.log(data);
-          console.log(data.properties.formatted);
           arr.push(data.properties.formatted);
         }, {
 
@@ -702,7 +699,6 @@ function addressAutocomplete(containerElement, idName, callback, options) {
         for (let k = 0; k < data1.length; k++) {
           //makes user email equal what we get from db
           if (data1[k].email === "<%= email %>") {
-            console.log(data1[k].address)
             value2 = data1[k].address;
           }
           else {
@@ -762,8 +758,6 @@ function addressAutocomplete(containerElement, idName, callback, options) {
         function turnRegistered(eventsToDisable) {
 
           for (var i = 0; i < eventsToDisable.length; i++) {
-
-            console.log(document.getElementById(eventsToDisable[i]._id))
             document.getElementById(eventsToDisable[i]._id).disabled = true;
             document.getElementById(eventsToDisable[i]._id).innerHTML = "Registered for this event"
           }
@@ -792,7 +786,6 @@ function addressAutocomplete(containerElement, idName, callback, options) {
 
         function sendData(data) {
           datarray.push(data);
-          console.log(data);
         }
 
         function isFuture(dateStr) {
@@ -813,12 +806,8 @@ function addressAutocomplete(containerElement, idName, callback, options) {
           .then((data) => {
 
             eventsW = data.filter(e => isFuture(e.date));
-            console.log(eventsW);
             eventsW2 = sortJSON(eventsW, 'date', '123');
-            console.log(eventsW2);
 
-
-            console.log("length:" + eventsW2.length)
             for (var i = 0; i < eventsW2.length; i++) {
               var obj = eventsW2[i];
               var date = formatDate(obj["date"]);
@@ -876,7 +865,6 @@ function addressAutocomplete(containerElement, idName, callback, options) {
             }
 
             // eventsW2 = sortJSON(eventsW,'date', '123'); 
-            // console.log("Sorted events: " + JSON.stringify(eventsW2));
 
 
 
@@ -992,7 +980,6 @@ function addressAutocomplete(containerElement, idName, callback, options) {
 
                     // Format time as AM/PM
                     eventTime = eventTime.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true });
-                    console.log(eventTime)
 
                     document.getElementById("registerTitle").innerText = "Choose a carpool · " + day + " at " + eventTime
                   }
@@ -1115,9 +1102,6 @@ function addressAutocomplete(containerElement, idName, callback, options) {
         
 
         addressAutocomplete(document.getElementById("autocomplete-container"), "address-input", (data) => {
-          console.log("Selected option: ");
-          console.log(data);
-          console.log(data.properties.formatted);
           arr.push(data.properties.formatted);
         }, {
 
@@ -1127,9 +1111,6 @@ function addressAutocomplete(containerElement, idName, callback, options) {
 
     
         addressAutocomplete(document.getElementById("autocomplete-container2"), "address-input2", (data) => {
-          console.log("Selected option: ");
-          console.log(data);
-          console.log(data.properties.formatted);
           arr.push(data.properties.formatted);
         }, {
 
@@ -1154,7 +1135,6 @@ function addressAutocomplete(containerElement, idName, callback, options) {
         //    .then((response) => response.json())
         //    .then((data) => {
 
-        //      console.log(data)
         //    })
         //add first name + last name: address to the carpoolers list in correct carpool id (selectedCarpool) carpools database
 
@@ -1222,7 +1202,6 @@ function addressAutocomplete(containerElement, idName, callback, options) {
 
     function sendData(data) {
       datarray.push(data);
-      console.log(data);
     }
 
     function offer(id) {
@@ -1237,7 +1216,6 @@ function addressAutocomplete(containerElement, idName, callback, options) {
       let route = document.getElementById("route-type").value;
       let Carpoolers = []
 
-      console.log(newArray + " " + DriverFName + " " + DriverLName + " " + Seats);
       offerACar(DriverFName, DriverLName, DriverEmail, DriverPhone, CarMake, Seats, route, newArray, Carpoolers, datarray[datarray.length - 1], ArrivalTime);
     }
 
@@ -1258,7 +1236,6 @@ function addressAutocomplete(containerElement, idName, callback, options) {
         userEmail,
         arrivalTime
       };
-      console.log(newcarpools);
 
       const jsonData = JSON.stringify(newcarpools);
       const url = "/api/carpools";
@@ -1272,7 +1249,6 @@ function addressAutocomplete(containerElement, idName, callback, options) {
         body: jsonData,
       })
         .then((response) => {
-          console.log(response);
           // Open verification checker
         })
         .catch((error) => console.error("Error:", error));
@@ -1343,7 +1319,6 @@ function addressAutocomplete(containerElement, idName, callback, options) {
               numPassengers: numPassengers
             }
 
-            console.log(carpoool)
             jsonData = JSON.stringify(addNewMember)
 
             url = "/api/joinCarpool"
@@ -1392,7 +1367,6 @@ function addressAutocomplete(containerElement, idName, callback, options) {
       lastName = "<%= lastName %> "
       eventName = document.getElementById("ename").value
       wlocation = document.getElementById("elocation").value
-      console.log(wlocation)
       dateb = document.getElementById("edate").value//hotdogs
       var components = dateb.split(/[-T:]/);
 
@@ -1424,7 +1398,6 @@ function addressAutocomplete(containerElement, idName, callback, options) {
         distanceMiles,
         numPassengers
       };
-      console.log(data);
 
       const jsonData = JSON.stringify(data);
       const url = "/api/events";
