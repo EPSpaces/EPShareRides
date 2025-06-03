@@ -846,26 +846,9 @@
                      <i class="fas fa-leaf"></i>
                   </span>
                   <div>
-                     <div style="font-size: 0.8rem; color: #15803d; font-weight: 500;">
-                        CO₂ Saved 
-                        ${offeredCarpools[i].potentialCo2Savings > (offeredCarpools[i].co2Savings || 0) ? 
-                          `<span class="has-tooltip is-italic" data-tooltip="Seats filled: ${((offeredCarpools[i].carpoolers?.length || 0) + 1)}/${offeredCarpools[i].seats || 4}">
-                             (${((offeredCarpools[i].carpoolers?.length || 0) + 1)}/${offeredCarpools[i].seats || 4})
-                          </span>` : ''
-                        }
-                     </div>
-                     <div class="co2-savings" data-carpool-id="${offeredCarpools[i]._id}" 
-                          data-co2-savings="${offeredCarpools[i].co2Savings || 0}" 
-                          data-potential-co2-savings="${offeredCarpools[i].potentialCo2Savings || 0}"
-                          style="font-weight: 700; color: #15803d; font-size: 1.1rem;">
-                        ${offeredCarpools[i].co2Savings ? parseFloat(offeredCarpools[i].co2Savings).toFixed(2) : '0.00'} kg
-                        ${offeredCarpools[i].potentialCo2Savings > (offeredCarpools[i].co2Savings || 0) ? 
-                          `<span class="has-text-grey-light" style="font-size: 0.9rem; margin-left: 0.25rem;">
-                             / <span class="has-tooltip" data-tooltip="Potential savings if carpool is full">
-                               ${parseFloat(offeredCarpools[i].potentialCo2Savings).toFixed(2)} kg
-                             </span>
-                          </span>` : ''
-                        }
+                     <div style="font-size: 0.8rem; color: #15803d; font-weight: 500;">CO₂ Saved</div>
+                     <div class="co2-savings" data-carpool-id="${offeredCarpools[i]._id}" style="font-weight: 700; color: #15803d; font-size: 1.1rem;">
+                        ${offeredCarpools[i].co2Savings ? (parseFloat(offeredCarpools[i].co2Savings).toFixed(2) + ' kg') : '0.00 kg'}
                      </div>
                   </div>
                   <span class="icon has-text-grey-light is-small ml-2" style="margin-left: 0.5rem;" 
@@ -979,33 +962,13 @@
                                                 <i class="fas fa-leaf"></i>
                                              </span>
                                              <div>
-                                                <div style="font-size: 0.8rem; color: #15803d; font-weight: 500;">
-                                                   Your CO₂ Savings
-                                                   ${joinedCarpools[i].potentialCo2Savings > (joinedCarpools[i].co2Savings || 0) ? 
-                                                     `<span class="has-tooltip is-italic" data-tooltip="Seats filled: ${((joinedCarpools[i].carpoolers?.length || 0) + 1)}/${joinedCarpools[i].seats || 4}">
-                                                        (${((joinedCarpools[i].carpoolers?.length || 0) + 1)}/${joinedCarpools[i].seats || 4})
-                                                     </span>` : ''
-                                                   }
-                                                </div>
-                                                <div class="co2-savings" data-carpool-id="${joinedCarpools[i]._id}" 
-                                                     data-co2-savings="${joinedCarpools[i].co2Savings || 0}" 
-                                                     data-potential-co2-savings="${joinedCarpools[i].potentialCo2Savings || 0}"
-                                                     style="font-weight: 700; color: #15803d; font-size: 1.1rem;">
+                                                <div style="font-size: 0.8rem; color: #15803d; font-weight: 500;">Your CO₂ Savings</div>
+                                                <div class="co2-savings" data-carpool-id="${joinedCarpools[i]._id}" style="font-weight: 700; color: #15803d; font-size: 1.1rem;">
                                                    ${(() => {
                                                       const currentUserEmail = '<%= email %>';
                                                       const carpooler = joinedCarpools[i].carpoolers.find(c => c.email === currentUserEmail);
                                                       const savings = carpooler?.co2Savings || 0;
-                                                      let html = parseFloat(savings).toFixed(2) + ' kg';
-                                                      
-                                                      if (joinedCarpools[i].potentialCo2Savings > (savings || 0)) {
-                                                         html += `
-                                                         <span class="has-text-grey-light" style="font-size: 0.9rem; margin-left: 0.25rem;">
-                                                            / <span class="has-tooltip" data-tooltip="Potential savings if carpool is full">
-                                                              ${parseFloat(joinedCarpools[i].potentialCo2Savings).toFixed(2)} kg
-                                                            </span>
-                                                         </span>`;
-                                                      }
-                                                      return html;
+                                                      return parseFloat(savings).toFixed(2) + ' kg';
                                                    })()}
                                                 </div>
                                              </div>

@@ -242,88 +242,57 @@ router.post("/carpools/:id/approve", homeLimiter, authenticateToken, async (req,
         });
       }
       
-      // Calculate CO2 savings based on distance and number of passengers
-      distanceMiles = parseFloat(request.distanceMiles) || 10; // Update the outer scoped variable
-      numPassengers = parseInt(request.numPassengers, 10) || 1; // Update the outer scoped variable
+      // Calculate CO2 savings based on the distance and number of passengers from the request
+      distanceMiles = parseFloat(request.distanceMiles) || 10;
+      numPassengers = parseInt(request.numPassengers, 10) || 1;
+      co2Savings = calculateCO2Savings(distanceMiles, numPassengers);
       
-      console.log(`[Carpool Approval] Approving request - Carpool ID: ${req.params.id}, Requester: ${requesterEmail}`);
-      console.log(`[Carpool Approval] Distance: ${distanceMiles} miles, Num Passengers: ${numPassengers}, Seats: ${carpool.seats || 4}`);
-      
-      const co2SavingsData = calculateCO2Savings(distanceMiles, numPassengers, carpool.seats || 4);
-      console.log(`[Carpool Approval] CO2 Savings calculated:`, JSON.stringify(co2SavingsData, null, 2));
-      
-      // Update the outer scoped co2Savings variable with the per-passenger savings
-      co2Savings = co2SavingsData.perPassenger;
-      
-      // Add the requester to the carpool's carpoolers array
-      const carpoolerData = {
-        email: requesterEmail,
+      // Create the carpooler object with all required fields
+      const carpooler = {
+        email: request.email,
         firstName: request.firstName,
         lastName: request.lastName,
-        cell: request.cell || 'none',
-        co2Savings: co2SavingsData.perPassenger, // Store per-passenger savings
-        distanceMiles,
-        numPassengers,
-        joinedAt: new Date(),
-        co2Data: {  // Store detailed CO2 information
-          actual: co2SavingsData.actual,
-          potential: co2SavingsData.potential,
-          perPassenger: co2SavingsData.perPassenger,
-          potentialPerPassenger: co2SavingsData.potentialPerPassenger,
-          seatsFilled: co2SavingsData.seatsFilled,
-          seatsAvailable: co2SavingsData.seatsAvailable
-        }
+        address: request.address,
+        startLocation: request.startLocation,
+        endLocation: request.endLocation,
+        distanceMiles: distanceMiles,
+        numPassengers: numPassengers,
+        co2Savings: co2Savings,
+        joinedAt: new Date()
       };
       
-      console.log(`[Carpool Approval] Adding carpooler:`, JSON.stringify(carpoolerData, null, 2));
-      
       // Add the user to the carpool with CO2 savings info
-      carpool.carpoolers.push(carpoolerData);
+      carpool.carpoolers.push(carpooler);
       
-      // Update carpool's CO2 information
-      carpool.co2Savings = co2SavingsData.actual;  // Total actual savings for the carpool
-      carpool.potentialCo2Savings = co2SavingsData.potential;
-      carpool.seatsFilled = co2SavingsData.seatsFilled;
-      carpool.seatsAvailable = co2SavingsData.seatsAvailable;
-      
-      console.log(`[Carpool Approval] Updated carpool CO2 - Actual: ${co2SavingsData.actual.toFixed(2)} kg, Potential: ${co2SavingsData.potential.toFixed(2)} kg`);
+      // Update the carpool's total CO2 savings
+      carpool.co2Savings = (carpool.co2Savings || 0) + co2Savings;
       
       // Ensure the carpool document is marked as modified to trigger the save
       carpool.markModified('carpoolers');
       carpool.markModified('co2Savings');
       
-      // Update the requester's total CO2 savings with per-passenger savings
+      // Update the requester's total CO2 savings
       await User.findOneAndUpdate(
-        { email: requesterEmail },
-        { $inc: { co2Saved: co2SavingsData.perPassenger } },
+        { email: request.email },
+        { $inc: { co2Saved: co2Savings } },
         { new: true, upsert: true }
       );
       
-      console.log(`[Carpool Approval] Updated user ${requesterEmail} with CO2 savings: ${co2SavingsData.perPassenger} kg`);
-      
       // Prepare email to the requester
-      const eventName = event ? event.eventName : 'an event';
-      const eventDate = event ? new Date(event.date).toLocaleDateString() : 'N/A';
-      
       mailOptionsToRequester = {
         from: process.env.SMTP_USER,
-        to: requesterEmail,
-        subject: `Your carpool request has been approved for ${eventName}`,
-        text: `Your request to join the carpool for ${eventName} has been approved.\n\n` +
+        to: request.email,
+        subject: `Your carpool request has been approved for ${event ? event.eventName : 'an event'}`,
+        text: `Your request to join the carpool for ${event ? event.eventName : 'an event'} has been approved.\n\n` +
               `Driver: ${carpool.firstName} ${carpool.lastName} (${carpool.email})\n` +
-              `Event: ${eventName}\n` +
-              `Date: ${eventDate}\n` +
+              `Event: ${event ? event.eventName : 'N/A'}\n` +
+              `Date: ${event ? new Date(event.date).toLocaleDateString() : 'N/A'}\n` +
               `Meeting Point: ${carpool.wlocation || 'N/A'}\n` +
               `Estimated Distance: ${distanceMiles.toFixed(1)} miles\n` +
-              `Your CO2 Savings: ${(co2SavingsData.perPassenger || 0).toFixed(2)} kg\n` +
-              `Total Carpool Savings: ${(co2SavingsData.actual || 0).toFixed(2)} kg\n` +
-              `Potential Savings (if full): ${(co2SavingsData.potential || 0).toFixed(2)} kg\n` +
-              `Seats Filled: ${carpool.carpoolers.length} of ${carpool.seats || 4}\n` +
+              `Estimated CO2 Savings: ${co2Savings.toFixed(2)} lbs\n` +
               `Driver's Phone: ${carpool.phone || 'Not provided'}\n\n` +
               `Please contact the driver for any further details.`
       };
-      
-      console.log('[Carpool Approval] Sending approval email to:', requesterEmail);
     }
     
     carpool.pendingRequests.splice(idx, 1);
@@ -844,22 +813,19 @@ router.post("/carpools", homeLimiter, authenticateToken, async (req, res) => {
     
     // Calculate CO2 savings for the carpool (1 driver + carpoolers.length passengers)
     const numPassengers = 1 + carpoolers.length; // Driver + passengers
-    const maxCapacity = parseInt(seats, 10) || 4; // Default to 4 if seats is not provided
     
-    // Calculate CO2 savings
-    const co2s = calculateCO2Savings(distanceMiles, numPassengers, maxCapacity);
+    // Calculate total CO2 savings for the carpool
+    const co2Savings = calculateCO2Savings(distanceMiles, numPassengers);
+    
+    // Calculate CO2 savings per passenger
+    const co2SavingsPerPassenger = calculateCO2SavingsPerPassenger(distanceMiles, numPassengers);
     
     // Update the carpool with CO2 savings data
-    newCarpool.co2Savings = co2s.actual;
-    newCarpool.potentialCo2Savings = co2s.potential;
+    newCarpool.co2Savings = co2Savings;
     newCarpool.distanceMiles = distanceMiles;
-    newCarpool.maxCapacity = maxCapacity;
     
     // Save the updated carpool
     await newCarpool.save();
-    
-    // Calculate and save CO2 savings per passenger
-    const co2SavingsPerPassenger = numPassengers > 0 ? (co2s.actual / numPassengers) : 0;
     
     // Update the driver's total CO2 savings
     await User.findOneAndUpdate(
@@ -870,8 +836,7 @@ router.post("/carpools", homeLimiter, authenticateToken, async (req, res) => {
     
     // Prepare response with CO2 savings data
     const response = newCarpool.toObject();
-    response.co2Savings = co2s.actual;
-    response.potentialCo2Savings = co2s.potential;
+    response.co2Savings = co2Savings;
     response.co2SavingsPerPassenger = co2SavingsPerPassenger;
     
     res.status(200).json(response);
