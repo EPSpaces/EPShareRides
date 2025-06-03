@@ -35,6 +35,11 @@ const eventSchema = new mongoose.Schema({
   category: {
     type: String,
     required: true,
+    trim: true,
+    enum: ['sports', 'academic teams', 'socials', 'other']
+  },
+  subCategory: {
+    type: String,
     trim: true
   }
 });
