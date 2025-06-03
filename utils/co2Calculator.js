@@ -9,18 +9,52 @@ const AVERAGE_CO2_PER_MILE = 0.404; // kg CO2 per mile (source: EPA)
  * Calculate CO2 savings from carpooling
  * @param {number} distanceMiles - Distance traveled in miles
  * @param {number} numPassengers - Number of passengers (including driver)
- * @returns {number} CO2 savings in kg
+ * @param {number} [maxCapacity=4] - Maximum capacity of the car (including driver)
+ * @returns {Object} Object containing CO2 savings information
  */
-function calculateCO2Savings(distanceMiles, numPassengers) {
-  if (numPassengers <= 1) return 0; // No savings with 0 or 1 passenger
+function calculateCO2Savings(distanceMiles, numPassengers, maxCapacity = 4) {
+  console.log('[CO2 Calculator] Input - distanceMiles:', distanceMiles, 'numPassengers:', numPassengers, 'maxCapacity:', maxCapacity);
   
-  // Calculate the CO2 that would have been emitted by the additional cars that carpooling eliminates
-  // We subtract 1 because one car is still being used for carpooling
-  const additionalCarsEliminated = numPassengers - 1;
-  const savings = distanceMiles * AVERAGE_CO2_PER_MILE * additionalCarsEliminated;
+  // Calculate emissions for single occupancy
+  const singleOccupancyEmissions = distanceMiles * AVERAGE_CO2_PER_MILE;
   
-  // Return savings rounded to 2 decimal places
-  return Math.round(savings * 100) / 100;
+  // Calculate actual savings from current passengers
+  const actualCarsEliminated = Math.max(0, numPassengers - 1);
+  const actualSavings = singleOccupancyEmissions * actualCarsEliminated;
+  
+  // Calculate potential savings if car was at full capacity
+  const potentialCarsEliminated = Math.max(0, maxCapacity - 1);
+  const potentialSavings = singleOccupancyEmissions * potentialCarsEliminated;
+  
+  // Calculate per-passenger savings
+  const savingsPerPassenger = actualSavings / Math.max(1, numPassengers);
+  const potentialPerPassenger = potentialSavings / maxCapacity;
+  
+  const result = {
+    // Total savings for the carpool
+    actual: Math.round(actualSavings * 100) / 100,
+    potential: Math.round(potentialSavings * 100) / 100,
+    
+    // Per-passenger savings
+    perPassenger: Math.round(savingsPerPassenger * 100) / 100,
+    potentialPerPassenger: Math.round(potentialPerPassenger * 100) / 100,
+    
+    // Car information
+    isAtCapacity: numPassengers >= maxCapacity,
+    seatsFilled: numPassengers,
+    seatsAvailable: maxCapacity - numPassengers,
+    
+    // Debug information
+    _debug: {
+      singleOccupancyEmissions: Math.round(singleOccupancyEmissions * 100) / 100,
+      actualCarsEliminated,
+      potentialCarsEliminated,
+      savingsPerPassenger: Math.round(savingsPerPassenger * 100) / 100
+    }
+  };
+  
+  console.log('[CO2 Calculator] Output:', JSON.stringify(result, null, 2));
+  return result;
 }
 
 /**
