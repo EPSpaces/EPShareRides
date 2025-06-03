@@ -12,12 +12,16 @@ const AVERAGE_CO2_PER_MILE = 0.404; // kg CO2 per mile (source: EPA)
  * @returns {number} CO2 savings in kg
  */
 function calculateCO2Savings(distanceMiles, numPassengers) {
-  if (numPassengers <= 1) return 0; // No savings with 0 or 1 passenger
+  if (numPassengers < 1) return 0;
   
-  // Calculate the CO2 that would have been emitted by the additional cars that carpooling eliminates
-  // We subtract 1 because one car is still being used for carpooling
-  const additionalCarsEliminated = numPassengers - 1;
-  const savings = distanceMiles * AVERAGE_CO2_PER_MILE * additionalCarsEliminated;
+  // Calculate the CO2 that would have been emitted if everyone drove separately
+  const totalCO2IfSeparate = distanceMiles * AVERAGE_CO2_PER_MILE * numPassengers;
+  
+  // Calculate the CO2 emitted by carpooling (one car instead of multiple)
+  const co2FromCarpool = distanceMiles * AVERAGE_CO2_PER_MILE;
+  
+  // Calculate savings (total that would have been emitted - actual emissions)
+  const savings = totalCO2IfSeparate - co2FromCarpool;
   
   // Return savings rounded to 2 decimal places
   return Math.round(savings * 100) / 100;
