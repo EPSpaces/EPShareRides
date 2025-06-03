@@ -1204,66 +1204,24 @@ function addressAutocomplete(containerElement, idName, callback, options) {
       datarray.push(data);
     }
 
-    async function offer(id) {
-      try {
-        let newArray = document.getElementById("address-input").value;
-        let DriverFName = document.getElementById("fname").value;
-        let DriverLName = document.getElementById("lname").value;
-        let DriverEmail = document.getElementById("email").value;
-        let DriverPhone = document.getElementById("phone").value;
-        let CarMake = document.getElementById("carmake").value;
-        let Seats = document.getElementById("seats").value;
-        let ArrivalTime = document.getElementById("arrivaltime").value;
-        let route = document.getElementById("route-type").value;
-        let Carpoolers = [];
+    function offer(id) {
+      let newArray = document.getElementById("address-input").value
+      let DriverFName = document.getElementById("fname").value;
+      let DriverLName = document.getElementById("lname").value;
+      let DriverEmail = document.getElementById("email").value;
+      let DriverPhone = document.getElementById("phone").value;
+      let CarMake = document.getElementById("carmake").value;
+      let Seats = document.getElementById("seats").value;
+      let ArrivalTime = document.getElementById("arrivaltime").value;
+      let route = document.getElementById("route-type").value;
+      let Carpoolers = []
 
-        await offerACar(DriverFName, DriverLName, DriverEmail, DriverPhone, CarMake, Seats, route, newArray, Carpoolers, datarray[datarray.length - 1], ArrivalTime);
-        
-        // Redirect after successful carpool creation
-        window.location.href = '/mycarpools';
-      } catch (error) {
-        console.error('Error in offer function:', error);
-        // Optionally show an error message to the user
-        alert('Failed to create carpool. Please try again.');
-      }
+      offerACar(DriverFName, DriverLName, DriverEmail, DriverPhone, CarMake, Seats, route, newArray, Carpoolers, datarray[datarray.length - 1], ArrivalTime);
     }
 
 
-    async function offerACar(firstName, lastName, email, phone, carMake, seats, route, wlocation, carpoolers, nameOfEvent, arrivalTime) {
-      let userEmail = "<%= email %>";
-      
-      // Get user's current location for distance calculation
-      let userLocation = { lat: 0, lng: 0 };
-      try {
-        userLocation = await new Promise((resolve, reject) => {
-          if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-              (position) => resolve({
-                lat: position.coords.latitude,
-                lng: position.coords.longitude
-              }),
-              (error) => {
-                console.error('Error getting location:', error);
-                resolve({ lat: 47.6062, lng: -122.3321 }); // Default to Seattle if location access is denied
-              }
-            );
-          } else {
-            resolve({ lat: 47.6062, lng: -122.3321 }); // Default to Seattle if geolocation is not supported
-          }
-        });
-      } catch (error) {
-        console.error('Error getting location:', error);
-        userLocation = { lat: 47.6062, lng: -122.3321 }; // Default to Seattle on error
-      }
-
-      // For now, we'll use a default event location for the carpool
-      // In a real app, you would get this from the event's location data
-      const carpoolLocation = { lat: 47.6553, lng: -122.3035 }; // Example: University of Washington
-      
-      // Calculate distance using Haversine formula
-      const distanceMiles = window.geoUtils ? 
-        window.geoUtils.calculateDistance(userLocation, carpoolLocation) : 10;
-      
+    function offerACar(firstName, lastName, email, phone, carMake, seats, route, wlocation, carpoolers, nameOfEvent, arrivalTime) {
+      let userEmail = "<%= email %>"
       const newcarpools = {
         firstName,
         lastName,
@@ -1276,14 +1234,12 @@ function addressAutocomplete(containerElement, idName, callback, options) {
         carpoolers,
         nameOfEvent,
         userEmail,
-        arrivalTime,
-        startLocation: userLocation,
-        endLocation: carpoolLocation,
-        distanceMiles
+        arrivalTime
       };
 
       const jsonData = JSON.stringify(newcarpools);
       const url = "/api/carpools";
+
 
       fetch(url, {
         method: "POST",
@@ -1292,19 +1248,10 @@ function addressAutocomplete(containerElement, idName, callback, options) {
         },
         body: jsonData,
       })
-      .then((response) => response.json())
-      .then(data => {
-        // Dispatch carpool-created event with CO2 savings data
-        const numPassengers = 1; // Driver only initially
-        const event = new CustomEvent('carpool-created', {
-          detail: {
-            distanceMiles: data.distanceMiles || distanceMiles,
-            numPassengers: numPassengers
-          }
-        });
-        document.dispatchEvent(event);
-      })
-      .catch((error) => console.error("Error:", error));
+        .then((response) => {
+          // Open verification checker
+        })
+        .catch((error) => console.error("Error:", error));
     }
 
 
@@ -1348,135 +1295,58 @@ function addressAutocomplete(containerElement, idName, callback, options) {
 
 
     async function joinCarpool() {
-      try {
-        let newArray = document.getElementById("address-input2").value;
-        var personName = "<%= firstName %> <%= lastName %>";
-        var email = "<%= email %>";
-        var carpoool;
-        
-        if (!selectedCarpool) {
-          showNotification('Please select a carpool to join', 'is-warning');
-          return;
-        }
-        
-        if (!newArray) {
-          showNotification('Please enter your pickup address', 'is-warning');
-          return;
-        }
-        
-        // Show loading state
-        const joinButton = document.querySelector('button[onclick="joinCarpool()"]');
-        const originalButtonText = joinButton ? joinButton.innerHTML : '';
-        if (joinButton) {
-          joinButton.disabled = true;
-          joinButton.classList.add('is-loading');
-        }
-        
-        // Get user's current location for distance calculation
-        let userLocation = { lat: 0, lng: 0 };
-        try {
-          userLocation = await new Promise((resolve, reject) => {
-            if (navigator.geolocation) {
-              navigator.geolocation.getCurrentPosition(
-                (position) => resolve({
-                  lat: position.coords.latitude,
-                  lng: position.coords.longitude
-                }),
-                (error) => {
-                  console.error('Error getting location:', error);
-                  // Default to Seattle coordinates if location access is denied
-                  resolve({ lat: 47.6062, lng: -122.3321 });
-                },
-                {
-                  enableHighAccuracy: true,
-                  timeout: 5000,
-                  maximumAge: 0
-                }
-              );
-            } else {
-              // Default to Seattle if geolocation is not supported
-              resolve({ lat: 47.6062, lng: -122.3321 });
+      let newArray = document.getElementById("address-input2").value
+      var personName = "<%= firstName %> <%= lastName %>";
+      var email = "<%= email %>";
+      var carpoool;
+      if (selectedCarpool != null) {
+        for (var i = 0; i < userData1.length; i++) {
+          carpoool = userData1[i]
+          if (carpoool["_id"] == selectedCarpool) {
+            // Calculate distance for CO2 savings (simplified - in a real app, you'd calculate the actual distance)
+            const distanceMiles = 10; // Default value, replace with actual calculation
+            const numPassengers = carpoool.carpoolers.length + 1; // Including the new passenger
+            
+            carpoool["carpoolers"].push({
+              "address": newArray,
+              "carpool": selectedCarpool
+            })
+
+            const addNewMember = {
+              address: newArray,
+              carpool: selectedCarpool,
+              distanceMiles: distanceMiles,
+              numPassengers: numPassengers
             }
-          });
-        } catch (error) {
-          console.error('Error getting location:', error);
-          userLocation = { lat: 47.6062, lng: -122.3321 }; // Default to Seattle on error
-        }
 
-        // Find the selected carpool
-        carpoool = userData1.find(c => c._id === selectedCarpool);
-        if (!carpoool) {
-          throw new Error('Selected carpool not found');
-        }
+            jsonData = JSON.stringify(addNewMember)
 
-        // For now, we'll use a default event location for the carpool
-        // In a real app, you would get this from the carpool's location data
-        const carpoolLocation = { lat: 47.6553, lng: -122.3035 }; // Example: University of Washington
-        
-        // Calculate distance using Haversine formula
-        const distanceMiles = window.geoUtils ? 
-          window.geoUtils.calculateDistance(userLocation, carpoolLocation) : 10;
-        
-        const numPassengers = carpoool.carpoolers.length + 1; // Including the new passenger
-        
-        const addNewMember = {
-          address: newArray,
-          carpool: selectedCarpool,
-          userEmail: email,
-          userName: personName,
-          startLocation: userLocation,
-          endLocation: carpoolLocation,
-          distanceMiles: distanceMiles,
-          numPassengers: numPassengers
-        };
+            url = "/api/joinCarpool"
 
-        const jsonData = JSON.stringify(addNewMember);
-        const url = "/api/joinCarpool";
+            try {
+              const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: jsonData,
+              });
 
-        const response = await fetch(url, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: jsonData,
-        });
-
-        if (!response.ok) {
-          const errorData = await response.json().catch(() => ({}));
-          throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
-        }
-
-        const data = await response.json();
-        
-        // Show success message with CO2 savings if available
-        if (data.success) {
-          const co2Message = data.data ? 
-            `Request sent! Estimated CO2 savings: ${data.data.co2Savings.toFixed(2)} lbs` : 
-            'Request sent for approval';
-          
-          showNotification(co2Message, 'is-success');
-          
-          // Update the UI with new CO2 savings if available
-          if (data.data && data.data.co2Savings) {
-            updateCO2SavingsUI(data.data.co2Savings);
+              if (response.redirected) {
+                // Emit event for CO2 savings update
+                document.dispatchEvent(new CustomEvent('carpool-joined', {
+                  detail: {
+                    distanceMiles: distanceMiles,
+                    numPassengers: numPassengers
+                  }
+                }));
+                
+                window.location.href = response.url;
+              }
+            } catch (error) {
+              console.error('Error joining carpool:', error);
+            }
           }
-          
-          // Redirect after a short delay to show the notification
-          setTimeout(() => {
-            window.location.href = '/mycarpools';
-          }, 1500);
-        } else {
-          throw new Error(data.error || 'Failed to join carpool');
-        }
-      } catch (error) {
-        console.error('Error in joinCarpool function:', error);
-        showNotification(error.message || 'Failed to join carpool. Please try again.', 'is-danger');
-        
-        // Re-enable the join button on error
-        const joinButton = document.querySelector('button[onclick="joinCarpool()"]');
-        if (joinButton) {
-          joinButton.disabled = false;
-          joinButton.classList.remove('is-loading');
         }
       }
     }
@@ -1515,35 +1385,8 @@ function addressAutocomplete(containerElement, idName, callback, options) {
       });
       category = document.getElementById("ecategory").value
       
-      // Get user's current location for distance calculation
-      let userLocation = { lat: 0, lng: 0 };
-      try {
-        userLocation = await new Promise((resolve, reject) => {
-          if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-              (position) => resolve({
-                lat: position.coords.latitude,
-                lng: position.coords.longitude
-              }),
-              (error) => {
-                console.error('Error getting location:', error);
-                resolve({ lat: 47.6062, lng: -122.3321 }); // Default to Seattle if location access is denied
-              }
-            );
-          } else {
-            resolve({ lat: 47.6062, lng: -122.3321 }); // Default to Seattle if geolocation is not supported
-          }
-        });
-      } catch (error) {
-        console.error('Error getting location:', error);
-        userLocation = { lat: 47.6062, lng: -122.3321 }; // Default to Seattle on error
-      }
-
-      // For now, we'll use a default event location
-      const eventLocation = { lat: 47.6553, lng: -122.3035 }; // Example: University of Washington
-      
-      // Calculate distance using Haversine formula
-      const distanceMiles = calculateDistance(userLocation, eventLocation);
+      // Calculate distance for CO2 savings (simplified - in a real app, you'd calculate the actual distance)
+      const distanceMiles = 10; // Default value, replace with actual calculation
       const numPassengers = 1; // Just the driver initially
       
       const data = {
@@ -1587,34 +1430,6 @@ function addressAutocomplete(containerElement, idName, callback, options) {
 
   </script>
   <script>
-    // Utility function to show notifications
-    function showNotification(message, type = 'is-info') {
-      // Use Bulma notification if available, otherwise fall back to alert
-      if (typeof bulmaToast !== 'undefined') {
-        bulmaToast.toast({
-          message: message,
-          type: type,
-          position: 'bottom-right',
-          dismissible: true,
-          pauseOnHover: true,
-          duration: 5000,
-          animate: { in: 'fadeIn', out: 'fadeOut' }
-        });
-      } else {
-        alert(message);
-      }
-    }
-    
-    // Function to update the CO2 savings display in the UI
-    function updateCO2SavingsUI(co2Savings) {
-      // Find and update the CO2 savings display in the UI
-      const co2Element = document.getElementById('total-co2-saved');
-      if (co2Element) {
-        const currentSavings = parseFloat(co2Element.textContent) || 0;
-        co2Element.textContent = (currentSavings + co2Savings).toFixed(2);
-      }
-    }
-    
     document.getElementById("eventsJS").innerHTML +=
       '';
 
@@ -1679,9 +1494,8 @@ function addressAutocomplete(containerElement, idName, callback, options) {
     }
   </script>
   
-  <!-- CO2 and Geo Tracking Scripts -->
+  <!-- CO2 Tracking Scripts -->
   <script src="/js/co2Utils.js"></script>
-  <script src="/js/geoUtils.js"></script>
   <script>
     // Listen for carpool creation/join events and update CO2 savings
     document.addEventListener('carpool-created', async (event) => {

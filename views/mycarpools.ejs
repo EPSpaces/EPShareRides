@@ -11,66 +11,6 @@
    <script src="https://kit.fontawesome.com/16ae8e710d.js" crossorigin="anonymous"></script>
    <link rel="icon" href="favicon.png" type="image/x-icon">
    <meta charset="UTF-8">
-   <style>
-   /* Tooltip styling */
-   [data-tooltip] {
-      position: relative;
-      cursor: help;
-   }
-   
-   [data-tooltip]:hover::after {
-      content: attr(data-tooltip);
-      position: absolute;
-      bottom: 100%;
-      left: 50%;
-      transform: translateX(-50%);
-      background: #333;
-      color: white;
-      padding: 0.5rem 0.75rem;
-      border-radius: 4px;
-      font-size: 0.8rem;
-      white-space: nowrap;
-      z-index: 1000;
-      pointer-events: none;
-      opacity: 0;
-      visibility: hidden;
-      transition: opacity 0.2s, visibility 0.2s;
-   }
-   
-   [data-tooltip]:hover::before {
-      content: '';
-      position: absolute;
-      bottom: 100%;
-      left: 50%;
-      transform: translateX(-50%) translateY(8px);
-      border: 5px solid transparent;
-      border-top-color: #333;
-      z-index: 1001;
-      opacity: 0;
-      visibility: hidden;
-      transition: opacity 0.2s, visibility 0.2s, transform 0.2s;
-   }
-   
-   [data-tooltip]:hover::after,
-   [data-tooltip]:hover::before {
-      opacity: 1;
-      visibility: visible;
-   }
-   
-   [data-tooltip]:hover::before {
-      transform: translateX(-50%) translateY(-2px);
-   }
-   
-   /* CO2 savings container hover effect */
-   .co2-savings-container {
-      transition: all 0.3s ease;
-   }
-   
-   .co2-savings-container:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1) !important;
-   }
-   </style>
    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
       integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
@@ -449,64 +389,10 @@
 </html>
 
 <script>
-   // Initialize variables
+   //Create var
    let value2;
    let data1;
-   
-   // Server-rendered carpool data with error handling
-   let serverJoinedCarpools = [];
-   let serverOfferedCarpools = [];
-   
-   try {
-     // Safely parse the carpool data
-     if (typeof joinedCarpools === 'string') {
-       try {
-         serverJoinedCarpools = JSON.parse(joinedCarpools || '[]');
-       } catch (e) {
-         console.error('Error parsing joinedCarpools:', e);
-         serverJoinedCarpools = [];
-       }
-     } else if (Array.isArray(joinedCarpools)) {
-       serverJoinedCarpools = joinedCarpools;
-     }
-     
-     if (typeof offeredCarpools === 'string') {
-       try {
-         serverOfferedCarpools = JSON.parse(offeredCarpools || '[]');
-       } catch (e) {
-         console.error('Error parsing offeredCarpools:', e);
-         serverOfferedCarpools = [];
-       }
-     } else if (Array.isArray(offeredCarpools)) {
-       serverOfferedCarpools = offeredCarpools;
-     }
-   } catch (e) {
-     console.error('Error initializing carpool data:', e);
-   }
-   
-   // Ensure we have arrays
-   if (!Array.isArray(serverJoinedCarpools)) {
-     console.warn('serverJoinedCarpools is not an array, defaulting to empty array');
-     serverJoinedCarpools = [];
-   }
-   
-   if (!Array.isArray(serverOfferedCarpools)) {
-     console.warn('serverOfferedCarpools is not an array, defaulting to empty array');
-     serverOfferedCarpools = [];
-   }
-   
-   // Log the carpool data for debugging
-   console.log('Server Joined Carpools:', serverJoinedCarpools);
-   console.log('Server Offered Carpools:', serverOfferedCarpools);
-   
-   // Initialize carpool arrays with server data
-   window.joinedCarpools = serverJoinedCarpools;
-   window.offeredCarpools = serverOfferedCarpools;
-   window.eventsW = [];
-   window.userData1 = null;
-   window.i = 0;
-   
-   // Get list of users from mongo
+   //Get list of users from mongo
    var request = new Request("/api/users", {
       method: "GET",
       headers: new Headers({
@@ -656,7 +542,11 @@
          });
    }
 
-   // Variables are now initialized at the top of the script
+   let joinedCarpools = []
+   let offeredCarpools = []
+   let eventsW;
+   let userData1;
+   let i;
 
    function addPeople() {
       document.getElementById("friendsInCarpool").innerHTML = '';
@@ -796,9 +686,10 @@
                      carpoolers = []
 
                      for (var k = 0; k < offeredCarpools[i].carpoolers.length; k++) {
-                        const email = offeredCarpools[i].carpoolers[k].email || '';
-                        const displayName = email.split('@')[0]; // Get the part before @
-                        carpoolers.push(displayName);
+
+                        carpoolers.push(offeredCarpools[i].carpoolers[k].firstName + " " + offeredCarpools[i].carpoolers[k].lastName.charAt(0));
+
+
                      }
                      console.log(eventsW)
                      for (var j = 0; j < eventsW.length; j++) {
@@ -836,26 +727,14 @@
       <div class="columns is-mobile is-vcentered" style="width: 100%; margin: 0;">
          <div class="column is-6" style="padding: 0.5rem;">
             <p class="control" id="registered-carpoolers">
-               <strong>Riders:</strong> 
-               <span id="carpoolers-${offeredCarpools[i]._id}">${carpoolers.map(email => 
-                  `<span class="tag is-light">${email}</span>`
-               ).join(" ")}</span>
+               <strong>Riders:</strong> ` + carpoolers.join(", ") + `
                <br>
-               <div class="co2-savings-container" style="margin-top: 0.75rem; display: inline-flex; align-items: center; background: #f0fdf4; padding: 0.4rem 0.75rem; border-radius: 20px; border: 1px solid #bbf7d0; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
-                  <span class="icon has-text-success" style="margin-right: 0.5rem;">
+               <span class="icon-text" style="margin-top: 0.5rem; display: inline-flex; align-items: center;">
+                  <span class="icon has-text-success">
                      <i class="fas fa-leaf"></i>
                   </span>
-                  <div>
-                     <div style="font-size: 0.8rem; color: #15803d; font-weight: 500;">CO₂ Saved</div>
-                     <div class="co2-savings" data-carpool-id="${offeredCarpools[i]._id}" style="font-weight: 700; color: #15803d; font-size: 1.1rem;">
-                        ${offeredCarpools[i].co2Savings ? (parseFloat(offeredCarpools[i].co2Savings).toFixed(2) + ' kg') : '0.00 kg'}
-                     </div>
-                  </div>
-                  <span class="icon has-text-grey-light is-small ml-2" style="margin-left: 0.5rem;" 
-                        data-tooltip="This shows the total CO₂ saved by carpooling instead of driving separately">
-                     <i class="fas fa-info-circle"></i>
-                  </span>
-               </div>
+                  <span>CO₂ Saved: <strong>${offeredCarpools[i].co2Savings ? offeredCarpools[i].co2Savings.toFixed(2) + ' kg' : 'Calculating...'}</strong></span>
+               </span>
             </p>
          </div>
          <div class="column is-6" style="padding: 0.5rem; text-align: right;">
@@ -908,14 +787,12 @@
                      driver = joinedCarpools[i].firstName + " " + joinedCarpools[i].lastName
                      carpoolers = []
                      joinedCarpools[i].carpoolers
-                     let driverEmail = '';
                      for (var k = 0; k < joinedCarpools[i].carpoolers.length; k++) {
-                        const userEmail = joinedCarpools[i].carpoolers[k].email || '';
-                        const displayName = userEmail.split('@')[0]; // Get the part before @
-                        carpoolers.push(displayName);
-                        driverEmail = joinedCarpools[i].email;
+
+                        carpoolers.push(joinedCarpools[i].carpoolers[k].firstName + " " + joinedCarpools[i].carpoolers[k].lastName.charAt(0))
+                        email = joinedCarpools[i].email
+
                      }
-                     email = driverEmail;
                      console.log(eventsW)
                      for (var j = 0; j < eventsW.length; j++) {
                         if (eventsW[j]._id == joinedCarpools[i].nameOfEvent) {
@@ -952,31 +829,14 @@
                                  <div class="columns is-mobile is-vcentered" style="width: 100%; margin: 0;">
                                     <div class="column is-6" style="padding: 0.5rem;">
                                        <p class="control" id="registered-carpoolers">
-                                          <strong>Riders:</strong> 
-                                          <span id="carpoolers-${joinedCarpools[i]._id}">${carpoolers.map(email => 
-                                             `<span class="tag is-light">${email}</span>`
-                                          ).join(" ")}</span>
+                                          <strong>Riders:</strong> ` + carpoolers.join(", ") + `
                                           <br>
-                                          <div class="co2-savings-container" style="margin-top: 0.75rem; display: inline-flex; align-items: center; background: #f0fdf4; padding: 0.4rem 0.75rem; border-radius: 20px; border: 1px solid #bbf7d0; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
-                                             <span class="icon has-text-success" style="margin-right: 0.5rem;">
+                                          <span class="icon-text" style="margin-top: 0.5rem; display: inline-flex; align-items: center;">
+                                             <span class="icon has-text-success">
                                                 <i class="fas fa-leaf"></i>
                                              </span>
-                                             <div>
-                                                <div style="font-size: 0.8rem; color: #15803d; font-weight: 500;">Your CO₂ Savings</div>
-                                                <div class="co2-savings" data-carpool-id="${joinedCarpools[i]._id}" style="font-weight: 700; color: #15803d; font-size: 1.1rem;">
-                                                   ${(() => {
-                                                      const currentUserEmail = '<%= email %>';
-                                                      const carpooler = joinedCarpools[i].carpoolers.find(c => c.email === currentUserEmail);
-                                                      const savings = carpooler?.co2Savings || 0;
-                                                      return parseFloat(savings).toFixed(2) + ' kg';
-                                                   })()}
-                                                </div>
-                                             </div>
-                                             <span class="icon has-text-grey-light is-small ml-2" style="margin-left: 0.5rem;" 
-                                                   data-tooltip="This shows your personal CO₂ savings from joining this carpool">
-                                                <i class="fas fa-info-circle"></i>
-                                             </span>
-                                          </div>
+                                             <span>CO₂ Saved: <strong>${joinedCarpools[i].co2Savings ? (joinedCarpools[i].carpoolers.find(c => c.email === '<%= email %>')?.co2Savings || 0).toFixed(2) + ' kg' : 'Calculating...'}</strong></span>
+                                          </span>
                                        </p>
                                     </div>
                                     <div class="column is-6" style="padding: 0.5rem; text-align: right;">
@@ -1578,132 +1438,6 @@
          });
    }
 </script>
-<script>
-   async function approveRequest(carpoolId, requesterEmail, isApproved) {
-      const url = `/api/carpools/${carpoolId}/${isApproved ? 'approve' : 'deny'}`;
-      const data = { email: requesterEmail };
-
-      try {
-         // Show loading state
-         const approveBtn = document.querySelector(`button[onclick*="approveRequest('${carpoolId}','${requesterEmail}',true)"]`);
-         const denyBtn = document.querySelector(`button[onclick*="approveRequest('${carpoolId}','${requesterEmail}',false)"]`);
-         
-         if (approveBtn) approveBtn.classList.add('is-loading');
-         if (denyBtn) denyBtn.classList.add('is-loading');
-
-         const response = await fetch(url, {
-            method: 'POST',
-            headers: {
-               'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(data),
-         });
-
-         const result = await response.json();
-         
-         // Remove loading state
-         if (approveBtn) approveBtn.classList.remove('is-loading');
-         if (denyBtn) denyBtn.classList.remove('is-loading');
-         
-         if (result.success) {
-            // Find the request in the UI and remove it
-            const requestElement = document.querySelector(`.carpool-request[data-email="${requesterEmail}"]`);
-            if (requestElement) {
-               requestElement.remove();
-            }
-
-            // If approved, update the UI
-            if (isApproved && result.data) {
-               const { co2Savings, carpoolId: updatedCarpoolId } = result.data;
-               
-               // Update CO2 savings display
-               const co2Element = document.querySelector(`.co2-savings[data-carpool-id="${updatedCarpoolId}"]`);
-               if (co2Element) {
-                  co2Element.textContent = co2Savings > 0 ? `${parseFloat(co2Savings).toFixed(2)} kg` : '0.00 kg';
-               }
-               
-               // Update the carpoolers list
-               const carpoolersList = document.querySelector(`#carpoolers-${updatedCarpoolId}`);
-               if (carpoolersList) {
-                  const newCarpooler = document.createElement('span');
-                  newCarpooler.className = 'tag is-success is-light';
-                  newCarpooler.textContent = requesterEmail.split('@')[0];
-                  carpoolersList.appendChild(document.createTextNode(', '));
-                  carpoolersList.appendChild(newCarpooler);
-               }
-               
-               // Show the updated CO2 savings with a highlight effect
-               if (co2Element) {
-                  co2Element.parentElement.style.transition = 'all 0.5s ease';
-                  co2Element.parentElement.style.backgroundColor = '#e8f5e9';
-                  setTimeout(() => {
-                     co2Element.parentElement.style.backgroundColor = '#f5f5f5';
-                  }, 1500);
-               }
-            }
-
-            // Show a success message
-            showNotification(
-               result.message || (isApproved ? 'Request approved successfully' : 'Request denied'),
-               isApproved ? 'success' : 'info'
-            );
-
-            // Reload the page after a short delay to ensure UI is in sync
-            setTimeout(() => {
-               window.location.reload();
-            }, 2000);
-         } else {
-            showNotification(result.error || 'An error occurred', 'danger');
-         }
-      } catch (error) {
-         console.error('Error:', error);
-         showNotification('An error occurred while processing your request', 'danger');
-         
-         // Remove loading state in case of error
-         const approveBtn = document.querySelector(`button[onclick*="approveRequest('${carpoolId}','${requesterEmail}',true)"]`);
-         const denyBtn = document.querySelector(`button[onclick*="approveRequest('${carpoolId}','${requesterEmail}',false)"]`);
-         if (approveBtn) approveBtn.classList.remove('is-loading');
-         if (denyBtn) denyBtn.classList.remove('is-loading');
-      }
-   }
-   
-   // Function to refresh carpool data
-   async function refreshCarpoolData() {
-      try {
-         const response = await fetch('/mycarpools');
-         const text = await response.text();
-         const parser = new DOMParser();
-         const doc = parser.parseFromString(text, 'text/html');
-         
-         // Update the carpool list
-         const newCarpoolsJS = doc.getElementById('carpoolsJS');
-         if (newCarpoolsJS) {
-            document.getElementById('carpoolsJS').innerHTML = newCarpoolsJS.innerHTML;
-         }
-         
-         // Update the carpool data variables
-         const scriptContent = Array.from(doc.scripts).find(s => 
-            s.textContent.includes('window.joinedCarpools')
-         )?.textContent;
-         
-         if (scriptContent) {
-            // Extract the carpool data using a temporary function
-            const getCarpoolData = new Function(`
-               ${scriptContent}
-               return { joinedCarpools: window.joinedCarpools, offeredCarpools: window.offeredCarpools };
-            `);
-            
-            const { joinedCarpools, offeredCarpools } = getCarpoolData();
-            window.joinedCarpools = joinedCarpools || [];
-            window.offeredCarpools = offeredCarpools || [];
-         }
-      } catch (error) {
-         console.error('Error refreshing carpool data:', error);
-         // If there's an error, just reload the page
-         window.location.reload();
-      }
-   }
-</script>
 <div class="modal" id="disclaimer-modal">
    <div class="modal-background"></div>
    <div class="modal-card">
@@ -1752,86 +1486,21 @@
          headers: { 'Content-Type': 'application/json' },
          body: JSON.stringify({ email, approve })
       })
-         .then(async res => {
-            const data = await res.json();
+         .then(res => {
             if (!res.ok) {
-               throw new Error(data.error || 'Request failed');
+               return res.text().then(text => { throw new Error(text || 'Request failed'); });
             }
-            return data;
+            return res.json();
          })
-         .then(data => {
-            if (approve) {
-               // Show success message with CO2 savings if available
-               const co2Message = data.data ? 
-                  `Approved! Estimated CO2 savings: ${data.data.co2Savings.toFixed(2)} lbs` : 
-                  'Request approved';
-               
-               showNotification(co2Message, 'is-success');
-               
-               // Update the UI with new CO2 savings
-               if (data.data && data.data.co2Savings) {
-                  // Update the CO2 savings display immediately
-                  updateCO2SavingsUI(data.data.co2Savings);
-                  
-                  // Find all carpool elements that might contain this user
-                  const carpoolElements = document.querySelectorAll('.panel.is-link');
-                  carpoolElements.forEach(element => {
-                     const carpoolIdElement = element.querySelector('button[onclick^="leaveIt"]');
-                     if (carpoolIdElement) {
-                        const btnId = carpoolIdElement.id;
-                        if (btnId === carpoolId) {
-                           // Find the CO2 savings element in this carpool
-                           const co2Element = element.querySelector('.icon-text .has-text-success strong');
-                           if (co2Element) {
-                              // Extract the current CO2 value or default to 0
-                              const currentCo2Text = co2Element.textContent.trim();
-                              let currentCo2 = 0;
-                              if (currentCo2Text !== 'Calculating...') {
-                                 currentCo2 = parseFloat(currentCo2Text) || 0;
-                              }
-                              // Update the display with the new total
-                              co2Element.textContent = (currentCo2 + data.data.co2Savings).toFixed(2) + ' kg';
-                           }
-                        }
-                     }
-                  });
-               }
-            } else {
-               showNotification('Request denied', 'is-info');
-            }
-            // Reload after a short delay to ensure UI is fully updated
-            setTimeout(() => location.reload(), 1500);
+         .then(() => {
+            // Display success message
+            alert(approve ? "Request approved successfully!" : "Request denied successfully!");
+            location.reload();
          })
          .catch((error) => {
             console.error('Error:', error);
-            showNotification(`Failed to update request: ${error.message}`, 'is-danger');
+            alert(`Failed to update request: ${error.message}`);
          });
-   }
-   
-   function showNotification(message, type = 'is-info') {
-      // Use Bulma notification if available, otherwise fall back to alert
-      if (typeof bulmaToast !== 'undefined') {
-         bulmaToast.toast({
-            message: message,
-            type: type,
-            position: 'bottom-right',
-            dismissible: true,
-            pauseOnHover: true,
-            duration: 5000,
-            animate: { in: 'fadeIn', out: 'fadeOut' }
-         });
-      } else {
-         alert(message);
-      }
-   }
-   
-   function updateCO2SavingsUI(co2Savings) {
-      // Find and update the CO2 savings display
-      const co2Element = document.getElementById('total-co2-saved');
-      if (co2Element) {
-         const currentSavings = parseFloat(co2Element.textContent) || 0;
-         co2Element.textContent = (currentSavings + co2Savings).toFixed(2);
-      }
    }
 
    function formatTime12h(timeStr) {
