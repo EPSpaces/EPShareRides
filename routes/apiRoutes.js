@@ -89,57 +89,99 @@ router.get("/offerToCarpool", homeLimiter, authenticateToken, (req, res) => {
 
 // Route to join a carpool
 router.post("/joinCarpool", homeLimiter, authenticateToken, async (req, res) => {
-  const { carpool: carpoolId, address } = req.body;
-  const { email, transporter } = req; // Added transporter
+  const { 
+    carpool: carpoolId, 
+    address, 
+    userEmail, 
+    userName, 
+    startLocation, 
+    endLocation, 
+    distanceMiles,
+    numPassengers = 1
+  } = req.body;
+    
+  const { email, transporter } = req;
 
   if (!carpoolId || !address) {
-    return res.status(400).send("Invalid request");
+    return res.status(400).json({ success: false, error: "Carpool ID and address are required" });
   }
 
   try {
     const user = await User.findOne({ email });
     if (!user) {
       res.clearCookie("idToken");
-      return res.status(401).send("User not found");
+      return res.status(401).json({ success: false, error: "User not found" });
     }
 
     const carpool = await Carpool.findById(carpoolId);
-    if (!carpool) return res.status(404).send("Carpool not found");
+    if (!carpool) {
+      return res.status(404).json({ success: false, error: "Carpool not found" });
+    }
+    
     if (carpool.carpoolers.some(c => c.email === email)) {
-      return res.status(409).send("You are already in this carpool");
+      return res.status(409).json({ success: false, error: "You are already in this carpool" });
     }
+    
     if (carpool.pendingRequests.some(c => c.email === email)) {
-      return res.status(409).send("You have already requested to join");
+      return res.status(409).json({ success: false, error: "You have already requested to join" });
     }
+    
     if (carpool.carpoolers.length >= carpool.seats) {
-      return res.status(400).send("Carpool is full");
+      return res.status(400).json({ success: false, error: "Carpool is full" });
     }
+
+    // Add to pending requests with additional info
+    const [firstName, ...lastNameParts] = userName.split(' ');
+    const lastName = lastNameParts.join(' ');
+    
     carpool.pendingRequests.push({
       email,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      address
+      firstName,
+      lastName,
+      address,
+      startLocation,
+      endLocation,
+      distanceMiles: parseFloat(distanceMiles) || 10,
+      numPassengers: parseInt(numPassengers, 10) || 1,
+      requestedAt: new Date()
     });
+    
     await carpool.save();
 
     // Send email to carpool owner
-    const event = await Event.findById(carpool.nameOfEvent);
-    const mailOptionsToOwner = {
-      from: process.env.SMTP_USER,
-      to: carpool.email, // Email of the carpool owner
-      subject: `New Join Request for Your Carpool: ${event ? event.eventName : 'Unknown Event'}`,
-      text: `${user.firstName} ${user.lastName} (${user.email}) has requested to join your carpool for the event: ${event ? event.eventName : 'Unknown Event'}.\n\nPlease log in to the app to approve or deny this request.`
-    };
     try {
+      const event = await Event.findById(carpool.nameOfEvent);
+      const mailOptionsToOwner = {
+        from: process.env.SMTP_USER,
+        to: carpool.email,
+        subject: `New Join Request for Your Carpool: ${event ? event.eventName : 'Unknown Event'}`,
+        text: `${firstName} ${lastName} (${email}) has requested to join your carpool for the event: ${event ? event.eventName : 'Unknown Event'}.\n\n` +
+              `Pickup Address: ${address}\n` +
+              `Estimated Distance: ${parseFloat(distanceMiles).toFixed(1)} miles\n\n` +
+              `Please log in to the app to approve or deny this request.`
+      };
+      
       await transporter.sendMail(mailOptionsToOwner);
     } catch (e) {
       console.error('Failed to send join request email to owner:', e);
     }
 
-    return res.status(200).json({ message: "Request sent for approval" });
+    return res.status(200).json({ 
+      success: true, 
+      message: "Request sent for approval",
+      data: {
+        carpoolId: carpool._id,
+        distanceMiles: parseFloat(distanceMiles) || 10,
+        numPassengers: parseInt(numPassengers, 10) || 1
+      }
+    });
   } catch (error) {
     console.error("Error joining carpool:", error);
-    return res.status(500).send("Internal Server Error");
+    return res.status(500).json({ 
+      success: false, 
+      error: "Internal Server Error",
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
   }
 });
 
@@ -150,82 +192,162 @@ router.post("/carpools/:id/approve", homeLimiter, authenticateToken, async (req,
     const { email: requesterEmail, approve } = req.body; // approve: true/false
     const { transporter } = req; // Added transporter
     
-    const carpool = await Carpool.findById(id);
-    if (!carpool) return res.status(404).send("Carpool not found");
+    // Input validation
+    if (!requesterEmail || typeof approve !== 'boolean') {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Requester email and approval status are required' 
+      });
+    }
     
+    const carpool = await Carpool.findById(id);
+    if (!carpool) {
+      return res.status(404).json({ 
+        success: false, 
+        error: 'Carpool not found' 
+      });
+    }
+    
+    // Check if the current user is the carpool owner
     if (carpool.userEmail !== req.email) {
       console.log("Auth failed: carpool.userEmail=", carpool.userEmail, "req.email=", req.email);
-      return res.status(403).send("Not authorized");
+      return res.status(403).json({ 
+        success: false, 
+        error: 'Not authorized to approve requests for this carpool' 
+      });
     }
     
     const idx = carpool.pendingRequests.findIndex(c => c.email === requesterEmail);
-    if (idx === -1) return res.status(404).send("Request not found");
+    if (idx === -1) {
+      return res.status(404).json({ 
+        success: false, 
+        error: 'Join request not found' 
+      });
+    }
     
     const request = carpool.pendingRequests[idx];
     const event = await Event.findById(carpool.nameOfEvent);
 
+    // Initialize variables that will be used in the response
+    let co2Savings = 0;
+    let distanceMiles = 0;
+    let numPassengers = 1;
+    let mailOptionsToRequester = null;
+
     if (approve) {
       if (carpool.carpoolers.length >= carpool.seats) {
-        return res.status(400).send("Carpool is full");
+        return res.status(400).json({ 
+          success: false, 
+          error: 'No seats available in this carpool' 
+        });
       }
       
-      // Add the user to the carpool
-      carpool.carpoolers.push(request);
+      // Calculate CO2 savings based on the distance and number of passengers from the request
+      distanceMiles = parseFloat(request.distanceMiles) || 10;
+      numPassengers = parseInt(request.numPassengers, 10) || 1;
+      co2Savings = calculateCO2Savings(distanceMiles, numPassengers);
       
-      // Calculate CO2 savings for this new passenger
-      const distanceMiles = carpool.distanceMiles || 10; // Default to 10 miles if not set
-      const totalPassengers = carpool.carpoolers.length + 1; // +1 for the driver
+      // Create the carpooler object with all required fields
+      const carpooler = {
+        email: request.email,
+        firstName: request.firstName,
+        lastName: request.lastName,
+        address: request.address,
+        startLocation: request.startLocation,
+        endLocation: request.endLocation,
+        distanceMiles: distanceMiles,
+        numPassengers: numPassengers,
+        co2Savings: co2Savings,
+        joinedAt: new Date()
+      };
       
-      // Calculate CO2 savings per passenger for this carpool
-      const co2SavingsPerPassenger = calculateCO2SavingsPerPassenger(distanceMiles, totalPassengers);
+      // Add the user to the carpool with CO2 savings info
+      carpool.carpoolers.push(carpooler);
       
       // Update the carpool's total CO2 savings
-      const totalCarpoolSavings = calculateCO2Savings(distanceMiles, totalPassengers);
-      carpool.co2Savings = totalCarpoolSavings;
+      carpool.co2Savings = (carpool.co2Savings || 0) + co2Savings;
       
-      // Update the carpool owner's total CO2 savings
+      // Ensure the carpool document is marked as modified to trigger the save
+      carpool.markModified('carpoolers');
+      carpool.markModified('co2Savings');
+      
+      // Update the requester's total CO2 savings
       await User.findOneAndUpdate(
-        { email: carpool.userEmail },
-        { $inc: { co2Saved: co2SavingsPerPassenger } },
-        { new: true, upsert: false }
+        { email: request.email },
+        { $inc: { co2Saved: co2Savings } },
+        { new: true, upsert: true }
       );
       
-      // Update the requester's CO2 savings
-      await User.findOneAndUpdate(
-        { email: requesterEmail },
-        { $inc: { co2Saved: co2SavingsPerPassenger } },
-        { new: true, upsert: false }
-      );
-      
-      // Add CO2 savings to the carpooler's record
-      const requesterIndex = carpool.carpoolers.findIndex(c => c.email === requesterEmail);
-      if (requesterIndex !== -1) {
-        carpool.carpoolers[requesterIndex].co2Savings = co2SavingsPerPassenger;
-      }
+      // Prepare email to the requester
+      mailOptionsToRequester = {
+        from: process.env.SMTP_USER,
+        to: request.email,
+        subject: `Your carpool request has been approved for ${event ? event.eventName : 'an event'}`,
+        text: `Your request to join the carpool for ${event ? event.eventName : 'an event'} has been approved.\n\n` +
+              `Driver: ${carpool.firstName} ${carpool.lastName} (${carpool.email})\n` +
+              `Event: ${event ? event.eventName : 'N/A'}\n` +
+              `Date: ${event ? new Date(event.date).toLocaleDateString() : 'N/A'}\n` +
+              `Meeting Point: ${carpool.wlocation || 'N/A'}\n` +
+              `Estimated Distance: ${distanceMiles.toFixed(1)} miles\n` +
+              `Estimated CO2 Savings: ${co2Savings.toFixed(2)} lbs\n` +
+              `Driver's Phone: ${carpool.phone || 'Not provided'}\n\n` +
+              `Please contact the driver for any further details.`
+      };
     }
     
     carpool.pendingRequests.splice(idx, 1);
     await carpool.save();
     
-    // Send email to requester about approval/denial
-    const mailOptionsToRequester = {
-      from: process.env.SMTP_USER,
-      to: requesterEmail,
-      subject: `Carpool Request Update for ${event ? event.eventName : 'Unknown Event'}`,
-      text: `Your request to join the carpool for the event: ${event ? event.eventName : 'Unknown Event'} (Driver: ${carpool.firstName} ${carpool.lastName}) has been ${approve ? 'approved' : 'denied'}.
-      
-${approve ? `🌱 By joining this carpool, you've helped save approximately ${(carpool.distanceMiles * 0.4).toFixed(2)} kg of CO2 emissions!` : ''}`
-    };
-    try {
-      await transporter.sendMail(mailOptionsToRequester);
-    } catch (e) {
-      console.error('Failed to send approval/denial email to requester:', e);
+    // Send the approval email if approved
+    if (approve) {
+      try {
+        await transporter.sendMail(mailOptionsToRequester);
+        
+        // Also send notification to the carpool owner
+        const ownerMailOptions = {
+          from: process.env.SMTP_USER,
+          to: carpool.email,
+          subject: `Carpool Update: ${request.firstName} ${request.lastName} has joined your carpool`,
+          text: `${request.firstName} ${request.lastName} has been added to your carpool for ${event ? event.eventName : 'the event'}.
+                
+Passenger Details:
+- Name: ${request.firstName} ${request.lastName}
+- Email: ${request.email}
+- Address: ${request.address}
+- Estimated Distance: ${distanceMiles.toFixed(1)} miles
+- Estimated CO2 Savings: ${co2Savings.toFixed(2)} lbs
+
+You can now coordinate with them for the carpool details.`
+        };
+        
+        await transporter.sendMail(ownerMailOptions);
+      } catch (e) {
+        console.error('Failed to send approval emails:', e);
+        // Don't fail the request if email sending fails
+      }
     }
     
-    return res.status(200).json({ message: approve ? "Approved" : "Denied" });
+    // Get the updated carpool data with the new carpooler
+    const updatedCarpool = await Carpool.findById(carpool._id).lean();
+    const approvedCarpooler = updatedCarpool.carpoolers.find(c => c.email === requesterEmail);
+    
+    return res.status(200).json({ 
+      success: true, 
+      message: approve ? "Request approved successfully" : "Request denied",
+      data: approve ? {
+        co2Savings: approvedCarpooler?.co2Savings || co2Savings,
+        distanceMiles: approvedCarpooler?.distanceMiles || distanceMiles,
+        numPassengers: approvedCarpooler?.numPassengers || numPassengers,
+        carpoolId: updatedCarpool._id.toString()
+      } : null
+    });
   } catch (err) {
     console.error("Error approving/denying carpool request:", err);
-    return res.status(500).send("Error processing request");
+    return res.status(500).json({ 
+      success: false, 
+      error: "Error processing request",
+      details: process.env.NODE_ENV === 'development' ? err.message : undefined
+    });
   }
 });
 
@@ -630,6 +752,9 @@ router.patch("/users/update", homeLimiter, async (req, res) => {
   }
 });
 
+// Import geo utilities
+const { geocodeAddress } = require('../utils/geoUtils');
+
 // Route to create a new carpool
 router.post("/carpools", homeLimiter, authenticateToken, async (req, res) => {
   const { 
@@ -645,8 +770,26 @@ router.post("/carpools", homeLimiter, authenticateToken, async (req, res) => {
     nameOfEvent,
     userEmail,
     arrivalTime,
-    distanceMiles = 10 // Default distance, should be calculated based on actual route in a real app
+    startLocation, // Should be { lat, lng } object
+    endLocation,   // Should be { lat, lng } object
+    distanceMiles: providedDistance // Optional, will be calculated if not provided
   } = req.body;
+  
+  let distanceMiles = providedDistance;
+  
+  // If distance is not provided, calculate it using the Haversine formula
+  if (!distanceMiles && startLocation && endLocation) {
+    try {
+      distanceMiles = calculateDistance(startLocation, endLocation);
+    } catch (error) {
+      console.error('Error calculating distance:', error);
+      // Fall back to default if calculation fails
+      distanceMiles = 10;
+    }
+  } else if (!distanceMiles) {
+    // Default to 10 miles if no coordinates are provided
+    distanceMiles = 10;
+  }
 
   try {
     // Create and save the new carpool

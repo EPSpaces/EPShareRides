@@ -54,6 +54,9 @@ const {
   authenticateToken,
 } = require("./utils/authUtils");
 
+// Import Student Utilities
+const { loadStudentData, findNearbyStudents } = require('./utils/studentUtils');
+
 // Initialize Express server
 const app = express();
 
@@ -122,35 +125,139 @@ app.get("/sustainabilityStatement", (req, res) => {
 // My carpools route - Render user's carpools
 app.get("/mycarpools", homeLimiter, authenticateToken, async (req, res) => {
   const email = req.email;
-  let firstName;
-  let lastName;
-
-  let userInData;
-
+  console.log(`[${new Date().toISOString()}] /mycarpools route called for user: ${email}`);
+  
   try {
-    userInData = await User.findOne({ email }); // Find user by email
+    // Get user data
+    const userInData = await User.findOne({ email });
     if (!userInData) {
+      console.error(`User not found: ${email}`);
       res.clearCookie("idToken");
-      res.redirect("/signin?err=Error with system finding User, please try again");
-      return;
+      return res.redirect("/signin?err=User not found, please sign in again");
     }
+    
+    console.log(`Found user: ${userInData.firstName} ${userInData.lastName}`);
+    
+    // Get user's carpools
+    let offeredCarpools = [];
+    let joinedCarpools = [];
+    
+    try {
+      [offeredCarpools, joinedCarpools] = await Promise.all([
+        // Get carpools where user is the driver
+        Carpool.find({ userEmail: email })
+          .populate('nameOfEvent', 'eventName date')
+          .lean(),
+        
+        // Get carpools where user is a passenger but not the driver
+        Carpool.find({ 
+          'carpoolers.email': email,
+          userEmail: { $ne: email } // Exclude carpools where user is the driver
+        })
+        .populate('nameOfEvent', 'eventName date')
+        .lean()
+      ]);
+      
+      console.log(`Found ${offeredCarpools.length} offered carpools and ${joinedCarpools.length} joined carpools`);
+    } catch (dbError) {
+      console.error('Error fetching carpools:', dbError);
+      // Continue with empty arrays if there's an error
+    }
+    
+    // Format the data for the template
+    const formatCarpool = (carpool) => {
+      try {
+        // Format carpoolers data
+        const formattedCarpoolers = (carpool.carpoolers || []).map(carpooler => {
+          // Handle case where carpooler is a string (shouldn't happen with current schema)
+          if (typeof carpooler === 'string') {
+            return {
+              email: carpooler,
+              co2Savings: 0,
+              firstName: '',
+              lastName: ''
+            };
+          }
+          
+          // Handle case where carpooler is an object
+          return {
+            ...carpooler,
+            email: carpooler.email || '',
+            firstName: carpooler.firstName || '',
+            lastName: carpooler.lastName || '',
+            co2Savings: Number(carpooler.co2Savings) || 0,
+            _id: carpooler._id?.toString() || new mongoose.Types.ObjectId().toString()
+          };
+        });
+        
+        // Format the carpool object
+        const formattedCarpool = {
+          ...carpool,
+          _id: carpool._id?.toString() || new mongoose.Types.ObjectId().toString(),
+          carpoolers: formattedCarpoolers,
+          co2Savings: Number(carpool.co2Savings) || 0,
+          userEmail: carpool.userEmail || email,
+          firstName: carpool.firstName || '',
+          lastName: carpool.lastName || '',
+          seats: Number(carpool.seats) || 4,
+          createdAt: carpool.createdAt?.toISOString() || new Date().toISOString(),
+          updatedAt: carpool.updatedAt?.toISOString() || new Date().toISOString()
+        };
+        
+        // Add event data if exists
+        if (carpool.nameOfEvent) {
+          formattedCarpool.nameOfEvent = {
+            _id: carpool.nameOfEvent._id?.toString() || new mongoose.Types.ObjectId().toString(),
+            eventName: carpool.nameOfEvent.eventName || 'Unknown Event',
+            date: carpool.nameOfEvent.date?.toISOString() || new Date().toISOString()
+          };
+        }
+        
+        return formattedCarpool;
+      } catch (formatError) {
+        console.error('Error formatting carpool:', formatError);
+        // Return a minimal valid carpool object
+        return {
+          _id: new mongoose.Types.ObjectId().toString(),
+          carpoolers: [],
+          co2Savings: 0,
+          userEmail: email,
+          firstName: '',
+          lastName: '',
+          seats: 4,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          nameOfEvent: {
+            _id: new mongoose.Types.ObjectId().toString(),
+            eventName: 'Unknown Event',
+            date: new Date().toISOString()
+          }
+        };
+      }
+    };
+    
+    // Format all carpools
+    const formattedOffered = (offeredCarpools || []).map(formatCarpool);
+    const formattedJoined = (joinedCarpools || []).map(formatCarpool);
+    
+    // Log some debug info
+    console.log(`Formatted ${formattedOffered.length} offered and ${formattedJoined.length} joined carpools`);
+    
+    // Render the template with the data
+    res.render("mycarpools", {
+      email,
+      firstName: userInData.firstName || '',
+      lastName: userInData.lastName || '',
+      offeredCarpools: JSON.stringify(formattedOffered),
+      joinedCarpools: JSON.stringify(formattedJoined),
+      message: req.query.message,
+      error: req.query.error,
+    });
   } catch (err) {
-    console.error("Error finding user: " + err);
+    console.error("Error in myCarpools route:", err);
     res.clearCookie("idToken");
     res.redirect("/signin?err=Internal server error, please sign in again");
-    return;
   }
-
-  firstName = userInData["firstName"];
-  lastName = userInData["lastName"];
-
-  res.render("mycarpools", {
-    email,
-    firstName,
-    lastName,
-    message: req.query.message,
-    error: req.query.error,
-  }); // Render my carpools page
 });
 
 // Update settings route - Allow user to update their settings
@@ -183,30 +290,77 @@ app.get("/updateSettings", homeLimiter, authenticateToken, async (req, res) => {
 
 // Find Rides route - Display available rides
 app.get("/findrides", homeLimiter, authenticateToken, async (req, res) => {
-  const email = req.email;
-  let firstName;
-  let lastName;
-
-  let userInData;
-
   try {
-    userInData = await User.findOne({ email });
-    if (!userInData) {
+    console.log('=== /findrides route called ===');
+    const email = req.email;
+    let firstName = '';
+    let lastName = '';
+    const message = req.query.message || '';
+    const error = req.query.error || '';
+    let results = null;
+    const searchQuery = req.query.search || '';
+    const searchRadius = req.query.radius || '5';
+
+    console.log('Search parameters:', { searchQuery, searchRadius });
+
+    // Try to get user data
+    try {
+      const userInData = await User.findOne({ email });
+      if (!userInData) {
+        console.error('User not found for email:', email);
+        res.clearCookie("idToken");
+        return res.redirect("/signin?err=Error with system finding User, please try again");
+      }
+      firstName = userInData.firstName || '';
+      lastName = userInData.lastName || '';
+      console.log('Authenticated user:', { firstName, lastName, email });
+    } catch (err) {
+      console.error("Error finding user:", err);
       res.clearCookie("idToken");
-      res.redirect("/signin?err=Error with system finding User, please try again");
-      return;
+      return res.redirect("/signin?err=Internal server error, please sign in again");
     }
-  } catch (err) {
-    console.error("Error finding user: " + err);
-    res.clearCookie("idToken");
-    res.redirect("/signin?err=Internal server error, please sign in again");
-    return;
+
+    // If there's a search query, process it
+    if (searchQuery && searchRadius) {
+      console.log('Processing search query...');
+      try {
+        console.log('Calling findNearbyStudents with:', { searchQuery, searchRadius });
+        results = await findNearbyStudents(searchQuery, parseFloat(searchRadius));
+        console.log('Search results:', results ? 'Found ' + (results.nearbyStudents ? results.nearbyStudents.length : 0) + ' nearby students' : 'No results');
+      } catch (err) {
+        console.error('Search error details:', {
+          message: err.message,
+          stack: err.stack,
+          searchQuery,
+          searchRadius
+        });
+        return res.redirect('/findrides?error=' + encodeURIComponent('Error processing your search: ' + (err.message || 'Unknown error')));
+      }
+    } else {
+      console.log('No search query provided, showing empty form');
+    }
+
+    // Prepare the template data
+    const templateData = { 
+      email, 
+      firstName, 
+      lastName, 
+      message,
+      error,
+      results,
+      searchQuery,
+      searchRadius
+    };
+
+    console.log('Rendering findrides template with data');
+    res.render("findrides", templateData);
+  } catch (error) {
+    console.error('Unexpected error in /findrides route:', {
+      message: error.message,
+      stack: error.stack
+    });
+    res.status(500).send('Internal Server Error: ' + error.message);
   }
-
-  firstName = userInData["firstName"];
-  lastName = userInData["lastName"];
-
-  res.render("findrides", { email, firstName, lastName });
 });
 
 // Friends route - Display list of all users
@@ -313,8 +467,15 @@ const port = process.env["PORT"] || 8080;
 console.log(process.env["MONGO_URI"]);
 
 // Connect to the database and start the server
-const mongoUri = 'mongodb://127.0.0.1:27017/epcarpool?directConnection=true';
+const mongoUri = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/epcarpool?directConnection=true';
 console.log('Attempting to connect to MongoDB with URI:', mongoUri);
+
+// Load student data when the server starts
+loadStudentData().then(() => {
+  console.log('Student data loaded successfully');
+}).catch(err => {
+  console.error('Failed to load student data:', err);
+});
 console.log('Current environment variables:', {
   NODE_ENV: process.env.NODE_ENV,
   MODE: process.env.MODE,
