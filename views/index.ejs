@@ -238,8 +238,133 @@
   </main>
   <script></script>
   <!-- start here -->
+  <div class="modal " id="modal-js-example">
+    <div class="modal-background" style="background-color: rgba(10,10,10,.50)"></div>
+    <div class="modal-card">
+      <p class="panel-heading has-text-centered" style="padding: 15px; padding-left: 20px; display: table">
+        <span style=" display: table-cell;vertical-align: middle; text-align: center; position:absolute">
+          <i class="fa-solid fa-car-side" style='float:left; transform:translate(0px,5px)'></i>
+        </span>
+        Offer to Carpool
+        <button class="delete" aria-label="close" onclick="closeAllModals()" style="float: right"></button>
+      </p>
+      <section class="modal-card-body">
+        <div class="container">
+          <label>Carpool information </label>
+          <div class="field">
+            <a class="panel-block" id="carpoolinfo" style="border-radius: 5px; padding:0px;">
+              <input style="margin-right: 10px; " id="fname" class="input" type="fname" placeholder="Driver first name">
+              <input id="lname" class="input" type="lname" placeholder="Driver last name">
+            </a>
+          </div>
+          <div class="field">
+            <a class="panel-block" style="border-radius: 5px; padding:0px;">
+              <input style="margin-right: 10px;" id="email" class="input" type="email" placeholder="Driver email">
+              <input id="phone" class="input" type="tel" placeholder="Driver phone number">
+            </a>
+          </div>
+          <div class="field" style="margin-bottom: 10px;">
+            <input class="input" id="carmake" type="text" placeholder="Car make and model">
+          </div>
+          <div class="field" style="margin-bottom: 10px;">
+            <input class="input" id="seats" type="number" min="1" max="9" placeholder="Number of available car seats">
+          </div>
+          <div style="display: flex; gap: 10px;">
+            <div>
+              <label>Pickup Location </label>
+              <div class="field" style="margin-bottom: 10px;">
+                <div class="control">
+                  <div class="select">
+                    <form>
+                      <select id="route-type">
+                        <option value="route">Riders' Homes</option>
+                        <option value="point">Common meeting point</option>
+                        <option value="eps-campus">EPS Campus</option>
+                      </select>
+                    </form>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div>
+              <label>Arrival time</label>
+              <div class="field" style="margin-bottom: 10px;">
+                <input class="input" id="arrivaltime" type="time" placeholder="Time to arrive">
+              </div>
+            </div>
+          </div>
+          <div class="field">
+            <label id="address-label">Your home address</label>
+            <div class="autocomplete-container" id="">
+              <div class="control" id="autocomplete-container">
+                <div class="clear-button"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <footer class="modal-card-foot" style="background-color: white; border-width: 1px; padding: 10px; ">
+        <div class="buttons" style="margin-left: 0px;">
+          <button class="button is-link " style="background: linear-gradient(105deg, #3273DC, #275CBF);"
+            onclick="offer();window.location.href='/mycarpools'">Create carpool</button>
+          <button class="button" aria-label="close" onclick="closeAllModals()">Cancel</button>
+        </div>
+      </footer>
+    </div>
   </div>
   <!-- end here -->
+  <!-- start here -->
+  <div class="modal " id="modal-js-register">
+    <div class="modal-background" style="background-color: rgba(10,10,10,.50)"></div>
+    <div class="modal-card">
+      <p class="panel-heading has-text-centered" style="padding: 15px; display: table;padding-left: 20px">
+        <span style=" display: table-cell;vertical-align: middle; text-align: center;">
+          <i class="fa-solid fa-users" style='float:left; position: absolute; transform: translate(0px, -10px)'></i>
+        </span>
+        Register to a Carpool
+        <button class="delete" aria-label="close" onclick="closeAllModals()" style="float: right"></button>
+      </p>
+      <section class="modal-card-body">
+        <div class="container">
+          <label id="registerTitle"></label>
+
+          <div style="overflow: auto;">
+            <div id="registerJS">
+              <!-- <div class="notification" style="padding: 10px;   margin-bottom: 10px;">
+                           <div class="button  selectCarpool" style=" margin-left: 10px; margin-top: 4px; background-color: transparent; float: right" onclick=" if (this.classList[2] == 'is-focused') {unfocus()} else {unfocus(); this.classList.add('is-focused')}">Select</div>
+                                   <div style="float: right; margin-top: 3px;"  >2/6 signed up</div>
+                                                             Organizer: <a style="color: #3273dc" href="mailto:ajosan@eastsideprep.org">ajosan@eastsideprep.org</a>
+                                     <br>  Route type: Riders' Homes
+                           <br> 
+                                 </div>    -->
+            </div>
+          </div>
+        </div>
+        <div class="field">
+          <label>Your home address </label>
+          <div class="autocomplete-container " id="">
+            <div class='control' id="autocomplete-container2">
+              <!-- South Kirkland Park and Ride, Bellevue, WA 98004, United States of America -->
+            </div>
+          </div>
+        </div>
+      </section>
+      <footer class="modal-card-foot" style="background-color: white; border-width: 1px; padding: 10px; ">
+        <var></var>
+        <div class="buttons" style="margin-left: 0px;">
+          <button class="button is-link " style="background: linear-gradient(105deg, #3273DC, #275CBF);"
+            onclick="joinCarpool(); window.location.href='/mycarpools'">Join carpool</button>
+          <button class="button" aria-label="close" onclick="closeAllModals()">Cancel</button>
+        </div>
+      </footer>
+    </div>
+  </div>
+  <!-- end here -->
+  <script type="text/javascript">
+    //Don't worry about it
+    console.error("HTTP ERROR: 418 I'm a teapot");
+
+function addressAutocomplete(containerElement, idName, callback, options) {
           // Use existing input if provided, otherwise create a new one
           var inputElement = options.existingInput || document.createElement("input");
           
