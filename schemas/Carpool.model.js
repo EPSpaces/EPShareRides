@@ -34,10 +34,6 @@ const carpoolSchema = new mongoose.Schema({
   carpoolers: [carpoolerSchema],
   pendingRequests: [carpoolerSchema],
   nameOfEvent: String,
-  // Event category and subcategory for interest matching
-  category: { type: String, enum: ['sports', 'academic teams', 'socials', 'other'] },
-  subCategory: { type: String }, // e.g., 'basketball', 'robotics', etc.
-  // End of interest matching fields
   userEmail: {
     type: String,
     required: true,

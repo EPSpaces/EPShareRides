@@ -107,115 +107,66 @@
 
             <span id="createEventButton">
               <button id="buttonzx" style="
-                  padding: 5px 7px;
-                  background-color: #f5f5f5;
-                  border: 1px solid #ddd;
-                  border-radius: 6px;
-                  color: #333;
-                  font-size: 13px;
-                  cursor: pointer;
-                  margin-left: 3px;" 
-                  onclick="showEventForm()">
-                Create event
-              </button>
-            </span>
-    <script>
-    // Function to show the event creation form
-    function showEventForm() {
-      const createEventDiv = document.getElementById('create_event');
-      createEventDiv.style.marginBottom = '60px'; 
-      
-      // Create form HTML as a string
-      const formHTML = [
-        '<form class="box" style="margin-top: -20px" onsubmit="event.preventDefault(); createevent();">',
-        '  <div class="modal-card-head" style="padding: 0px;margin-bottom: 20px;background-color: white;border: none;">',
-        '    <div class="modal-card-title">Create Event</div>',
-        '    <button type="button" class="delete" aria-label="close" onclick="var create_event = document.getElementById(\'create_event\'); create_event.style.marginBottom=\'0\'; create_event.innerHTML = \'\'; return false;"></button>',
-        '  </div>',
-        '  <div class="field">',
-        '    <label class="label" for="ename">Event name:</label>',
-        '    <div class="control">',
-        '      <input class="input" type="text" id="ename" name="name" required>',
-        '    </div>',
-        '  </div>',
-        '  <div class="field">',
-        '    <label class="label" for="elocation">Location name:</label>',
-        '    <div class="control">',
-        '      <input class="input" type="text" id="elocation" name="location" required>',
-        '    </div>',
-        '  </div>',
-        '  <div class="field">',
-        '    <label class="label" for="eaddress">Address:</label>',
-        '    <div class="control" id="address-autocomplete-container">',
-        '      <input class="input" type="text" id="eaddress" name="address" placeholder="Start typing an address..." autocomplete="off" required>',
-        '    </div>',
-        '  </div>',
-        '  <div class="field">',
-        '    <label class="label" for="edate">Date and time:</label>',
-        '    <div class="control">',
-        '      <input class="input" type="datetime-local" id="edate" name="date" required>',
-        '    </div>',
-        '  </div>',
-        '  <div class="field">',
-        '    <label class="label" for="ecategory">Category:</label>',
-        '    <div class="control">',
-        '      <div class="select">',
-        '        <select id="ecategory" name="category" onchange="updateSubcategories()" required>',
-        '          <option value="">Select a category</option>',
-        '          <option value="sports">Sports</option>',
-        '          <option value="academic teams">Academic teams</option>',
-        '          <option value="socials">Socials</option>',
-        '          <option value="other">Other</option>',
-        '        </select>',
-        '      </div>',
-        '    </div>',
-        '  </div>',
-        '  <div class="field" id="subcategoryField" style="display: none;">',
-        '    <label class="label" for="esubcategory">Subcategory:</label>',
-        '    <div class="control">',
-        '      <div class="select">',
-        '        <select id="esubcategory" name="subcategory">',
-        '          <option value="">Select a subcategory</option>',
-        '        </select>',
-        '      </div>',
-        '    </div>',
-        '  </div>',
-        '  <div class="field">',
-        '    <div class="control">',
-        '      <button type="submit" class="button is-link">Create Event</button>',
-        '    </div>',
-        '  </div>',
-        '</form>'
-      ].join('\n');
-      
-      // Set the HTML content
-      createEventDiv.innerHTML = formHTML;
-      
-      // Initialize the address autocomplete after the form is added to the DOM
-      setTimeout(() => {
-        const container = document.getElementById('address-autocomplete-container');
-        const addressInput = document.getElementById('eaddress');
-        
-        if (container && addressInput && typeof addressAutocomplete === 'function') {
-          // Remove any existing autocomplete elements
-          const existingAutocomplete = container.querySelector('.autocomplete-items');
-          if (existingAutocomplete) {
-            existingAutocomplete.remove();
-          }
-          
-          // Initialize the autocomplete
-          addressAutocomplete(container, 'eaddress', (data) => {
-            if (data && data.properties && data.properties.formatted) {
-              addressInput.value = data.properties.formatted;
-            }
-          }, {
-            existingInput: addressInput,
-            placeholder: 'Enter event address'
-          });
-        }
-      }, 100);
-    }
-    
+      padding: 5px 7px;
+      background-color: #f5f5f5;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      color: #333;
+      font-size: 13px;
+      cursor: pointer;
+      margin-left: 3px;
+      " onclick="var create_event = document.getElementById('create_event'); create_event.style.marginBottom='60px'; create_event.innerHTML = `<form class='box' style='margin-top: -20px'><div class='modal-card-head' style='padding: 0px;margin-bottom: 20px;background-color: white;border: none;'>
+        <div class='modal-card-title'>Create Event</div>
+    <button class='delete' aria-label='close' onclick='var create_event = document.getElementById(\'create_event\'); create_event.style.marginBottom=\'50px\'; create_event.innerHTML = \'\''></button>
+    </div>
+    <div class='field'>
+      <label class='label' for='ename'>Event name:</label>
+      <div class='control'>
+        <input class='input' type='text' id='ename' name='name'>
+      </div>
+    </div>
+    <div class='field'>
+      <label class='label' for='elocation'>Location name:</label>
+      <div class='control'>
+        <input class='input' type='text' id='elocation' name='location'>
+      </div>
+    </div>
+    <div class='field'>
+      <label class='label' for='address'>Address:</label>
+      <div class='autocomplete-container ' id=''>
+            <div class='control' id='autocomplete-container3'>
+              <!-- South Kirkland Park and Ride, Bellevue, WA 98004, United States of America -->
+            </div>
+          </div>
+    </div>
+    <div class='field'>
+      <label class='label' for='edate'>Date and time:</label>
+      <div class='control'>
+        <input class='input' type='datetime-local' id='edate' name='date'>
+      </div>
+    </div>
+    <div class='field'>
+      <label class='label' for='ecategory'>Category:</label>
+      <div class='control'>
+        <div class='select'>
+          <select id='ecategory' name='category'>
+            <option value='sports'>Sports</option>
+            <option value='academic teams'>Academic teams</option>
+            <option value='socials'>Socials</option>
+            <option value='other'>Other</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class='field'>
+      <div class='control'>
+        <div class='button is-link' type='button' onclick='createevent();'>Submit</div>
+      </div>
+    </div>
+  </form>`; createEventInputs()">
+    Create event
+  </button>
+</span>
           </div>
           <!--Start here  -->
           <div id="eventsJS">
@@ -365,23 +316,13 @@
     console.error("HTTP ERROR: 418 I'm a teapot");
 
 function addressAutocomplete(containerElement, idName, callback, options) {
-          // Use existing input if provided, otherwise create a new one
-          var inputElement = options.existingInput || document.createElement("input");
-          
-          // Only set attributes and append if this is a new input
-          if (!options.existingInput) {
-            inputElement.setAttribute("type", "text");
-            inputElement.setAttribute("placeholder", options.placeholder);
-            inputElement.setAttribute("id", idName);
-            inputElement.classList.add("input");
-            containerElement.appendChild(inputElement);
-          } else {
-            // Ensure the input has the correct ID and placeholder if using existing input
-            inputElement.setAttribute("id", idName);
-            if (options.placeholder) {
-              inputElement.setAttribute("placeholder", options.placeholder);
-            }
-          }
+          // create input element
+          var inputElement = document.createElement("input");
+          inputElement.setAttribute("type", "text");
+          inputElement.setAttribute("placeholder", options.placeholder);
+          inputElement.setAttribute("id", idName);
+          inputElement.classList.add("input");
+          containerElement.appendChild(inputElement);
 
 
 
@@ -509,13 +450,13 @@ function addressAutocomplete(containerElement, idName, callback, options) {
                 e.preventDefault();
                 /*If the arrow DOWN key is pressed, increase the focusedItemIndex variable:*/
                 focusedItemIndex = focusedItemIndex !== itemElements.length - 1 ? focusedItemIndex + 1 : 0;
-                /*and make the current item more visible:*/
-                setActive(itemElements, focusedItemIndex);
+             /*and and make the current item more visible:*/-
+                  setActive(itemElements, focusedItemIndex);
               } else if (e.keyCode == 38) {
                 e.preventDefault();
 
                 /*If the arrow UP key is pressed, decrease the focusedItemIndex variable:*/
-                focusedItemIndex = focusedItemIndex !== 0 ? focusedItemIndex - 1 : itemElements.length - 1;
+                focusedItemIndex = focusedItemIndex !== 0 ? focusedItemIndex - 1 : focusedItemIndex = (itemElements.length - 1);
                 /*and and make the current item more visible:*/
                 setActive(itemElements, focusedItemIndex);
               } else if (e.keyCode == 13) {
@@ -768,20 +709,12 @@ function addressAutocomplete(containerElement, idName, callback, options) {
 
 
     //create vars
-    let carpooledEvents = [];
+    let carpooledEvents = []
     let userData1;
     let carpoolPart;
-    let carpooledEvent;
-    let eventsW = []; // Store events data
+    let carpooledEvent
+    let eventsW;
     let selectedCarpool = null;
-    
-    // Fetch events data
-    fetch('/api/events')
-      .then(response => response.json())
-      .then(data => {
-        eventsW = data;
-      })
-      .catch(error => console.error('Error fetching events:', error));
     let eventsW2 = [];
     let datarray = [];
     let routeType;
@@ -1288,18 +1221,6 @@ function addressAutocomplete(containerElement, idName, callback, options) {
 
 
     function offerACar(firstName, lastName, email, phone, carMake, seats, route, wlocation, carpoolers, nameOfEvent, arrivalTime) {
-      // Get the event category and subcategory from the event data
-      let category = '';
-      let subCategory = '';
-      
-      // Find the event in the eventsW array to get its category and subcategory
-      if (eventsW && eventsW.length > 0) {
-        const event = eventsW.find(e => e.eventName === nameOfEvent);
-        if (event) {
-          category = event.category || '';
-          subCategory = event.subCategory || '';
-        }
-      }
       let userEmail = "<%= email %>"
       const newcarpools = {
         firstName,
@@ -1313,9 +1234,7 @@ function addressAutocomplete(containerElement, idName, callback, options) {
         carpoolers,
         nameOfEvent,
         userEmail,
-        arrivalTime,
-        category,
-        subCategory
+        arrivalTime
       };
 
       const jsonData = JSON.stringify(newcarpools);
@@ -1482,170 +1401,81 @@ function addressAutocomplete(containerElement, idName, callback, options) {
     }
 
 
-    // Define subcategories for each category
-    const subcategories = {
-      'sports': ['Basketball', 'Soccer', 'Volleyball', 'Tennis', 'Ultimate Frisbee', 'Cross Country', 'Track & Field', 'Golf', 'Other'],
-      'academic teams': ['Robotics', 'Math Team', 'Science Olympiad', 'Debate', 'Model UN', 'Mock Trial', 'Knowledge Bowl', 'Other'],
-      'socials': [], // No subcategories for socials
-      'other': ['Other']
-    };
-
-    function updateSubcategories() {
-      const category = document.getElementById('ecategory').value;
-      const subcategoryField = document.getElementById('subcategoryField');
-      const subcategorySelect = document.getElementById('esubcategory');
-      
-      // Clear existing options except the first one
-      while (subcategorySelect.options.length > 1) {
-        subcategorySelect.remove(1);
-      }
-      
-      if (category && subcategories[category]) {
-        // Show subcategory field and add options
-        subcategoryField.style.display = 'block';
-        
-        // Add subcategory options
-        subcategories[category].forEach(subcat => {
-          const option = document.createElement('option');
-          option.value = subcat.toLowerCase();
-          option.textContent = subcat;
-          subcategorySelect.appendChild(option);
-        });
-      } else {
-        // Hide subcategory field if no category is selected or category has no subcategories
-        subcategoryField.style.display = 'none';
-      }
-    }
-
-    function createEventInputs() {
-      // This function is called when the create event modal is opened
-      // Reset form fields
-      document.getElementById('ecategory').selectedIndex = 0;
-      document.getElementById('subcategoryField').style.display = 'none';
-      document.getElementById('esubcategory').innerHTML = '<option value="">Select a subcategory</option>';
-      document.getElementById('ename').value = '';
-      document.getElementById('elocation').value = '';
-      document.getElementById('edate').value = '';
-    }
-
     async function createevent() {
-      const firstName = "<%= firstName %>";
-      const lastName = "<%= lastName %>";
-      const eventName = document.getElementById("ename").value;
-      const wlocation = document.getElementById("elocation").value;
-      const dateb = document.getElementById("edate").value;
-      const address = document.getElementById("eaddress").value;
-      
-      if (!eventName || !wlocation || !dateb || !address) {
-        alert('Please fill in all required fields');
-        return;
-      }
-      
-      const components = dateb.split(/[-T:]/);
-      
-      // Create a new Date object and format it in a consistent, sortable format
-      const dateTimeObject = new Date(components[0], components[1] - 1, components[2], components[3], components[4]);
-      // Format as YYYY-MM-DD HH:MM AM/PM for consistent sorting and display
-      const date = dateTimeObject.toLocaleString('en-US', {
+      firstName = "<%= firstName %> ";
+      lastName = "<%= lastName %> ";
+      eventName = document.getElementById("ename").value;
+      wlocation = document.getElementById("elocation").value;
+      dateb = document.getElementById("edate").value; //hotdogs
+      var components = dateb.split(/[-T:]/);
+
+      const address = document.getElementById("create_address").value;
+
+      // Create a new Date object
+      var dateTimeObject = new Date(components[0], components[1] - 1, components[2], components[3], components[4]);
+      // Format the Date object as a string in the desired format
+      date = dateTimeObject.toLocaleString('en-US', {
+        month: 'numeric',
+        day: 'numeric',
         year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
+        hour: 'numeric',
+        minute: 'numeric',
         hour12: true
       });
+      category = document.getElementById("ecategory").value;
       
-      const categorySelect = document.getElementById("ecategory");
-      const subcategorySelect = document.getElementById("esubcategory");
+      // Get coordinates for the user's address and event location
+      const userCoords = await getCoordinates(address);
+      const eventCoords = await getCoordinates(wlocation);
       
-      if (!categorySelect.value) {
-        alert('Please select a category');
-        return;
-      }
+      // Calculate straight-line distance in miles
+      let distanceMiles = calculateDistance(
+        userCoords.lat, 
+        userCoords.lng, 
+        eventCoords.lat, 
+        eventCoords.lng
+      );
       
-      const category = categorySelect.value;
-      let subCategory = '';
+      // Ensure minimum distance of 1 mile and round to 1 decimal place
+      distanceMiles = Math.max(1, parseFloat(distanceMiles.toFixed(1)));
       
-      // Only require subcategory for sports and academic teams
-      if ((category === 'sports' || category === 'academic teams') && !subcategorySelect.value) {
-        alert('Please select a subcategory');
-        return;
-      }
+      const numPassengers = 1; // Just the driver initially
       
-      subCategory = subcategorySelect.value || '';
-      
+      const data = {
+        eventName,
+        wlocation,
+        date,
+        category,
+        addressToPut: address,
+        distanceMiles,
+        numPassengers
+      };
+
+      const jsonData = JSON.stringify(data);
+      const url = "/api/events";
+
       try {
-        // Get coordinates for the user's address and event location
-        const userCoords = await getCoordinates(address);
-        const eventCoords = await getCoordinates(wlocation);
-        
-        if (!userCoords || !eventCoords) {
-          throw new Error('Could not get coordinates for the provided addresses');
-        }
-        
-        // Calculate straight-line distance in miles
-        let distanceMiles = calculateDistance(
-          userCoords.lat, 
-          userCoords.lng, 
-          eventCoords.lat, 
-          eventCoords.lng
-        );
-        
-        // Ensure minimum distance of 1 mile and round to 1 decimal place
-        distanceMiles = Math.max(1, parseFloat(distanceMiles.toFixed(1)));
-        
-        const data = {
-          name: eventName,
-          location: wlocation,
-          address: address,
-          date: date,
-          category: category,
-          subcategory: subCategory,
-          creator: firstName + ' ' + lastName,
-          creatorEmail: "<%= email %>",
-          distanceMiles: distanceMiles,
-          numPassengers: 1 // Just the driver initially
-        };
-        
-        const url = "/api/events";
         const response = await fetch(url, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify(data),
+          body: jsonData,
         });
         
-        const result = await response.json();
+        console.log(response);
         
-        if (response.ok && result.success) {
-          // Emit event for CO2 savings update
+        // Emit event for CO2 savings update
+        if (response.ok) {
           document.dispatchEvent(new CustomEvent('carpool-created', {
             detail: {
               distanceMiles: distanceMiles,
-              numPassengers: 1
+              numPassengers: numPassengers
             }
           }));
-          
-          // Reset form
-          resetEventForm();
-          
-          // Close the form
-          const createEventDiv = document.getElementById('create_event');
-          createEventDiv.style.marginBottom = '0';
-          createEventDiv.innerHTML = '';
-          
-          // Show success message
-          alert('Event created successfully!');
-          
-          // Refresh the events list
-          window.location.reload();
-        } else {
-          throw new Error(result.message || 'Failed to create event');
         }
       } catch (error) {
-        console.error('Error creating event:', error);
-        alert('Error creating event: ' + (error.message || 'Please try again'));
+        console.error("Error creating event:", error);
       }
     }
 

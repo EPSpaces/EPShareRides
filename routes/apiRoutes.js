@@ -42,95 +42,6 @@ const homeLimiter = rateLimit({
 });
 
 
-// Route to get recommended carpools based on user interests
-router.get("/carpools/recommended", homeLimiter, authenticateToken, async (req, res) => {
-  try {
-    const userEmail = req.email;
-    
-    // Get user's interests
-    const user = await User.findOne({ email: userEmail });
-    if (!user || !user.interests || user.interests.length === 0) {
-      return res.json([]);
-    }
-    
-    // Get all active carpools
-    const now = new Date();
-    const futureCarpools = await Carpool.find({ 
-      'arrivalTime': { $gt: now.toISOString() },
-      'userEmail': { $ne: userEmail } // Don't recommend user's own carpools
-    });
-    
-    // Filter carpools that match user's interests
-    const recommendedCarpools = futureCarpools.filter(carpool => {
-      return user.interests.some(interest => {
-        // Match by category and subcategory if available
-        return interest.category === carpool.category && 
-               (!interest.subCategory || interest.subCategory === carpool.subCategory);
-      });
-    });
-    
-    res.json(recommendedCarpools);
-  } catch (error) {
-    console.error('Error getting recommended carpools:', error);
-    res.status(500).json({ error: 'Failed to get recommended carpools' });
-  }
-});
-
-// Route to update user interests
-router.post("/user/interests", homeLimiter, authenticateToken, async (req, res) => {
-  try {
-    const userEmail = req.email;
-    const { interests } = req.body;
-    
-    // Validate interests format
-    if (!Array.isArray(interests)) {
-      return res.status(400).json({ error: 'Interests must be an array' });
-    }
-    
-    // Validate each interest
-    for (const interest of interests) {
-      if (!interest.category || !['sports', 'academic teams', 'socials', 'other'].includes(interest.category)) {
-        return res.status(400).json({ error: 'Invalid interest category' });
-      }
-    }
-    
-    // Update user's interests
-    await User.updateOne(
-      { email: userEmail },
-      { $set: { interests } },
-      { upsert: true }
-    );
-    
-    res.json({ message: 'Interests updated successfully' });
-  } catch (error) {
-    console.error('Error updating interests:', error);
-    res.status(500).json({ error: 'Failed to update interests' });
-  }
-});
-
-// Route to get current user data
-router.get("/user", homeLimiter, authenticateToken, async (req, res) => {
-  try {
-    const user = await User.findOne({ email: req.email });
-    if (!user) {
-      return res.status(404).json({ error: 'User not found' });
-    }
-    
-    // Return only necessary user data (exclude sensitive info like password)
-    const userData = {
-      email: user.email,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      interests: user.interests || []
-    };
-    
-    res.json(userData);
-  } catch (error) {
-    console.error('Error fetching user data:', error);
-    res.status(500).json({ error: 'Failed to fetch user data' });
-  }
-});
-
 // Route to get points data
 router.get("/points", homeLimiter, authenticateToken, (req, res) => {
   // Read the points data from the DB
@@ -320,40 +231,14 @@ ${approve ? `🌱 By joining this carpool, you've helped save approximately ${(c
 router.get("/events", homeLimiter, authenticateToken, async (req, res) => {
   let events;
   try {
-    // Get all events first for debugging
-    const allEvents = await Event.find({});
-    console.log('All events in DB:', allEvents);
-    
-    // Get current date in the same format as stored dates
     const now = new Date();
-    const nowStr = now.toLocaleString('en-US', {
-      month: 'numeric',
-      day: 'numeric',
-      year: 'numeric',
-      hour: 'numeric',
-      minute: 'numeric',
-      hour12: true
-    });
-    
-    console.log('Current time for comparison:', nowStr);
-    
-    // Since dates are stored as strings, we'll sort them in memory
-    // This is not ideal for large datasets but works for now
-    events = allEvents.filter(event => {
-      // Compare the date strings directly
-      // This assumes the dates are stored in a sortable format
-      return event.date > nowStr;
-    });
-    
-    console.log('Filtered future events:', events);
+    // Only return events with date after now
+    events = await Event.find({ date: { $gt: now.toISOString() } });
   } catch (err) {
     console.error("Error getting events: " + err);
-    return res.status(500).json({
-      success: false,
-      error: 'Error getting events: ' + err.message
-    });
+    res.status(500).send("Error getting events");
+    return;
   }
-  
   res.json(events);
 });
 
@@ -361,7 +246,7 @@ router.get("/events", homeLimiter, authenticateToken, async (req, res) => {
 router.post("/events", homeLimiter, authenticateToken, async (req, res) => {
   // Get the event data from the request body
   // Create a new event object with the event data
-  const { eventName, wlocation, date, category, subCategory, addressToPut } = req.body;
+  const { eventName, wlocation, date, category, addressToPut } = req.body;
   //Create the user object
   let userInData;
   // Get the user's email from the request
@@ -401,28 +286,21 @@ router.post("/events", homeLimiter, authenticateToken, async (req, res) => {
       address: addressToPut,
       date,
       category,
-      subCategory,
     });
 
     console.log(newEvent);
 
     // Save the new event to the DB
-    const savedEvent = await newEvent.save();
-    
-    // Send the saved event data back to the client
-    res.status(201).json({
-      success: true,
-      message: 'Event created successfully',
-      event: savedEvent
-    });
+    await newEvent.save();
   } catch (err) {
     // Log the error
     console.error("Error saving event: " + err);
-    res.status(500).json({
-      success: false,
-      error: 'Error saving event: ' + err.message
-    });
+    res.status(500).send("Error saving event");
+    return;
   }
+  // Send a 200 status code because the event was saved successfully
+  res.status(200).send("Event saved");
+  return;
 });
 
 // Route to get all carpools
@@ -765,8 +643,6 @@ router.post("/carpools", homeLimiter, authenticateToken, async (req, res) => {
     nameOfEvent,
     userEmail,
     arrivalTime,
-    category,
-    subCategory,
     distanceMiles = 10 // Default distance, should be calculated based on actual route in a real app
   } = req.body;
 
@@ -785,8 +661,6 @@ router.post("/carpools", homeLimiter, authenticateToken, async (req, res) => {
       nameOfEvent,
       userEmail,
       arrivalTime,
-      category,
-      subCategory,
       distanceMiles // Save the distance for future reference
     });
 
