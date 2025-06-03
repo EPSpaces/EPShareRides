@@ -8,6 +8,7 @@ const cookieParser = require("cookie-parser");
 const mongoose = require("mongoose");
 const cron = require('node-cron');
 const nodemailer = require('nodemailer');
+const { findNearbyStudents, loadStudentData } = require('./utils/studentUtils');
 
 // Load environment variables from env.local or .env file
 const envPath = fs.existsSync('./env.local') ? './env.local' : './.env';
@@ -206,7 +207,55 @@ app.get("/findrides", homeLimiter, authenticateToken, async (req, res) => {
   firstName = userInData["firstName"];
   lastName = userInData["lastName"];
 
-  res.render("findrides", { email, firstName, lastName });
+  const searchQuery = req.query.search || '';
+  const searchRadius = parseFloat(req.query.radius) || 5;
+  
+  let results = null;
+  
+  // Only perform search if there's a search query
+  if (searchQuery) {
+    try {
+      // Ensure student data is loaded first
+      await loadStudentData();
+      
+      // Find nearby students using the studentUtils function
+      const searchResults = await findNearbyStudents(searchQuery, searchRadius);
+      
+      if (searchResults && searchResults.nearbyStudents && searchResults.nearbyStudents.length > 0) {
+        // Format the results to match what the template expects
+        const formattedStudents = searchResults.nearbyStudents.map(student => ({
+          name: student.name,
+          grade: student.grade,
+          address: student.address,
+          parents: student.parents,
+          contact: student.contact,
+          distance: student.distance
+        }));
+        
+        results = {
+          student: {
+            name: searchResults.student.name,
+            address: searchResults.student.address
+          },
+          nearbyStudents: formattedStudents
+        };
+      } else {
+        results = { error: 'No students found within the specified radius' };
+      }
+    } catch (err) {
+      console.error('Error searching for students:', err);
+      results = { error: err.message || 'An error occurred while searching' };
+    }
+  }
+  
+  res.render("findrides", { 
+    email, 
+    firstName, 
+    lastName, 
+    searchQuery, 
+    searchRadius,
+    results
+  });
 });
 
 // Friends route - Display list of all users

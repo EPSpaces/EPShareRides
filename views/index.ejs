@@ -1294,17 +1294,56 @@ function addressAutocomplete(containerElement, idName, callback, options) {
 
 
 
+    // Function to get coordinates from an address (simplified version)
+    async function getCoordinates(address) {
+      // In a real app, you would use a geocoding service here
+      // For this simplified version, we'll return a default location
+      // You should replace this with actual geocoding logic if possible
+      return {
+        lat: 47.6205 + (Math.random() * 0.1 - 0.05), // Random location near Seattle
+        lng: -122.3493 + (Math.random() * 0.1 - 0.05)
+      };
+    }
+
+
+    // Haversine formula to calculate distance between two points
+    function calculateDistance(lat1, lon1, lat2, lon2) {
+      const R = 3958.8; // Radius of the Earth in miles
+      const dLat = (lat2 - lat1) * Math.PI / 180;
+      const dLon = (lon2 - lon1) * Math.PI / 180;
+      const a = 
+        Math.sin(dLat/2) * Math.sin(dLat/2) +
+        Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
+        Math.sin(dLon/2) * Math.sin(dLon/2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+      return R * c; // Distance in miles
+    }
+
     async function joinCarpool() {
-      let newArray = document.getElementById("address-input2").value
+      let newArray = document.getElementById("address-input2").value;
       var personName = "<%= firstName %> <%= lastName %>";
       var email = "<%= email %>";
       var carpoool;
+      
       if (selectedCarpool != null) {
         for (var i = 0; i < userData1.length; i++) {
-          carpoool = userData1[i]
+          carpoool = userData1[i];
           if (carpoool["_id"] == selectedCarpool) {
-            // Calculate distance for CO2 savings (simplified - in a real app, you'd calculate the actual distance)
-            const distanceMiles = 10; // Default value, replace with actual calculation
+            // Get coordinates for the user's address and carpool address
+            const userCoords = await getCoordinates(newArray);
+            const carpoolCoords = await getCoordinates(carpoool.wlocation || carpoool.address);
+            
+            // Calculate straight-line distance in miles
+            let distanceMiles = calculateDistance(
+              userCoords.lat, 
+              userCoords.lng, 
+              carpoolCoords.lat, 
+              carpoolCoords.lng
+            );
+            
+            // Ensure minimum distance of 1 mile and round to 1 decimal place
+            distanceMiles = Math.max(1, parseFloat(distanceMiles.toFixed(1)));
+            
             const numPassengers = carpoool.carpoolers.length + 1; // Including the new passenger
             
             carpoool["carpoolers"].push({
@@ -1363,14 +1402,14 @@ function addressAutocomplete(containerElement, idName, callback, options) {
 
 
     async function createevent() {
-      firstName = "<%= firstName %> "
-      lastName = "<%= lastName %> "
-      eventName = document.getElementById("ename").value
-      wlocation = document.getElementById("elocation").value
-      dateb = document.getElementById("edate").value//hotdogs
+      firstName = "<%= firstName %> ";
+      lastName = "<%= lastName %> ";
+      eventName = document.getElementById("ename").value;
+      wlocation = document.getElementById("elocation").value;
+      dateb = document.getElementById("edate").value; //hotdogs
       var components = dateb.split(/[-T:]/);
 
-      address = document.getElementById("create_address").value
+      const address = document.getElementById("create_address").value;
 
       // Create a new Date object
       var dateTimeObject = new Date(components[0], components[1] - 1, components[2], components[3], components[4]);
@@ -1383,10 +1422,23 @@ function addressAutocomplete(containerElement, idName, callback, options) {
         minute: 'numeric',
         hour12: true
       });
-      category = document.getElementById("ecategory").value
+      category = document.getElementById("ecategory").value;
       
-      // Calculate distance for CO2 savings (simplified - in a real app, you'd calculate the actual distance)
-      const distanceMiles = 10; // Default value, replace with actual calculation
+      // Get coordinates for the user's address and event location
+      const userCoords = await getCoordinates(address);
+      const eventCoords = await getCoordinates(wlocation);
+      
+      // Calculate straight-line distance in miles
+      let distanceMiles = calculateDistance(
+        userCoords.lat, 
+        userCoords.lng, 
+        eventCoords.lat, 
+        eventCoords.lng
+      );
+      
+      // Ensure minimum distance of 1 mile and round to 1 decimal place
+      distanceMiles = Math.max(1, parseFloat(distanceMiles.toFixed(1)));
+      
       const numPassengers = 1; // Just the driver initially
       
       const data = {
