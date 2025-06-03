@@ -310,11 +310,14 @@ If you have questions, contact your driver at ${carpool.email} or ${carpool.phon
 
 const port = process.env["PORT"] || 8080;
 
-console.log(process.env["MONGO_URI"]);
+// Use the MONGO_URI from environment variables
+const mongoUri = process.env.MONGO_URI;
+if (!mongoUri) {
+  console.error('ERROR: MONGO_URI is not defined in environment variables');
+  process.exit(1);
+}
 
-// Connect to the database and start the server
-const mongoUri = 'mongodb://127.0.0.1:27017/epcarpool?directConnection=true';
-console.log('Attempting to connect to MongoDB with URI:', mongoUri);
+console.log('Attempting to connect to MongoDB with the provided URI');
 console.log('Current environment variables:', {
   NODE_ENV: process.env.NODE_ENV,
   MODE: process.env.MODE,

@@ -11,14 +11,12 @@ const RATE_LIMITER_REQUESTS = 100;
 
 const User = require("../schemas/User.model.js");
 const Event = require("../schemas/Event.model.js");
-const { calculateDistance } = require("../utils/distanceUtils");
 const { calculateCO2Savings, calculateCO2SavingsPerPassenger } = require("../utils/co2Calculator");
 // ObjectId is a class that is used to convert a string into a MongoDB ObjectId
 const ObjectId = require("mongodb").ObjectId;
 
 // Carpool model
 const Carpool = require("../schemas/Carpool.model.js");
-//const Version = require("../schemas/Version.model.js");
 
 // Create a new router to handle all the API routes
 const router = express.Router();
