@@ -19,12 +19,7 @@ const userSchema = new Schema({
   // Track CO2 savings in kg (legacy field, use totalCO2Savings instead)
   co2Saved: { type: Number, default: 0 },
   // Track total CO2 savings across all carpools in kg
-  totalCO2Savings: { type: Number, default: 0 },
-  // User interests for carpool recommendations
-  interests: [{
-    category: { type: String, enum: ['sports', 'academic teams', 'socials', 'other'] },
-    subCategory: { type: String } // e.g., 'basketball', 'robotics', etc.
-  }]
+  totalCO2Savings: { type: Number, default: 0 }
 });
 
 // Export the User model
