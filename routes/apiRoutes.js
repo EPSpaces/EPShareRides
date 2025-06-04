@@ -333,6 +333,23 @@ router.get("/events", homeLimiter, authenticateToken, async (req, res) => {
   res.json(events);
 });
 
+// Route to get a specific event by ID
+router.get("/events/:id", homeLimiter, authenticateToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const event = await Event.findById(id);
+
+    if (!event) {
+      return res.status(404).send("Event not found");
+    }
+
+    res.json(event);
+  } catch (err) {
+    console.error("Error retrieving event: " + err);
+    res.status(500).send("Error retrieving event");
+  }
+});
+
 // Route to create a new event
 router.post("/events", homeLimiter, authenticateToken, async (req, res) => {
   // Get the event data from the request body
