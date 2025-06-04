@@ -251,6 +251,21 @@
                 <input class="input" id="arrivaltime" type="time" placeholder="Time to arrive">
               </div>
             </div>
+            <div>
+              <label>Carpool category</label>
+              <div class="field" style="margin-bottom: 10px;">
+                <div class="control">
+                  <div class="select">
+                    <select id="carpool-category">
+                      <option value="sports">Sports</option>
+                      <option value="academic">Academic</option>
+                      <option value="social">Social</option>
+                      <option value="other">Other</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
           <div class="field">
             <label id="address-label">Your home address</label>
@@ -1221,15 +1236,17 @@ function addressAutocomplete(containerElement, idName, callback, options) {
       let CarMake = document.getElementById("carmake").value;
       let Seats = document.getElementById("seats").value;
       let ArrivalTime = document.getElementById("arrivaltime").value;
+      let category = document.getElementById("carpool-category").value;
       let route = document.getElementById("route-type").value;
       let Carpoolers = []
 
-      offerACar(DriverFName, DriverLName, DriverEmail, DriverPhone, CarMake, Seats, route, newArray, Carpoolers, datarray[datarray.length - 1], ArrivalTime);
+      offerACar(DriverFName, DriverLName, DriverEmail, DriverPhone, CarMake, Seats, route, newArray, Carpoolers, datarray[datarray.length - 1], ArrivalTime, category);
     }
 
 
-    async function offerACar(firstName, lastName, email, phone, carMake, seats, route, wlocation, carpoolers, eventId, arrivalTime) {
+    async function offerACar(firstName, lastName, email, phone, carMake, seats, route, wlocation, carpoolers, eventId, arrivalTime, category) {
       try {
+      
         // First, fetch the event to get its category and address
         const eventResponse = await fetch(`/api/events/${eventId}`);
         if (!eventResponse.ok) {

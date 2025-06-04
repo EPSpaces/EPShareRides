@@ -23,6 +23,7 @@ function formatNumber(value) {
  * @param {number} kgSavings - CO2 savings in kilograms
  */
 function updateCO2Tooltip(kgSavings) {
+
   // The tooltip is nested inside the #co2-savings element on each page
   const tooltip = document.querySelector('#co2-savings .co2-tooltip');
   if (!tooltip) return;
