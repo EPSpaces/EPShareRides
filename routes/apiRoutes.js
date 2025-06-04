@@ -153,11 +153,11 @@ router.get("/recommended-carpools", homeLimiter, authenticateToken, async (req, 
     // so include those variants as well.
     const interestMap = {
       sports: ['sports'],
-      academic: ['academic', 'academic teams'],
-      social: ['social', 'socials'],
+      academic: ['academic teams'],
+      social: ['socials'],
       other: ['other']
     };
-
+    
     // Expand interests into the actual categories stored on carpools and
     // remove duplicates.
     const matchCategories = settings.interests
