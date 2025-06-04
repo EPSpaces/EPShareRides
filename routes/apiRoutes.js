@@ -174,7 +174,6 @@ router.get("/recommended-carpools", homeLimiter, authenticateToken, async (req, 
       userEmail: { $ne: req.email }, // Not the user's own carpools
       carpoolers: { $not: { $elemMatch: { email: req.email } } } // Not already joined
     }).limit(5);
-
     res.json(recommendedCarpools);
   } catch (error) {
     console.error("Error getting recommended carpools:", error);
