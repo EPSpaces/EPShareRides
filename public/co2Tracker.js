@@ -23,7 +23,9 @@ function formatNumber(value) {
  * @param {number} kgSavings - CO2 savings in kilograms
  */
 function updateCO2Tooltip(kgSavings) {
-  const tooltip = document.getElementById('co2-tooltip');
+
+  // The tooltip is nested inside the #co2-savings element on each page
+  const tooltip = document.querySelector('#co2-savings .co2-tooltip');
   if (!tooltip) return;
   const grams = kgSavings * 1000;
   const bottles = Math.round(grams / 83);
@@ -135,6 +137,9 @@ function stopAutoRefresh() {
 document.addEventListener('DOMContentLoaded', () => {
   // Start auto-refresh
   startAutoRefresh();
+
+  // Initialize tooltip with current savings (likely 0 until first fetch)
+  updateCO2Tooltip(currentSavings);
   
   // Listen for custom events that might indicate CO2 savings updates
   document.addEventListener('carpool-created', fetchAndUpdateCO2Savings);
