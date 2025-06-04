@@ -19,7 +19,6 @@ function formatNumber(value) {
 }
 
 /**
-
  * Update the displayed equivalents based on CO2 saved
  * @param {number} kgSavings - CO2 savings in kilograms
  */
@@ -31,6 +30,8 @@ function updateCO2Equivalents(kgSavings) {
   const bottles = Math.round(grams / 83);
   const servings = Math.round(grams / 330);
   details.textContent = `≈ ${bottles} plastic water bottles or ${servings} servings of rice`;
+}
+}
 
 /**
  * Update the CO2 savings display in the UI with animation
