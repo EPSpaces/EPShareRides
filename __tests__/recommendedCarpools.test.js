@@ -55,9 +55,11 @@ test('returns recommended carpools based on user interests', async () => {
 
   const categories = res.body.map(c => c.category);
   expect(categories).not.toContain('social');
+  
   // Should only return sports and academic carpools not owned or joined by the user
   expect(categories).toEqual(expect.arrayContaining(['sports', 'academic']));
   expect(categories.length).toBe(2);
+
 });
 
 test('returns empty array when user has no interests set', async () => {
