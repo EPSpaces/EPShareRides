@@ -576,3 +576,29 @@ body {
 #filter:focus {
   outline: 0;
 }
+
+/* CO2 savings tooltip */
+.co2-savings {
+  position: relative;
+  cursor: pointer;
+}
+
+.co2-tooltip {
+  display: none;
+  position: absolute;
+  background-color: rgba(234, 232, 232, 0.95);
+  color: black;
+  padding: 6px 8px;
+  border-radius: 4px;
+  top: 120%;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  z-index: 10;
+}
+
+.co2-savings:hover .co2-tooltip {
+  display: block;
+}
+

@@ -19,6 +19,19 @@ function formatNumber(value) {
 }
 
 /**
+ * Update the tooltip with equivalents based on CO2 saved
+ * @param {number} kgSavings - CO2 savings in kilograms
+ */
+function updateCO2Tooltip(kgSavings) {
+  const tooltip = document.getElementById('co2-tooltip');
+  if (!tooltip) return;
+  const grams = kgSavings * 1000;
+  const bottles = Math.round(grams / 83);
+  const servings = Math.round(grams / 330);
+  tooltip.textContent = `≈ ${bottles} plastic water bottles or ${servings} servings of rice`;
+}
+
+/**
  * Update the CO2 savings display in the UI with animation
  * @param {number} newSavings - The new CO2 savings value in kg
  */
@@ -48,6 +61,7 @@ function updateCO2SavingsDisplay(newSavings) {
       requestAnimationFrame(animate);
     } else {
       currentSavings = end; // Update the current value after animation completes
+      updateCO2Tooltip(currentSavings);
     }
   }
 
@@ -142,6 +156,7 @@ if (typeof module !== 'undefined' && module.exports) {
     startAutoRefresh,
     stopAutoRefresh,
     formatNumber,
-    CONFIG
+    CONFIG,
+    updateCO2Tooltip
   };
 }
