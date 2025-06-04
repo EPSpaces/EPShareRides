@@ -41,7 +41,7 @@ function updateCO2SavingsDisplay(newSavings) {
     const currentValue = start + (end - start) * easedProgress;
     
     // Update the display
-    co2Element.textContent = `${formatNumber(currentValue)} kg CO₂`;
+    co2Element.textContent = `${formatNumber(currentValue)} kg CO₂ saved`;
     
     // Continue animation if not complete
     if (progress < 1) {
