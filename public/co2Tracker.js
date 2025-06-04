@@ -29,7 +29,8 @@ function updateCO2Equivalents(kgSavings) {
   const grams = kgSavings * 1000;
   const bottles = Math.round(grams / 83);
   const servings = Math.round(grams / 330);
-  details.textContent = `≈ ${bottles} plastic water bottles or ${servings} servings of rice`;
+  details.textContent = `= the CO2 that goes into ${bottles} plastic water bottles or ${servings} servings of rice`;
+
 }
 
 /**
