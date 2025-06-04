@@ -1644,7 +1644,7 @@
                      <div class="columns is-mobile is-vcentered" style="width: 100%; margin: 0;">
                         <div class="column is-6" style="padding: 0.5rem;">
                            <p class="control">
-                              <strong>Riders:</strong> ${carpoolers.length > 0 ? carpoolers.join(", ") : 'None yet'}
+                              <strong>Riders:</strong> ${carpoolers.length > 0 ? carpoolers.map(r => r.firstName ? `${r.firstName} ${r.lastName}` : r.email).join(', ') : 'None yet'}
                            </p>
                            <p class="control">
                               <strong>Seats available:</strong> ${seatsAvailable > 0 ? seatsAvailable : 'Full'}
