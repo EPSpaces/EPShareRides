@@ -51,9 +51,11 @@
                   <div class="navbar-item">
                     <span style="font-size: 1em; color: #30B700; float: right; display: flex; align-items: center; margin-right: 15px;">
                       <a class="fa-solid fa-leaf" href="/sustainabilityStatement" style="color: #30B700; margin-right: 10px;"></a>
+
                       <span>
                         <span id="co2-savings" style="font-size: 0.9em; font-weight: bold;">0 kg CO₂ saved</span>
                         <span id="co2-equivalents" class="co2-equivalents"></span>
+
                       </span>
                     </span>
                     <div class="buttons" style="margin: 10px;margin-right: 0px;">
@@ -250,6 +252,21 @@
               <label>Arrival time</label>
               <div class="field" style="margin-bottom: 10px;">
                 <input class="input" id="arrivaltime" type="time" placeholder="Time to arrive">
+              </div>
+            </div>
+            <div>
+              <label>Carpool category</label>
+              <div class="field" style="margin-bottom: 10px;">
+                <div class="control">
+                  <div class="select">
+                    <select id="carpool-category">
+                      <option value="sports">Sports</option>
+                      <option value="academic">Academic</option>
+                      <option value="social">Social</option>
+                      <option value="other">Other</option>
+                    </select>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -1222,15 +1239,17 @@ function addressAutocomplete(containerElement, idName, callback, options) {
       let CarMake = document.getElementById("carmake").value;
       let Seats = document.getElementById("seats").value;
       let ArrivalTime = document.getElementById("arrivaltime").value;
+      let category = document.getElementById("carpool-category").value;
       let route = document.getElementById("route-type").value;
       let Carpoolers = []
 
-      offerACar(DriverFName, DriverLName, DriverEmail, DriverPhone, CarMake, Seats, route, newArray, Carpoolers, datarray[datarray.length - 1], ArrivalTime);
+      offerACar(DriverFName, DriverLName, DriverEmail, DriverPhone, CarMake, Seats, route, newArray, Carpoolers, datarray[datarray.length - 1], ArrivalTime, category);
     }
 
 
-    async function offerACar(firstName, lastName, email, phone, carMake, seats, route, wlocation, carpoolers, eventId, arrivalTime) {
+    async function offerACar(firstName, lastName, email, phone, carMake, seats, route, wlocation, carpoolers, eventId, arrivalTime, category) {
       try {
+      
         // First, fetch the event to get its category and address
         const eventResponse = await fetch(`/api/events/${eventId}`);
         if (!eventResponse.ok) {

@@ -577,10 +577,12 @@ body {
   outline: 0;
 }
 
+
 /* CO2 savings equivalents */
 .co2-equivalents {
   font-size: 0.8em;
   display: block;
   margin-top: 2px;
+
 }
 
