@@ -1572,8 +1572,13 @@
    function fetchRecommendedCarpools() {
       const recommendedContainer = document.getElementById('recommendedCarpools');
       const loadingElement = document.getElementById('recommendedCarpoolsLoading');
+
+      if (!recommendedContainer) {
+         console.error('Recommended carpools container not found');
+         return;
+      }
       
-      fetch('/api/recommendations/carpools', {
+      fetch('/api/recommended-carpools', {
          headers: {
             'Accept': 'application/json',
             'Content-Type': 'application/json'
@@ -1587,8 +1592,10 @@
             return response.json();
          })
          .then(recommendedCarpools => {
-            // Hide loading spinner
-            loadingElement.style.display = 'none';
+            // Hide loading spinner if it exists
+            if (loadingElement) {
+               loadingElement.style.display = 'none';
+            }
             
             if (recommendedCarpools.length === 0) {
                recommendedContainer.innerHTML = `
@@ -1661,17 +1668,22 @@
          })
          .catch(error => {
             console.error('Error fetching recommendations:', error);
-            loadingElement.innerHTML = `
-               <div class="notification is-danger is-light">
-                  <button class="delete"></button>
-                  Failed to load recommendations. Please try again later.
-               </div>`;
-               
-            // Add click handler for the delete button
-            loadingElement.querySelector('.delete').addEventListener('click', () => {
-               loadingElement.innerHTML = '';
-            });
-         });
+            if (loadingElement) {
+               loadingElement.innerHTML = `
+                  <div class="notification is-danger is-light">
+                     <button class="delete"></button>
+                     Failed to load recommendations. Please try again later.
+                  </div>`;
+
+               // Add click handler for the delete button
+               const deleteBtn = loadingElement.querySelector('.delete');
+               if (deleteBtn) {
+                  deleteBtn.addEventListener('click', () => {
+                     loadingElement.innerHTML = '';
+                  });
+               }
+            }
+        });
    }
    
    // Call the function when the page loads
@@ -1740,21 +1752,25 @@
          
          // Update the container with checkboxes
          container.innerHTML = html;
-         loadingElement.style.display = 'none';
+         if (loadingElement) {
+            loadingElement.style.display = 'none';
+         }
          
       } catch (error) {
          console.error('Error loading interests:', error);
-         loadingElement.innerHTML = `
-            <div class="notification is-danger is-light">
-               <p><strong>Error loading interests</strong></p>
-               <p>${error.message || 'Please try again later.'}</p>
-               <button class="button is-small is-light" onclick="loadUserInterests()" style="margin-top: 0.5rem;">
-                  <span class="icon">
-                     <i class="fas fa-sync-alt"></i>
-                  </span>
-                  <span>Retry</span>
-               </button>
-            </div>`;
+         if (loadingElement) {
+            loadingElement.innerHTML = `
+               <div class="notification is-danger is-light">
+                  <p><strong>Error loading interests</strong></p>
+                  <p>${error.message || 'Please try again later.'}</p>
+                  <button class="button is-small is-light" onclick="loadUserInterests()" style="margin-top: 0.5rem;">
+                     <span class="icon">
+                        <i class="fas fa-sync-alt"></i>
+                     </span>
+                     <span>Retry</span>
+                  </button>
+               </div>`;
+         }
       }
    }
    
