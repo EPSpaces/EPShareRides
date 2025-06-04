@@ -1228,13 +1228,27 @@ function addressAutocomplete(containerElement, idName, callback, options) {
 
     async function offerACar(firstName, lastName, email, phone, carMake, seats, route, wlocation, carpoolers, eventId, arrivalTime) {
       try {
-        // First, fetch the event to get its category
+        // First, fetch the event to get its category and address
         const eventResponse = await fetch(`/api/events/${eventId}`);
         if (!eventResponse.ok) {
           throw new Error('Failed to fetch event details');
         }
         const event = await eventResponse.json();
-        
+
+        // Calculate distance between the carpool start location and the event address
+        const startCoords = await getCoordinates(wlocation);
+        const eventCoords = await getCoordinates(event.address);
+        let distanceMiles = calculateDistance(
+          startCoords.lat,
+          startCoords.lng,
+          eventCoords.lat,
+          eventCoords.lng
+        );
+        // Ensure minimum distance of 1 mile and round to 1 decimal place
+        distanceMiles = Math.max(1, parseFloat(distanceMiles.toFixed(1)));
+
+        const numPassengers = 1; // Just the driver initially
+
         let userEmail = "<%= email %>";
         const newcarpools = {
           firstName,
@@ -1250,7 +1264,9 @@ function addressAutocomplete(containerElement, idName, callback, options) {
           nameOfEvent: eventId,
           userEmail,
           arrivalTime,
-          category: event.category || 'other' // Add the event's category, default to 'other' if not set
+          category: event.category || 'other',
+          distanceMiles,
+          numPassengers
         };
 
         const jsonData = JSON.stringify(newcarpools);
@@ -1268,7 +1284,14 @@ function addressAutocomplete(containerElement, idName, callback, options) {
           throw new Error('Failed to create carpool');
         }
 
-        // Redirect to myCarpools page on success
+        // Emit event for CO2 savings update and redirect on success
+        document.dispatchEvent(new CustomEvent('carpool-created', {
+          detail: {
+            distanceMiles: distanceMiles,
+            numPassengers: numPassengers
+          }
+        }));
+
         window.location.href = '/mycarpools';
       } catch (error) {
         console.error("Error:", error);

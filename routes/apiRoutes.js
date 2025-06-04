@@ -148,16 +148,13 @@ router.get("/recommended-carpools", homeLimiter, authenticateToken, async (req, 
       return res.json([]);
     }
 
-    // Map user interests to the possible carpool categories. Some older
-    // carpools used slightly different category labels (e.g. "academic teams"),
-    // so include those variants as well.
+    // Map user interests to the possible carpool categories
     const interestMap = {
       sports: ['sports'],
       academic: ['academic', 'academic teams'],
       social: ['social', 'socials'],
       other: ['other']
     };
-
     // Expand interests into the actual categories stored on carpools and
     // remove duplicates.
     const matchCategories = settings.interests
