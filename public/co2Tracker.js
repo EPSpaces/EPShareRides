@@ -31,7 +31,6 @@ function updateCO2Equivalents(kgSavings) {
   const servings = Math.round(grams / 330);
   details.textContent = `≈ ${bottles} plastic water bottles or ${servings} servings of rice`;
 }
-}
 
 /**
  * Update the CO2 savings display in the UI with animation
