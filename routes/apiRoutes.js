@@ -157,7 +157,7 @@ router.get("/recommended-carpools", homeLimiter, authenticateToken, async (req, 
       social: ['social', 'socials'],
       other: ['other']
     };
-
+    
     // Expand interests into the actual categories stored on carpools and
     // remove duplicates.
     const matchCategories = settings.interests
