@@ -19,6 +19,7 @@ function formatNumber(value) {
 }
 
 /**
+
  * Update the displayed equivalents based on CO2 saved
  * @param {number} kgSavings - CO2 savings in kilograms
  */
@@ -30,7 +31,6 @@ function updateCO2Equivalents(kgSavings) {
   const bottles = Math.round(grams / 83);
   const servings = Math.round(grams / 330);
   details.textContent = `≈ ${bottles} plastic water bottles or ${servings} servings of rice`;
-}
 
 /**
  * Update the CO2 savings display in the UI with animation
@@ -62,7 +62,9 @@ function updateCO2SavingsDisplay(newSavings) {
       requestAnimationFrame(animate);
     } else {
       currentSavings = end; // Update the current value after animation completes
+
       updateCO2Equivalents(currentSavings);
+
     }
   }
 
@@ -137,8 +139,10 @@ document.addEventListener('DOMContentLoaded', () => {
   // Start auto-refresh
   startAutoRefresh();
 
+
   // Initialize equivalents with current savings (likely 0 until first fetch)
   updateCO2Equivalents(currentSavings);
+
   
   // Listen for custom events that might indicate CO2 savings updates
   document.addEventListener('carpool-created', fetchAndUpdateCO2Savings);
