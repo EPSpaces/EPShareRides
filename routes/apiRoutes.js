@@ -153,11 +153,11 @@ router.get("/recommended-carpools", homeLimiter, authenticateToken, async (req, 
     // so include those variants as well.
     const interestMap = {
       sports: ['sports'],
-      academic: ['academic teams'],
-      social: ['socials'],
+      academic: ['academic', 'academic teams'],
+      social: ['social', 'socials'],
       other: ['other']
     };
-    
+
     // Expand interests into the actual categories stored on carpools and
     // remove duplicates.
     const matchCategories = settings.interests
@@ -169,17 +169,11 @@ router.get("/recommended-carpools", homeLimiter, authenticateToken, async (req, 
     const matchRegexes = matchCategories.map(cat => new RegExp(`^${cat}$`, 'i'));
 
     // Find carpools that match user's interests and they haven't joined yet
-    const recommendedCarpools = await Carpool.aggregate([
-      {
-        $match: {
-          category: { $in: matchRegexes },
-          userEmail: { $ne: req.email }, // Not the user's own carpools
-          'carpoolers.email': { $ne: req.email } // Not already joined
-        }
-      },
-      { $sample: { size: 5 } } // Get random 5 matching carpools
-    ]);
-
+    const recommendedCarpools = await Carpool.find({
+      category: { $in: matchRegexes },
+      userEmail: { $ne: req.email }, // Not the user's own carpools
+      carpoolers: { $not: { $elemMatch: { email: req.email } } } // Not already joined
+    }).limit(5);
     res.json(recommendedCarpools);
   } catch (error) {
     console.error("Error getting recommended carpools:", error);
