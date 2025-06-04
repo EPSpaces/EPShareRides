@@ -739,6 +739,24 @@ router.post("/carpools", homeLimiter, authenticateToken, async (req, res) => {
   } = req.body;
 
   try {
+    const parsedSeats = parseInt(seats, 10);
+    if (isNaN(parsedSeats) || parsedSeats < 1) {
+      console.error(`Invalid 'seats' value received for carpool creation: original='${seats}', parsed='${parsedSeats}'`);
+      return res.status(400).json({
+        message: "Invalid number of seats. Seats must be a number greater than 0.",
+        error: `Invalid 'seats' value: '${seats}'. Must be a positive integer.`
+      });
+    }
+
+    const validatedDistanceMiles = parseFloat(distanceMiles); // distanceMiles is from destructuring, defaults to 10
+    if (isNaN(validatedDistanceMiles) || validatedDistanceMiles < 0) {
+      console.error(`Invalid 'distanceMiles' value received for carpool creation: original='${distanceMiles}', parsed='${validatedDistanceMiles}'`);
+      return res.status(400).json({
+        message: "Invalid distance. Distance must be a non-negative number.",
+        error: `Invalid 'distanceMiles' value: '${distanceMiles}'. Must be a non-negative number.`
+      });
+    }
+
     // Create and save the new carpool
     const newCarpool = new Carpool({
       firstName,
@@ -746,7 +764,7 @@ router.post("/carpools", homeLimiter, authenticateToken, async (req, res) => {
       email,
       phone,
       carMake,
-      seats: parseInt(seats, 10),
+      seats: parsedSeats, // Use validated parsedSeats
       route,
       wlocation,
       carpoolers: [],
@@ -755,8 +773,8 @@ router.post("/carpools", homeLimiter, authenticateToken, async (req, res) => {
       userEmail,
       arrivalTime,
       category,
-      distanceMiles: parseFloat(distanceMiles),
-      co2Savings: calculateCO2Savings(parseFloat(distanceMiles), 1) // Initial CO2 savings with just the driver
+      distanceMiles: validatedDistanceMiles, // Use validated distanceMiles
+      co2Savings: calculateCO2Savings(validatedDistanceMiles, 1) // Initial CO2 savings with just the driver
     });
 
     await newCarpool.save();
