@@ -1246,7 +1246,8 @@ function addressAutocomplete(containerElement, idName, callback, options) {
           route,
           wlocation,
           carpoolers,
-          nameOfEvent: event.eventName, // Use the event name from the fetched event
+          // Store the event ID with the carpool so we can look up details later
+          nameOfEvent: eventId,
           userEmail,
           arrivalTime,
           category: event.category || 'other' // Add the event's category, default to 'other' if not set
