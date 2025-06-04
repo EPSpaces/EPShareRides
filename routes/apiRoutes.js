@@ -148,11 +148,24 @@ router.get("/recommended-carpools", homeLimiter, authenticateToken, async (req, 
       return res.json([]);
     }
 
+    // Map user interests to the possible carpool categories
+    const interestMap = {
+      sports: ['sports'],
+      academic: ['academic', 'academic teams'],
+      social: ['social', 'socials'],
+      other: ['other']
+    };
+
+    // Expand interests into the actual categories stored on carpools
+    const matchCategories = settings.interests
+      .flatMap(i => interestMap[i] || [])
+      .filter((v, i, arr) => arr.indexOf(v) === i); // unique
+
     // Find carpools that match user's interests and they haven't joined yet
     const recommendedCarpools = await Carpool.aggregate([
       {
         $match: {
-          category: { $in: settings.interests },
+          category: { $in: matchCategories },
           userEmail: { $ne: req.email }, // Not the user's own carpools
           'carpoolers.email': { $ne: req.email } // Not already joined
         }
