@@ -19,19 +19,18 @@ function formatNumber(value) {
 }
 
 /**
- * Update the tooltip with equivalents based on CO2 saved
+
+ * Update the displayed equivalents based on CO2 saved
  * @param {number} kgSavings - CO2 savings in kilograms
  */
-function updateCO2Tooltip(kgSavings) {
-
-  // The tooltip is nested inside the #co2-savings element on each page
-  const tooltip = document.querySelector('#co2-savings .co2-tooltip');
-  if (!tooltip) return;
+function updateCO2Equivalents(kgSavings) {
+  // A sibling element #co2-equivalents is placed near #co2-savings
+  const details = document.getElementById('co2-equivalents');
+  if (!details) return;
   const grams = kgSavings * 1000;
   const bottles = Math.round(grams / 83);
   const servings = Math.round(grams / 330);
-  tooltip.textContent = `≈ ${bottles} plastic water bottles or ${servings} servings of rice`;
-}
+  details.textContent = `≈ ${bottles} plastic water bottles or ${servings} servings of rice`;
 
 /**
  * Update the CO2 savings display in the UI with animation
@@ -63,7 +62,9 @@ function updateCO2SavingsDisplay(newSavings) {
       requestAnimationFrame(animate);
     } else {
       currentSavings = end; // Update the current value after animation completes
-      updateCO2Tooltip(currentSavings);
+
+      updateCO2Equivalents(currentSavings);
+
     }
   }
 
@@ -138,8 +139,10 @@ document.addEventListener('DOMContentLoaded', () => {
   // Start auto-refresh
   startAutoRefresh();
 
-  // Initialize tooltip with current savings (likely 0 until first fetch)
-  updateCO2Tooltip(currentSavings);
+
+  // Initialize equivalents with current savings (likely 0 until first fetch)
+  updateCO2Equivalents(currentSavings);
+
   
   // Listen for custom events that might indicate CO2 savings updates
   document.addEventListener('carpool-created', fetchAndUpdateCO2Savings);
@@ -162,6 +165,6 @@ if (typeof module !== 'undefined' && module.exports) {
     stopAutoRefresh,
     formatNumber,
     CONFIG,
-    updateCO2Tooltip
+    updateCO2Equivalents
   };
 }
