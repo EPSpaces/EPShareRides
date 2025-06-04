@@ -148,6 +148,7 @@ router.get("/recommended-carpools", homeLimiter, authenticateToken, async (req, 
       return res.json([]);
     }
 
+
     // Map user interests to the possible carpool categories
     const interestMap = {
       sports: ['sports'],
@@ -155,17 +156,22 @@ router.get("/recommended-carpools", homeLimiter, authenticateToken, async (req, 
       social: ['social', 'socials'],
       other: ['other']
     };
-
-    // Expand interests into the actual categories stored on carpools
+    
+    // Expand interests into the actual categories stored on carpools and
+    // remove duplicates.
     const matchCategories = settings.interests
       .flatMap(i => interestMap[i] || [])
-      .filter((v, i, arr) => arr.indexOf(v) === i); // unique
+      .filter((v, i, arr) => arr.indexOf(v) === i);
+
+    // Create case-insensitive regexes so categories like "Academic Teams"
+    // also match.
+    const matchRegexes = matchCategories.map(cat => new RegExp(`^${cat}$`, 'i'));
 
     // Find carpools that match user's interests and they haven't joined yet
     const recommendedCarpools = await Carpool.aggregate([
       {
         $match: {
-          category: { $in: matchCategories },
+          category: { $in: matchRegexes },
           userEmail: { $ne: req.email }, // Not the user's own carpools
           'carpoolers.email': { $ne: req.email } // Not already joined
         }
