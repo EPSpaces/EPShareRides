@@ -11,6 +11,7 @@ const RATE_LIMITER_REQUESTS = 100;
 
 const User = require("../schemas/User.model.js");
 const Event = require("../schemas/Event.model.js");
+const UserSettings = require("../schemas/UserSettings.model.js");
 const { calculateCO2Savings, calculateCO2SavingsPerPassenger } = require("../utils/co2Calculator");
 // ObjectId is a class that is used to convert a string into a MongoDB ObjectId
 const ObjectId = require("mongodb").ObjectId;
@@ -74,6 +75,96 @@ router.patch("/updateSettings", homeLimiter, authenticateToken, async (req, res)
   }
   // Redirect to the update settings page with a success message
   res.redirect("/updateSettings?suc=Settings updated successfully");
+});
+
+// Route to get user interests
+router.get("/user/interests", homeLimiter, authenticateToken, async (req, res) => {
+  try {
+    // Find user settings or create if they don't exist
+    let userSettings = await UserSettings.findOne({ userEmail: req.email });
+    
+    if (!userSettings) {
+      // If no settings exist, create with default interests (empty array)
+      userSettings = new UserSettings({
+        userEmail: req.email,
+        interests: []
+      });
+      await userSettings.save();
+    }
+    
+    // Return the user's interests (or empty array if not set)
+    res.json({ 
+      success: true, 
+      interests: userSettings.interests || [] 
+    });
+    
+  } catch (error) {
+    console.error('Error fetching user interests:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: 'Failed to fetch user interests' 
+    });
+  }
+});
+
+// Route to update user interests
+router.post("/user/interests", homeLimiter, authenticateToken, async (req, res) => {
+  try {
+    const { interests } = req.body;
+    
+    if (!Array.isArray(interests)) {
+      return res.status(400).json({ error: "Interests must be an array" });
+    }
+
+    // Validate interests
+    const validInterests = ['sports', 'academic', 'social', 'other'];
+    const invalidInterests = interests.filter(item => !validInterests.includes(item));
+    
+    if (invalidInterests.length > 0) {
+      return res.status(400).json({ error: `Invalid interest(s): ${invalidInterests.join(', ')}` });
+    }
+
+    // Update user settings with new interests
+    const updatedSettings = await UserSettings.findOneAndUpdate(
+      { userEmail: req.email },
+      { interests },
+      { new: true, upsert: true }
+    );
+
+    res.json({ success: true, interests: updatedSettings.interests });
+  } catch (error) {
+    console.error("Error updating interests:", error);
+    res.status(500).json({ error: "Failed to update interests" });
+  }
+});
+
+// Route to get recommended carpools based on user interests
+router.get("/recommended-carpools", homeLimiter, authenticateToken, async (req, res) => {
+  try {
+    // Get user's interests
+    const settings = await UserSettings.findOne({ userEmail: req.email });
+    
+    if (!settings || !settings.interests || settings.interests.length === 0) {
+      return res.json([]);
+    }
+
+    // Find carpools that match user's interests and they haven't joined yet
+    const recommendedCarpools = await Carpool.aggregate([
+      {
+        $match: {
+          category: { $in: settings.interests },
+          userEmail: { $ne: req.email }, // Not the user's own carpools
+          'carpoolers.email': { $ne: req.email } // Not already joined
+        }
+      },
+      { $sample: { size: 5 } } // Get random 5 matching carpools
+    ]);
+
+    res.json(recommendedCarpools);
+  } catch (error) {
+    console.error("Error getting recommended carpools:", error);
+    res.status(500).json({ error: "Failed to get recommended carpools" });
+  }
 });
 
 // Route to get offer to carpool data
@@ -643,6 +734,7 @@ router.post("/carpools", homeLimiter, authenticateToken, async (req, res) => {
     nameOfEvent,
     userEmail,
     arrivalTime,
+    category = 'other',
     distanceMiles = 10 // Default distance, should be calculated based on actual route in a real app
   } = req.body;
 
@@ -654,14 +746,17 @@ router.post("/carpools", homeLimiter, authenticateToken, async (req, res) => {
       email,
       phone,
       carMake,
-      seats,
+      seats: parseInt(seats, 10),
       route,
       wlocation,
-      carpoolers,
+      carpoolers: [],
+      pendingRequests: [],
       nameOfEvent,
       userEmail,
       arrivalTime,
-      distanceMiles // Save the distance for future reference
+      category,
+      distanceMiles: parseFloat(distanceMiles),
+      co2Savings: calculateCO2Savings(parseFloat(distanceMiles), 1) // Initial CO2 savings with just the driver
     });
 
     await newCarpool.save();

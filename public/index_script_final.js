@@ -497,43 +497,53 @@ function selectCarpool(element) {
 }
 
 // Offer a carpool
-function offerACar(
-  firstName,
-  lastName,
-  seats,
-  route,
-  wlocation,
-  carpoolers,
-  nameOfEvent,
-) {
-  let email = "<%= email %>";
-  const newcarpools = {
-    firstName,
-    lastName,
-    seats,
-    route,
-    wlocation, //location is a used variable
-    carpoolers,
-    nameOfEvent,
-    email,
-  };
-  console.log(newcarpools);
+async function offerACar(firstName, lastName, email, phone, carMake, seats, route, wlocation, carpoolers, eventId, arrivalTime) {
+  try {
+    // First, fetch the event to get its category
+    const eventResponse = await fetch(`/api/events/${eventId}`);
+    if (!eventResponse.ok) {
+      throw new Error('Failed to fetch event details');
+    }
+    const event = await eventResponse.json();
+    
+    let userEmail = "<%= email %>";
+    const newcarpools = {
+      firstName,
+      lastName,
+      email,
+      phone,
+      carMake,
+      seats,
+      route,
+      wlocation,
+      carpoolers,
+      nameOfEvent: eventId,
+      userEmail,
+      arrivalTime,
+      category: event.category || 'other'
+    };
 
-  const jsonData = JSON.stringify(newcarpools);
-  const url = "/api/carpools";
+    const jsonData = JSON.stringify(newcarpools);
+    const url = "/api/carpools";
 
-  fetch(url, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: jsonData,
-  })
-    .then((response) => {
-      console.log(response);
-      // Open verification checker
-    })
-    .catch((error) => console.error("Error:", error));
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: jsonData,
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to create carpool');
+    }
+
+    // Redirect to myCarpools page on success
+    window.location.href = '/mycarpools';
+  } catch (error) {
+    console.error("Error creating carpool:", error);
+    alert("Failed to create carpool. Please try again.");
+  }
 }
 
 /* 

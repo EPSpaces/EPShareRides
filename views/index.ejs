@@ -11,6 +11,8 @@
   <script src="https://kit.fontawesome.com/16ae8e710d.js" crossorigin="anonymous"></script>
   <link rel="icon" href="favicon.png" type="image/x-icon">
   <link rel="stylesheet" href="./style.css">
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
   <script src="/co2Tracker.js"></script>
 </head>
 
@@ -157,6 +159,10 @@
           </select>
         </div>
       </div>
+    </div>
+    <div class='field'>
+      <label class='label'>Map Preview:</label>
+      <div id='map' style='height: 300px; width: 100%; border-radius: 4px; margin-bottom: 1rem;'></div>
     </div>
     <div class='field'>
       <div class='control'>
@@ -1220,38 +1226,53 @@ function addressAutocomplete(containerElement, idName, callback, options) {
     }
 
 
-    function offerACar(firstName, lastName, email, phone, carMake, seats, route, wlocation, carpoolers, nameOfEvent, arrivalTime) {
-      let userEmail = "<%= email %>"
-      const newcarpools = {
-        firstName,
-        lastName,
-        email,
-        phone,
-        carMake,
-        seats,
-        route,
-        wlocation,
-        carpoolers,
-        nameOfEvent,
-        userEmail,
-        arrivalTime
-      };
+    async function offerACar(firstName, lastName, email, phone, carMake, seats, route, wlocation, carpoolers, eventId, arrivalTime) {
+      try {
+        // First, fetch the event to get its category
+        const eventResponse = await fetch(`/api/events/${eventId}`);
+        if (!eventResponse.ok) {
+          throw new Error('Failed to fetch event details');
+        }
+        const event = await eventResponse.json();
+        
+        let userEmail = "<%= email %>";
+        const newcarpools = {
+          firstName,
+          lastName,
+          email,
+          phone,
+          carMake,
+          seats,
+          route,
+          wlocation,
+          carpoolers,
+          nameOfEvent: event.eventName, // Use the event name from the fetched event
+          userEmail,
+          arrivalTime,
+          category: event.category || 'other' // Add the event's category, default to 'other' if not set
+        };
 
-      const jsonData = JSON.stringify(newcarpools);
-      const url = "/api/carpools";
+        const jsonData = JSON.stringify(newcarpools);
+        const url = "/api/carpools";
 
+        const response = await fetch(url, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: jsonData,
+        });
 
-      fetch(url, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: jsonData,
-      })
-        .then((response) => {
-          // Open verification checker
-        })
-        .catch((error) => console.error("Error:", error));
+        if (!response.ok) {
+          throw new Error('Failed to create carpool');
+        }
+
+        // Redirect to myCarpools page on success
+        window.location.href = '/mycarpools';
+      } catch (error) {
+        console.error("Error:", error);
+        alert('Failed to create carpool. Please try again.');
+      }
     }
 
 
@@ -1590,6 +1611,9 @@ function addressAutocomplete(containerElement, idName, callback, options) {
       document.dispatchEvent(new CustomEvent('carpool-created', { detail: event.detail }));
     });
   </script>
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+  <script src="/script.js"></script>
 </body>
 
 </html>
