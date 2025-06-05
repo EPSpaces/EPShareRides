@@ -1,17 +1,39 @@
-if (process.env.MODE != 'PROD') {
-  require('dotenv').config(); // Load environment variables from .env file in non-production mode
-}
-
 // Import libraries
+const fs = require("fs");
 const express = require("express");
 const ejs = require("ejs");
 const axios = require("axios").default;
-const fs = require("fs");
 const jwt = require("jsonwebtoken");
 const cookieParser = require("cookie-parser");
 const mongoose = require("mongoose");
 const cron = require('node-cron');
 const nodemailer = require('nodemailer');
+const { findNearbyStudents, loadStudentData } = require('./utils/studentUtils');
+
+// Load environment variables from env.local or .env file
+const envPath = fs.existsSync('./env.local') ? './env.local' : './.env';
+console.log(`Loading environment variables from: ${envPath}`);
+
+// Log the content of the env file
+if (fs.existsSync(envPath)) {
+  console.log('Environment file content:');
+  console.log(fs.readFileSync(envPath, 'utf-8'));
+} else {
+  console.log('Environment file not found at:', envPath);
+}
+
+// Load environment variables
+require('dotenv').config({ path: envPath });
+
+// Log all environment variables (be careful with sensitive data in production)
+console.log('Loaded environment variables:');
+console.log({
+  NODE_ENV: process.env.NODE_ENV,
+  MODE: process.env.MODE,
+  PORT: process.env.PORT,
+  MONGO_URI: process.env.MONGO_URI ? 'MONGO_URI is set' : 'MONGO_URI is NOT set',
+  MONGO_URI_LENGTH: process.env.MONGO_URI ? process.env.MONGO_URI.length : 0
+});
 
 // Import Schemas from MongoDB
 const User = require("./schemas/User.model.js");
@@ -160,6 +182,82 @@ app.get("/updateSettings", homeLimiter, authenticateToken, async (req, res) => {
   res.render("updateSettings", { email, firstName, lastName }); // Render update settings page
 });
 
+// Find Rides route - Display available rides
+app.get("/findrides", homeLimiter, authenticateToken, async (req, res) => {
+  const email = req.email;
+  let firstName;
+  let lastName;
+
+  let userInData;
+
+  try {
+    userInData = await User.findOne({ email });
+    if (!userInData) {
+      res.clearCookie("idToken");
+      res.redirect("/signin?err=Error with system finding User, please try again");
+      return;
+    }
+  } catch (err) {
+    console.error("Error finding user: " + err);
+    res.clearCookie("idToken");
+    res.redirect("/signin?err=Internal server error, please sign in again");
+    return;
+  }
+
+  firstName = userInData["firstName"];
+  lastName = userInData["lastName"];
+
+  const searchQuery = req.query.search || '';
+  const searchRadius = parseFloat(req.query.radius) || 5;
+  
+  let results = null;
+  
+  // Only perform search if there's a search query
+  if (searchQuery) {
+    try {
+      // Ensure student data is loaded first
+      await loadStudentData();
+      
+      // Find nearby students using the studentUtils function
+      const searchResults = await findNearbyStudents(searchQuery, searchRadius);
+      
+      if (searchResults && searchResults.nearbyStudents && searchResults.nearbyStudents.length > 0) {
+        // Format the results to match what the template expects
+        const formattedStudents = searchResults.nearbyStudents.map(student => ({
+          name: student.name,
+          grade: student.grade,
+          address: student.address,
+          parents: student.parents,
+          contact: student.contact,
+          distance: student.distance
+        }));
+        
+        results = {
+          student: {
+            name: searchResults.student.name,
+            address: searchResults.student.address
+          },
+          nearbyStudents: formattedStudents
+        };
+      } else {
+        results = { error: 'No students found within the specified radius' };
+      }
+    } catch (err) {
+      console.error('Error searching for students:', err);
+      results = { error: err.message || 'An error occurred while searching' };
+    }
+  }
+  
+  res.render("findrides", { 
+    email, 
+    firstName, 
+    lastName, 
+    searchQuery, 
+    searchRadius,
+    results
+  });
+});
+
 // Friends route - Display list of all users
 app.get("/friends", homeLimiter, authenticateToken, async (req, res) => {
   let people = [];
@@ -261,16 +359,34 @@ If you have questions, contact your driver at ${carpool.email} or ${carpool.phon
 
 const port = process.env["PORT"] || 8080;
 
-console.log(process.env["MONGO_URI"]);
+// Use the MONGO_URI from environment variables
+const mongoUri = process.env.MONGO_URI;
+if (!mongoUri) {
+  console.error('ERROR: MONGO_URI is not defined in environment variables');
+  process.exit(1);
+}
 
-// Connect to the database and start the server
+console.log('Attempting to connect to MongoDB with the provided URI');
+console.log('Current environment variables:', {
+  NODE_ENV: process.env.NODE_ENV,
+  MODE: process.env.MODE,
+  PORT: process.env.PORT,
+  MONGO_URI: process.env.MONGO_URI ? 'SET' : 'NOT SET'
+});
+
 mongoose
-  .connect(process.env["MONGO_URI"]) // Connect to MongoDB
+  .connect(mongoUri, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    serverSelectionTimeoutMS: 5000,
+    socketTimeoutMS: 45000,
+  })
   .then(() => {
-    console.log("Connected to db");
+    console.log("Successfully connected to MongoDB");
+    console.log("MongoDB connection state:", mongoose.connection.readyState);
 
-    app.listen(port, () => {
-      console.log("Server started on port " + port); // Start server
+    app.listen(process.env.PORT, () => {
+      console.log(`Server started on port ${process.env.PORT}`);
     });
   })
   .catch((err) => {

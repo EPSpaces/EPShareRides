@@ -16,6 +16,7 @@
    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
       integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <script src="/co2Tracker.js"></script>
 </head>
 
 <body>
@@ -78,14 +79,26 @@
                                  <div class="navbar-end">
                                     <div class="is-button is-link">
                                        <div class="navbar-item">
-                                          <span style="font-size: 1em; color: #30B700; float: right">
+                                          <span style="font-size: 1em; color: #30B700; float: right; display: flex; align-items: center; margin-right: 15px;">
                                              <a class="fa-solid fa-leaf" href="/sustainabilityStatement"
-                                                style="color: #30B700"></a>
+                                                style="color: #30B700; margin-right: 10px;"></a>
+
+                                             <span>
+                                                <span id="co2-savings" style="font-size: 0.9em; font-weight: bold;">0 kg CO₂ saved</span>
+                                                <span id="co2-equivalents" class="co2-equivalents"></span>
+
+                                             </span>
                                           </span>
                                           <div class="buttons" style="margin: 10px;margin-right: 0px;">
-                                             <a class="button is-link is-outlined " href="/logout">
-                                                Log out
-                                             </a>
+                                              <button class="button is-info is-outlined" onclick="openSettings()" style="margin-right: 5px;">
+                                                 <span class="icon">
+                                                    <i class="fas fa-cog"></i>
+                                                 </span>
+                                                 <span>Interests</span>
+                                              </button>
+                                              <a class="button is-link is-outlined" href="/logout">
+                                                 Log out
+                                              </a>
                                              <div class="navbar-item has-dropdown is-hoverable "
                                                 onclick="document.getElementById('navbar-dropdown').style.visibility = 'visible';">
                                                 <a class="button is-link" id="name_button"
@@ -227,10 +240,24 @@
                                  style="margin-left: 0px; margin-right: 0px; overflow:auto;">
                                  <div class="container " style="margin-top: 5px; ">
                                     <div id="carpoolsJS">
-                                    </div>
-                                 </div>
-                              </div>
-                           </div>
+                                     </div>
+                                  </div>
+                                  
+                                  <!-- Recommended Carpools Section -->
+                                  <div class="box" style="margin-top: 30px;">
+                                     <h2 class="title is-4">Recommended Carpools</h2>
+                                     <p class="subtitle is-6">Based on your interests and available carpools</p>
+                                     <div id="recommendedCarpools">
+                                        <div class="has-text-centered" id="recommendedCarpoolsLoading">
+                                           <span class="icon is-medium">
+                                              <i class="fas fa-spinner fa-pulse"></i>
+                                           </span>
+                                           <p>Loading recommendations...</p>
+                                        </div>
+                                     </div>
+                                  </div>
+                               </div>
+                            </div>
                         </div>
                      </div>
                      <!-- Include the JavaScript file for the calendar functionality -->
@@ -246,6 +273,7 @@
                                        <span id="pending-badge"
                                           style="background: #ff3860; color: white; border-radius: 10px; padding: 2px 8px; font-size: 0.8em; margin-left: 5px; display: none;"></span>
                                     </a></li>
+                                 <li><a href="/findrides" class="white">Find Rides</a></li>
                               </ul>
                            </div>
                         </nav>
@@ -254,6 +282,39 @@
                   </section>
    </main>
 
+   <!-- Settings Modal -->
+   <div class="modal" id="settingsModal">
+      <div class="modal-background" onclick="closeModal('settingsModal')"></div>
+      <div class="modal-card" style="max-width: 500px;">
+         <header class="modal-card-head">
+            <p class="modal-card-title">My Interests</p>
+            <button class="delete" aria-label="close" onclick="closeModal('settingsModal')"></button>
+         </header>
+         <section class="modal-card-body">
+            <div class="content">
+               <p>Select your interests to get personalized carpool recommendations:</p>
+               <div class="field" id="interestsContainer" style="margin-top: 1rem;">
+                  <!-- Interests will be populated by JavaScript -->
+                  <div class="has-text-centered" id="interestsLoading">
+                     <span class="icon is-medium">
+                        <i class="fas fa-spinner fa-pulse"></i>
+                     </span>
+                     <p>Loading interests...</p>
+                  </div>
+               </div>
+            </div>
+         </section>
+         <footer class="modal-card-foot" style="justify-content: flex-end;">
+            <button class="button is-link" id="saveInterestsBtn" onclick="saveInterests()">
+               <span class="icon">
+                  <i class="fas fa-save"></i>
+               </span>
+               <span>Save Changes</span>
+            </button>
+            <button class="button" onclick="closeModal('settingsModal')">Cancel</button>
+         </footer>
+      </div>
+   </div>
 </body>
 <!-- start here -->
 <div class="modal" id="modal-js-edit">
@@ -723,24 +784,46 @@
          </div>
       </div>
    </div>
-   <div class="panel-block">
-      <p class="control has-icons-left" id="registered-carpoolers" style=" margin-right: 10px; width: 40%">
-         Registered carpoolers: ` + carpoolers.join(", ") + `
-      </p>
-      <div class="buttons" id="action-buttons" style="margin-right: -10px; display: inline-block">
-         <div class="button upcoming-carpools-button is-link is-light" style="margin-right: 10px;" 
-            onclick="getPhoneRoute('` + offeredCarpools[i]._id + `')">View Route >></div>
-         <div class="button js-modal-trigger upcoming-carpools-button" style="margin-right: 10px;" data-target="modal-js-edit" id="` + offeredCarpools[i]._id + `" onclick="queGuay('` + offeredCarpools[i]._id + `')">Edit</div>
-         <button class="button is-info is-light" style="margin-right: 10px;" onclick="emailGroup('` + offeredCarpools[i]._id + `')">
-            <span class="icon">
-               <i class="fas fa-envelope"></i>
-            </span>
-         </button>
-         <button class="button is-info is-light" style="margin-right: 10px;" onclick="textGroup('` + offeredCarpools[i]._id + `')">
-            <span class="icon">
-               <i class="fas fa-comment"></i>
-            </span>
-         </button>
+   <div class="panel-block" style="display: block; padding: 1rem 1.25rem;">
+      <div class="columns is-mobile is-vcentered" style="width: 100%; margin: 0;">
+         <div class="column is-6" style="padding: 0.5rem;">
+            <p class="control" id="registered-carpoolers">
+               <strong>Riders:</strong> ` + carpoolers.join(", ") + `
+               <br>
+               <span class="icon-text" style="margin-top: 0.5rem; display: inline-flex; align-items: center;">
+                  <span class="icon has-text-success">
+                     <i class="fas fa-leaf"></i>
+                  </span>
+                  <span>CO₂ Saved: <strong>${offeredCarpools[i].co2Savings ? offeredCarpools[i].co2Savings.toFixed(2) + ' kg' : 'Calculating...'}</strong></span>
+               </span>
+            </p>
+         </div>
+         <div class="column is-6" style="padding: 0.5rem; text-align: right;">
+            <div class="buttons is-justify-content-flex-end" style="margin: 0;">
+               <button class="button is-link is-light is-small" onclick="getPhoneRoute('` + offeredCarpools[i]._id + `')">
+                  <span class="icon">
+                     <i class="fas fa-route"></i>
+                  </span>
+                  <span>Route</span>
+               </button>
+               <button class="button is-info is-light is-small js-modal-trigger" data-target="modal-js-edit" id="` + offeredCarpools[i]._id + `" onclick="queGuay('` + offeredCarpools[i]._id + `')">
+                  <span class="icon">
+                     <i class="fas fa-edit"></i>
+                  </span>
+                  <span>Edit</span>
+               </button>
+               <button class="button is-info is-light is-small" onclick="emailGroup('` + offeredCarpools[i]._id + `')">
+                  <span class="icon">
+                     <i class="fas fa-envelope"></i>
+                  </span>
+               </button>
+               <button class="button is-info is-light is-small" onclick="textGroup('` + offeredCarpools[i]._id + `')">
+                  <span class="icon">
+                     <i class="fas fa-comment"></i>
+                  </span>
+               </button>
+            </div>
+         </div>
       </div>
    </div>
    <div style="margin: 10px 0; padding: 10px; background: #fffbe6; border: 1px solid #ffe08a; border-radius: 6px;">
@@ -803,24 +886,46 @@
                                     </div>
                                  </div>
                               </div>
-                              <div class="panel-block">
-                                 <p class="control has-icons-left" id="registered-carpoolers" style=" margin-right: 10px; width: 40%">
-                                    Registered carpoolers: ` + carpoolers.join(", ") + `
-                                 </p>
-                                 <div class="buttons" id="action-buttons" style="margin-right: -10px; display: inline-block">
-                                    <div class="button upcoming-carpools-button is-link is-light" style="margin-right: 10px;" 
-                                       onclick="getPhoneRoute('` + joinedCarpools[i]._id + `')">View Route >></div>
-                                    <div class="button upcoming-carpools-button " style="margin-right: 10px;" id="` + joinedCarpools[i]._id + `" onclick="leaveIt('` + i + `')">Unregister</div>
-                                    <button class="button is-info is-light" style="margin-right: 10px;" onclick="emailGroup('` + joinedCarpools[i]._id + `')">
-                                       <span class="icon">
-                                          <i class="fas fa-envelope"></i>
-                                       </span>
-                                    </button>
-                                    <button class="button is-info is-light" style="margin-right: 10px;" onclick="textGroup('` + joinedCarpools[i]._id + `')">
-                                       <span class="icon">
-                                          <i class="fas fa-comment"></i>
-                                       </span>
-                                    </button>
+                              <div class="panel-block" style="display: block; padding: 1rem 1.25rem;">
+                                 <div class="columns is-mobile is-vcentered" style="width: 100%; margin: 0;">
+                                    <div class="column is-6" style="padding: 0.5rem;">
+                                       <p class="control" id="registered-carpoolers">
+                                          <strong>Riders:</strong> ` + carpoolers.join(", ") + `
+                                          <br>
+                                          <span class="icon-text" style="margin-top: 0.5rem; display: inline-flex; align-items: center;">
+                                             <span class="icon has-text-success">
+                                                <i class="fas fa-leaf"></i>
+                                             </span>
+                                             <span>CO₂ Saved: <strong>${joinedCarpools[i].co2Savings ? (joinedCarpools[i].carpoolers.find(c => c.email === '<%= email %>')?.co2Savings || 0).toFixed(2) + ' kg' : 'Calculating...'}</strong></span>
+                                          </span>
+                                       </p>
+                                    </div>
+                                    <div class="column is-6" style="padding: 0.5rem; text-align: right;">
+                                       <div class="buttons is-justify-content-flex-end" style="margin: 0;">
+                                          <button class="button is-link is-light is-small" onclick="getPhoneRoute('` + joinedCarpools[i]._id + `')">
+                                             <span class="icon">
+                                                <i class="fas fa-route"></i>
+                                             </span>
+                                             <span>Route</span>
+                                          </button>
+                                          <button class="button is-danger is-light is-small" id="` + joinedCarpools[i]._id + `" onclick="leaveIt('` + i + `')">
+                                             <span class="icon">
+                                                <i class="fas fa-sign-out-alt"></i>
+                                             </span>
+                                             <span>Leave</span>
+                                          </button>
+                                          <button class="button is-info is-light is-small" onclick="emailGroup('` + joinedCarpools[i]._id + `')">
+                                             <span class="icon">
+                                                <i class="fas fa-envelope"></i>
+                                             </span>
+                                          </button>
+                                          <button class="button is-info is-light is-small" onclick="textGroup('` + joinedCarpools[i]._id + `')">
+                                             <span class="icon">
+                                                <i class="fas fa-comment"></i>
+                                             </span>
+                                          </button>
+                                       </div>
+                                    </div>
                                  </div>
                               </div>
                            </article>`
@@ -1469,5 +1574,277 @@
       h = h ? h : 12;
       m = m < 10 ? '0' + m : m;
       return h + ':' + m + ' ' + ampm;
+   }
+
+   // Function to fetch and display recommended carpools
+   function fetchRecommendedCarpools() {
+      const recommendedContainer = document.getElementById('recommendedCarpools');
+      const loadingElement = document.getElementById('recommendedCarpoolsLoading');
+
+      if (!recommendedContainer) {
+         console.error('Recommended carpools container not found');
+         return;
+      }
+      
+      fetch('/api/recommended-carpools', {
+         headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+         },
+         credentials: 'same-origin' // Include cookies for authentication
+      })
+         .then(response => {
+            if (!response.ok) {
+               throw new Error('Failed to fetch recommendations');
+            }
+            return response.json();
+         })
+         .then(recommendedCarpools => {
+            // Hide loading spinner if it exists
+            if (loadingElement) {
+               loadingElement.style.display = 'none';
+            }
+            
+            if (recommendedCarpools.length === 0) {
+               recommendedContainer.innerHTML = `
+                  <div class="notification is-light">
+                     No recommended carpools found. Check back later or update your interests in settings.
+                  </div>`;
+               return;
+            }
+            
+            // Clear loading message and display recommended carpools
+            recommendedContainer.innerHTML = '';
+            
+            recommendedCarpools.forEach(carpool => {
+               const carpoolElement = document.createElement('article');
+               carpoolElement.className = 'panel is-link';
+               carpoolElement.style.position = 'relative';
+               carpoolElement.style.marginBottom = '1.5rem';
+               
+               // Format the carpool details
+               const carpoolers = carpool.carpoolers || [];
+               const driverName = `${carpool.firstName} ${carpool.lastName}`;
+               const eventName = carpool.nameOfEvent || 'Event';
+               const seatsAvailable = carpool.seats - (carpool.carpoolers?.length || 0);
+               const timeStr = carpool.arrivalTime ? formatTime12h(carpool.arrivalTime) : 'Time not specified';
+               const category = carpool.category ? carpool.category.charAt(0).toUpperCase() + carpool.category.slice(1) : 'Other';
+               
+               carpoolElement.innerHTML = `
+                  <div class="panel-heading" style="padding: 0px; margin-bottom: 12px; border-radius: 6px 6px 0px 0px; line-height: 22px; background: linear-gradient(105deg, #48c774, #29a34a);">
+                     <div class="columns is-mobile">
+                        <div class="column" style="padding: 0px; padding-left: 10px;">
+                           <div style="float: left; margin: 7px; left:0px;">
+                              <i class="fas fa-car" style="color: white;"></i>
+                           </div>
+                           <div style="margin-left: 40px; color: white;">
+                              <p style="font-weight: bold; margin-bottom: 0px;">${eventName}</p>
+                              <p style="font-size: 0.8em; margin-top: 0px;">${driverName}'s carpool • ${timeStr}</p>
+                           </div>
+                        </div>
+                        <div class="column is-narrow" style="padding: 0px; padding-right: 10px; display: flex; align-items: center; justify-content: flex-end;">
+                           <span class="tag is-light">${category}</span>
+                        </div>
+                     </div>
+                  </div>
+                  <div class="panel-block" style="display: block; padding: 1rem 1.25rem;">
+                     <div class="columns is-mobile is-vcentered" style="width: 100%; margin: 0;">
+                        <div class="column is-6" style="padding: 0.5rem;">
+                           <p class="control">
+                              <strong>Riders:</strong> ${carpoolers.length > 0 ? carpoolers.map(r => r.firstName ? `${r.firstName} ${r.lastName}` : r.email).join(', ') : 'None yet'}
+                           </p>
+                           <p class="control">
+                              <strong>Seats available:</strong> ${seatsAvailable > 0 ? seatsAvailable : 'Full'}
+                           </p>
+                           <p class="control">
+                              <strong>Car:</strong> ${carpool.carMake || 'Not specified'}
+                           </p>
+                        </div>
+                        <div class="column is-6" style="padding: 0.5rem; display: flex; justify-content: flex-end;">
+                           <button class="button is-link" onclick="joinCarpool('${carpool._id}')">
+                              <span class="icon">
+                                 <i class="fas fa-user-plus"></i>
+                              </span>
+                              <span>Join</span>
+                           </button>
+                        </div>
+                     </div>
+                  </div>`;
+               
+               recommendedContainer.appendChild(carpoolElement);
+            });
+         })
+         .catch(error => {
+            console.error('Error fetching recommendations:', error);
+            if (loadingElement) {
+               loadingElement.innerHTML = `
+                  <div class="notification is-danger is-light">
+                     <button class="delete"></button>
+                     Failed to load recommendations. Please try again later.
+                  </div>`;
+
+               // Add click handler for the delete button
+               const deleteBtn = loadingElement.querySelector('.delete');
+               if (deleteBtn) {
+                  deleteBtn.addEventListener('click', () => {
+                     loadingElement.innerHTML = '';
+                  });
+               }
+            }
+        });
+   }
+   
+   // Call the function when the page loads
+   document.addEventListener('DOMContentLoaded', function() {
+      fetchRecommendedCarpools();
+      // Load user interests when page loads
+      loadUserInterests();
+   });
+   
+   // Modal functions
+   function openSettings() {
+      document.getElementById('settingsModal').classList.add('is-active');
+   }
+   
+   function closeModal(modalId) {
+      document.getElementById(modalId).classList.remove('is-active');
+   }
+   
+   // Load user interests from the server
+   async function loadUserInterests() {
+      const container = document.getElementById('interestsContainer');
+      const loadingElement = document.getElementById('interestsLoading');
+      
+      try {
+         console.log('Fetching user interests...');
+         const response = await fetch('/api/user/interests', {
+            headers: {
+               'Accept': 'application/json',
+               'Content-Type': 'application/json'
+            },
+            credentials: 'same-origin' // Include cookies for authentication
+         });
+         
+         console.log('Response status:', response.status);
+         const responseText = await response.text();
+         console.log('Response text:', responseText);
+         
+         let data;
+         try {
+            data = responseText ? JSON.parse(responseText) : {};
+         } catch (e) {
+            console.error('Failed to parse JSON response:', e);
+            throw new Error('Invalid server response');
+         }
+         
+         if (!response.ok) {
+            throw new Error(data.error || `Server responded with status ${response.status}`);
+         }
+         
+         const interests = data.interests || [];
+         const allCategories = ['sports', 'academic', 'social', 'other'];
+         
+         // Create checkboxes for each category
+         let html = '';
+         allCategories.forEach(category => {
+            const displayName = category.charAt(0).toUpperCase() + category.slice(1);
+            const isChecked = interests.includes(category) ? 'checked' : '';
+            html += `
+               <div class="field">
+                  <label class="checkbox">
+                     <input type="checkbox" value="${category}" ${isChecked}>
+                     ${displayName}
+                  </label>
+               </div>`;
+         });
+         
+         // Update the container with checkboxes
+         container.innerHTML = html;
+         if (loadingElement) {
+            loadingElement.style.display = 'none';
+         }
+         
+      } catch (error) {
+         console.error('Error loading interests:', error);
+         if (loadingElement) {
+            loadingElement.innerHTML = `
+               <div class="notification is-danger is-light">
+                  <p><strong>Error loading interests</strong></p>
+                  <p>${error.message || 'Please try again later.'}</p>
+                  <button class="button is-small is-light" onclick="loadUserInterests()" style="margin-top: 0.5rem;">
+                     <span class="icon">
+                        <i class="fas fa-sync-alt"></i>
+                     </span>
+                     <span>Retry</span>
+                  </button>
+               </div>`;
+         }
+      }
+   }
+   
+   // Save user interests
+   async function saveInterests() {
+      const checkboxes = document.querySelectorAll('#interestsContainer input[type="checkbox"]');
+      const selectedInterests = Array.from(checkboxes)
+         .filter(checkbox => checkbox.checked)
+         .map(checkbox => checkbox.value);
+      
+      const saveButton = document.getElementById('saveInterestsBtn');
+      const originalButtonText = saveButton.innerHTML;
+      
+      try {
+         // Show loading state
+         saveButton.classList.add('is-loading');
+         saveButton.disabled = true;
+         
+         // Save interests to the server
+         const response = await fetch('/api/user/interests', {
+            method: 'POST',
+            headers: {
+               'Content-Type': 'application/json',
+               'Accept': 'application/json'
+            },
+            credentials: 'same-origin',
+            body: JSON.stringify({ interests: selectedInterests })
+         });
+         
+         if (!response.ok) {
+            throw new Error('Failed to save interests');
+         }
+         
+         // Show success message
+         const successMessage = document.createElement('div');
+         successMessage.className = 'notification is-success is-light';
+         successMessage.style.marginTop = '1rem';
+         successMessage.textContent = 'Interests saved successfully!';
+         document.getElementById('interestsContainer').appendChild(successMessage);
+         
+         // Hide success message after 3 seconds
+         setTimeout(() => {
+            successMessage.remove();
+            closeModal('settingsModal');
+            // Refresh recommendations
+            fetchRecommendedCarpools();
+         }, 2000);
+         
+      } catch (error) {
+         console.error('Error saving interests:', error);
+         const errorMessage = document.createElement('div');
+         errorMessage.className = 'notification is-danger is-light';
+         errorMessage.style.marginTop = '1rem';
+         errorMessage.textContent = 'Failed to save interests. Please try again.';
+         document.getElementById('interestsContainer').appendChild(errorMessage);
+         
+         // Hide error message after 3 seconds
+         setTimeout(() => {
+            errorMessage.remove();
+         }, 3000);
+         
+      } finally {
+         // Reset button state
+         saveButton.classList.remove('is-loading');
+         saveButton.disabled = false;
+         saveButton.innerHTML = originalButtonText;
+      }
    }
 </script>
