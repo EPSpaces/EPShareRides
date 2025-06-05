@@ -17,12 +17,6 @@ npm run dev
 ```
 and the app will start in dev using nodemon.
 
-The data for the **Find Rides** page is no longer stored in this repository.
-When the server starts, it downloads `carpool_cleaned_with_full_names.xlsx`
-from the Google Cloud Storage bucket `epsharerides-data`. Ensure that the
-service account specified in `service_account.json` has permission to access
-this bucket.
-
 ## Project Structure
 - `index.js`: Initializes the Express server, sets up routes, and handles various functionalities.
 - `package.json`: Lists the dependencies and scripts for the project.
