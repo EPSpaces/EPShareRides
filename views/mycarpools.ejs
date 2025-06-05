@@ -16,6 +16,7 @@
    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
       integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <script src="/co2Tracker.js"></script>
 </head>
 
 <body>
@@ -78,9 +79,15 @@
                                  <div class="navbar-end">
                                     <div class="is-button is-link">
                                        <div class="navbar-item">
-                                          <span style="font-size: 1em; color: #30B700; float: right">
+                                          <span style="font-size: 1em; color: #30B700; float: right; display: flex; align-items: center; margin-right: 15px;">
                                              <a class="fa-solid fa-leaf" href="/sustainabilityStatement"
-                                                style="color: #30B700"></a>
+                                                style="color: #30B700; margin-right: 10px;"></a>
+
+                                             <span>
+                                                <span id="co2-savings" style="font-size: 0.9em; font-weight: bold;">0 kg CO₂ saved</span>
+                                                <span id="co2-equivalents" class="co2-equivalents"></span>
+
+                                             </span>
                                           </span>
                                           <div class="buttons" style="margin: 10px;margin-right: 0px;">
                                               <button class="button is-info is-outlined" onclick="openSettings()" style="margin-right: 5px;">
@@ -266,6 +273,7 @@
                                        <span id="pending-badge"
                                           style="background: #ff3860; color: white; border-radius: 10px; padding: 2px 8px; font-size: 0.8em; margin-left: 5px; display: none;"></span>
                                     </a></li>
+                                 <li><a href="/findrides" class="white">Find Rides</a></li>
                               </ul>
                            </div>
                         </nav>
@@ -1572,8 +1580,13 @@
    function fetchRecommendedCarpools() {
       const recommendedContainer = document.getElementById('recommendedCarpools');
       const loadingElement = document.getElementById('recommendedCarpoolsLoading');
+
+      if (!recommendedContainer) {
+         console.error('Recommended carpools container not found');
+         return;
+      }
       
-      fetch('/api/recommendations/carpools', {
+      fetch('/api/recommended-carpools', {
          headers: {
             'Accept': 'application/json',
             'Content-Type': 'application/json'
@@ -1587,8 +1600,10 @@
             return response.json();
          })
          .then(recommendedCarpools => {
-            // Hide loading spinner
-            loadingElement.style.display = 'none';
+            // Hide loading spinner if it exists
+            if (loadingElement) {
+               loadingElement.style.display = 'none';
+            }
             
             if (recommendedCarpools.length === 0) {
                recommendedContainer.innerHTML = `
@@ -1636,7 +1651,7 @@
                      <div class="columns is-mobile is-vcentered" style="width: 100%; margin: 0;">
                         <div class="column is-6" style="padding: 0.5rem;">
                            <p class="control">
-                              <strong>Riders:</strong> ${carpoolers.length > 0 ? carpoolers.join(", ") : 'None yet'}
+                              <strong>Riders:</strong> ${carpoolers.length > 0 ? carpoolers.map(r => r.firstName ? `${r.firstName} ${r.lastName}` : r.email).join(', ') : 'None yet'}
                            </p>
                            <p class="control">
                               <strong>Seats available:</strong> ${seatsAvailable > 0 ? seatsAvailable : 'Full'}
@@ -1661,17 +1676,22 @@
          })
          .catch(error => {
             console.error('Error fetching recommendations:', error);
-            loadingElement.innerHTML = `
-               <div class="notification is-danger is-light">
-                  <button class="delete"></button>
-                  Failed to load recommendations. Please try again later.
-               </div>`;
-               
-            // Add click handler for the delete button
-            loadingElement.querySelector('.delete').addEventListener('click', () => {
-               loadingElement.innerHTML = '';
-            });
-         });
+            if (loadingElement) {
+               loadingElement.innerHTML = `
+                  <div class="notification is-danger is-light">
+                     <button class="delete"></button>
+                     Failed to load recommendations. Please try again later.
+                  </div>`;
+
+               // Add click handler for the delete button
+               const deleteBtn = loadingElement.querySelector('.delete');
+               if (deleteBtn) {
+                  deleteBtn.addEventListener('click', () => {
+                     loadingElement.innerHTML = '';
+                  });
+               }
+            }
+        });
    }
    
    // Call the function when the page loads
@@ -1740,21 +1760,25 @@
          
          // Update the container with checkboxes
          container.innerHTML = html;
-         loadingElement.style.display = 'none';
+         if (loadingElement) {
+            loadingElement.style.display = 'none';
+         }
          
       } catch (error) {
          console.error('Error loading interests:', error);
-         loadingElement.innerHTML = `
-            <div class="notification is-danger is-light">
-               <p><strong>Error loading interests</strong></p>
-               <p>${error.message || 'Please try again later.'}</p>
-               <button class="button is-small is-light" onclick="loadUserInterests()" style="margin-top: 0.5rem;">
-                  <span class="icon">
-                     <i class="fas fa-sync-alt"></i>
-                  </span>
-                  <span>Retry</span>
-               </button>
-            </div>`;
+         if (loadingElement) {
+            loadingElement.innerHTML = `
+               <div class="notification is-danger is-light">
+                  <p><strong>Error loading interests</strong></p>
+                  <p>${error.message || 'Please try again later.'}</p>
+                  <button class="button is-small is-light" onclick="loadUserInterests()" style="margin-top: 0.5rem;">
+                     <span class="icon">
+                        <i class="fas fa-sync-alt"></i>
+                     </span>
+                     <span>Retry</span>
+                  </button>
+               </div>`;
+         }
       }
    }
    
