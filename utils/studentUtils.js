@@ -1,7 +1,7 @@
 const XLSX = require('xlsx');
 const NodeGeocoder = require('node-geocoder');
 const { getDistance, getPreciseDistance } = require('geolib');
-const path = require('path');
+const { Storage } = require('@google-cloud/storage');
 
 // Initialize geocoder with OpenStreetMap provider
 const geocoder = NodeGeocoder({
@@ -12,13 +12,22 @@ const geocoder = NodeGeocoder({
 let studentData = [];
 const addressCache = new Map();
 
-// Load and process student data from Excel file
+// Load and process student data from Excel file stored in GCP
 async function loadStudentData() {
+  // Avoid reloading if we've already processed the file
+  if (studentData.length > 0) {
+    return studentData;
+  }
+
   try {
-    // Use __dirname to get the current directory and navigate to the project root
-    const filePath = path.join(__dirname, '../carpool_cleaned_with_full_names.xlsx');
-    console.log('Loading student data from:', filePath);
-    const workbook = XLSX.readFile(filePath);
+    console.log('Downloading student data from GCP bucket');
+
+    const storage = new Storage();
+    const bucketName = 'epsharerides-data';
+    const fileName = 'carpool_cleaned_with_full_names.xlsx';
+    const [contents] = await storage.bucket(bucketName).file(fileName).download();
+
+    const workbook = XLSX.read(contents, { type: 'buffer' });
     const sheetName = workbook.SheetNames[0];
     const worksheet = workbook.Sheets[sheetName];
     
