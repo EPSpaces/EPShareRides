@@ -29,6 +29,7 @@
     "node-fetch": "^3.2.6",
     "node-geocoder": "^4.4.1",
     "nodemailer": "^7.0.2",
+    "@google-cloud/storage": "^7.16.0",
     "uuid": "^9.0.1",
     "xlsx": "^0.18.5"
   },
