@@ -148,18 +148,32 @@ router.get("/recommended-carpools", homeLimiter, authenticateToken, async (req, 
       return res.json([]);
     }
 
-    // Find carpools that match user's interests and they haven't joined yet
-    const recommendedCarpools = await Carpool.aggregate([
-      {
-        $match: {
-          category: { $in: settings.interests },
-          userEmail: { $ne: req.email }, // Not the user's own carpools
-          'carpoolers.email': { $ne: req.email } // Not already joined
-        }
-      },
-      { $sample: { size: 5 } } // Get random 5 matching carpools
-    ]);
+    // Map user interests to the possible carpool categories. Some older
+    // carpools used slightly different category labels (e.g. "academic teams"),
+    // so include those variants as well.
+    const interestMap = {
+      sports: ['sports'],
+      academic: ['academic', 'academic teams'],
+      social: ['social', 'socials'],
+      other: ['other']
+    };
+    
+    // Expand interests into the actual categories stored on carpools and
+    // remove duplicates.
+    const matchCategories = settings.interests
+      .flatMap(i => interestMap[i] || [])
+      .filter((v, i, arr) => arr.indexOf(v) === i);
 
+    // Create case-insensitive regexes so categories like "Academic Teams"
+    // also match.
+    const matchRegexes = matchCategories.map(cat => new RegExp(`^${cat}$`, 'i'));
+
+    // Find carpools that match user's interests and they haven't joined yet
+    const recommendedCarpools = await Carpool.find({
+      category: { $in: matchRegexes },
+      userEmail: { $ne: req.email }, // Not the user's own carpools
+      carpoolers: { $not: { $elemMatch: { email: req.email } } } // Not already joined
+    }).limit(5);
     res.json(recommendedCarpools);
   } catch (error) {
     console.error("Error getting recommended carpools:", error);
@@ -331,6 +345,23 @@ router.get("/events", homeLimiter, authenticateToken, async (req, res) => {
     return;
   }
   res.json(events);
+});
+
+// Route to get a specific event by ID
+router.get("/events/:id", homeLimiter, authenticateToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const event = await Event.findById(id);
+
+    if (!event) {
+      return res.status(404).send("Event not found");
+    }
+
+    res.json(event);
+  } catch (err) {
+    console.error("Error retrieving event: " + err);
+    res.status(500).send("Error retrieving event");
+  }
 });
 
 // Route to create a new event
