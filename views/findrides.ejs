@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en" id="head">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>EPCarpool - Find Rides</title>
+  <link href="./bulma.min.css" rel="stylesheet" type="text/css" />
+  <link href="./style.css" rel="stylesheet" type="text/css" />
+  <script src="https://kit.fontawesome.com/16ae8e710d.js" crossorigin="anonymous"></script>
+  <link rel="icon" href="favicon.png" type="image/x-icon">
+  <link rel="stylesheet" href="./style.css">
+  <script src="/co2Tracker.js"></script>
+</head>
+
+<body>
+  <main>
+    <section class="hero is-fullheight">
+      <!-- Hero head: will stick at the top -->
+      <div class="hero-head">
+        <header class="navbar">
+          <div class="container">
+            <div class="navbar-brand">
+              <a class="navbar-item" href="/">
+                <div style="position: relative; display: flex; align-items: center;">
+                  <img src="EPS Logo - Transparent-4.png" alt="Logo">
+                  <h1 class="title is-3" style="margin-left: 10px">EPCarpool</h1>
+                  <span style="position: absolute; top: -5px; right: -25px; background: #3273DC; color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.7em; font-weight: bold;">BETA</span>
+                </div>
+              </a>
+              <span class="navbar-burger" data-target="navbarMenuHeroC" id="nav-toggle">
+                <span></span>
+                <span></span>
+                <span></span>
+              </span>
+            </div>
+            <div id="navbarMenuHeroC" class="navbar-menu">
+              <div class="navbar-end">
+                <div class="navbar-item">
+                  <span style="font-size: 1em; color: #30B700; display: flex; align-items: center; margin-right: 15px;">
+                    <a class="fa-solid fa-leaf" href="/sustainabilityStatement" style="color: #30B700; margin-right: 10px;"></a>
+
+                    <span>
+                      <span id="co2-savings" style="font-size: 0.9em; font-weight: bold;">0 kg CO₂ saved</span>
+                      <span id="co2-equivalents" class="co2-equivalents"></span>
+
+                    </span>
+                  </span>
+                  <div class="buttons" style="margin: 10px; margin-right: 0px;">
+                    <a class="button is-link is-outlined" href="/logout">
+                      Log out
+                    </a>
+                    <div class="navbar-item has-dropdown is-hoverable"
+                      onclick="document.getElementById('navbar-dropdown').style.visibility = 'visible';">
+                      <a class="button is-link" id="name_button"
+                        style="background: linear-gradient(105deg, #3273DC, #275CBF);">
+                        <%= firstName %>
+                        <i style="margin-left: 5px;" class="fas fa-angle-down" aria-hidden="true"></i>
+                      </a>
+                      <div id="navbar-dropdown" class="navbar-dropdown">
+                        <a class="navbar-item" href="/updateSettings">
+                          Update settings
+                        </a>
+                        <a class="navbar-item" href="https://forms.office.com/r/deCSjA7bCR">
+                          Report a bug
+                        </a>
+                        <a class="navbar-item" href="/sustainabilityStatement">
+                          Sustainability statement
+                        </a>
+                        <hr class="navbar-divider">
+                        <div class="navbar-item">
+                          Version 1.0.0
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </header>
+      </div>
+
+      <!-- Hero content: will be in the middle -->
+      <div class="hero-body" style="padding-bottom: 80px;">
+        <div class="container" style="margin-top: 0px; width: 100%; max-width: 800px;">
+          <div class="content" style="margin: 20px 0;">
+            <h1 class="title">Find Rides</h1>
+            <p class="subtitle">Find students who live near you to arrange carpools</p>
+            
+            <% if (typeof message !== 'undefined' && message) { %>
+              <div class="notification is-success">
+                <button class="delete"></button>
+                <%= message %>
+              </div>
+            <% } %>
+            
+            <% if (typeof error !== 'undefined' && error) { %>
+              <div class="notification is-danger">
+                <button class="delete"></button>
+                <%= error %>
+              </div>
+            <% } %>
+            
+            <!-- Search form -->
+            <div class="box">
+              <form id="searchForm" method="GET" action="/findrides">
+                <div class="field">
+                  <label class="label">Student Name</label>
+                  <div class="control has-icons-left">
+                    <input 
+                      class="input" 
+                      type="text" 
+                      name="search" 
+                      placeholder="Enter student name"
+                      value="<%= searchQuery %>"
+                      required>
+                    <span class="icon is-small is-left">
+                      <i class="fas fa-user"></i>
+                    </span>
+                  </div>
+                  <p class="help">Enter the full or partial name of the student</p>
+                </div>
+                
+                <div class="field">
+                  <label class="label">Search Radius (miles)</label>
+                  <div class="control has-icons-left">
+                    <input 
+                      class="input" 
+                      type="number" 
+                      name="radius" 
+                      min="1" 
+                      max="100" 
+                      step="0.5"
+                      placeholder="Enter search radius"
+                      value="<%= searchRadius || '5' %>"
+                      required>
+                    <span class="icon is-small is-left">
+                      <i class="fas fa-route"></i>
+                    </span>
+                  </div>
+                  <p class="help">Enter a number between 1 and 100</p>
+                </div>
+                
+                <div class="field">
+                  <div class="control">
+                    <button type="submit" class="button is-link is-fullwidth" id="searchButton">
+                      <span class="icon">
+                        <i class="fas fa-search"></i>
+                      </span>
+                      <span>Find Nearby Students</span>
+                    </button>
+                  </div>
+                </div>
+              </form>
+            </div>
+            
+            <!-- Search Results -->
+            <% if (typeof results !== 'undefined' && results) { %>
+              <div class="box">
+                <h2 class="subtitle">Search Results for <%= results.student ? results.student.name : 'Unknown Student' %></h2>
+                <p>Showing students within <%= searchRadius || '5' %> miles of <%= results.student ? results.student.address : 'the specified location' %></p>
+                
+                <% if (results.nearbyStudents && results.nearbyStudents.length > 0) { %>
+                  <div class="table-container" style="margin-top: 20px;">
+                    <table class="table is-fullwidth is-striped is-hoverable">
+                      <thead>
+                        <tr>
+                          <th>Name</th>
+                          <th>Grade</th>
+                          <th>Distance</th>
+                          <th>Address</th>
+                          <th>Parents</th>
+                          <th>Contact</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <% results.nearbyStudents.forEach(student => { %>
+                          <tr>
+                            <td><strong><%= student.name %></strong></td>
+                            <td><%= student.grade %></td>
+                            <td><%= student.distance %> miles</td>
+                            <td><%= student.address %></td>
+                            <td><%= student.parents %></td>
+                            <td><%= student.contact %></td>
+                          </tr>
+                        <% }); %>
+                      </tbody>
+                    </table>
+                  </div>
+                <% } else { %>
+                  <div class="notification is-warning" style="margin-top: 20px;">
+                    <p>No students found within <%= searchRadius %> miles. Try increasing the search radius.</p>
+                  </div>
+                <% } %>
+              </div>
+            <% } else { %>
+              <!-- Initial state or no results -->
+              <div class="box has-text-centered">
+                <div class="content">
+                  <span class="icon is-large has-text-grey-light">
+                    <i class="fas fa-car-side fa-3x"></i>
+                  </span>
+                  <p class="has-text-grey">
+                    Enter a student's name and search radius to find nearby students for carpooling.
+                  </p>
+                </div>
+              </div>
+            <% } %>
+          </div>
+        </div>
+      </div>
+
+      <!-- Hero footer: will stick at the bottom -->
+      <div class="hero-foot">
+        <nav class="tabs is-boxed is-fullwidth">
+          <div class="container">
+            <ul>
+              <li><a href="/" class="white">Upcoming Events</a></li>
+              <li><a href="/mycarpools" class="white">My Carpools</a></li>
+              <li class="is-active"><a href="/findrides" class="is-active1">Find Rides</a></li>
+            </ul>
+          </div>
+        </nav>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    // Form validation
+    document.addEventListener('DOMContentLoaded', () => {
+      const form = document.getElementById('searchForm');
+      const radiusInput = form.querySelector('input[name="radius"]');
+      
+      form.addEventListener('submit', (e) => {
+        // Convert the radius to a number
+        const radius = parseFloat(radiusInput.value);
+        
+        // Validate the radius
+        if (isNaN(radius) || radius < 0.1 || radius > 100) {
+          e.preventDefault();
+          alert('Please enter a valid search radius between 0.1 and 100 miles');
+          radiusInput.focus();
+          return false;
+        }
+        
+        // Round to 1 decimal place
+        radiusInput.value = Math.round(radius * 10) / 10;
+        return true;
+      });
+      
+      // Navbar burger menu toggle
+      // Get all "navbar-burger" elements
+      const $navbarBurgers = Array.prototype.slice.call(document.querySelectorAll('.navbar-burger'), 0);
+
+      // Add a click event on each of them
+      $navbarBurgers.forEach(el => {
+        el.addEventListener('click', () => {
+          // Get the target from the "data-target" attribute
+          const target = el.dataset.target;
+          const $target = document.getElementById(target);
+
+          // Toggle the "is-active" class on both the "navbar-burger" and the "navbar-menu"
+          el.classList.toggle('is-active');
+          $target.classList.toggle('is-active');
+        });
+      });
+
+      // Close notifications when delete button is clicked
+      document.querySelectorAll('.notification .delete').forEach(deleteButton => {
+        deleteButton.addEventListener('click', (e) => {
+          e.target.closest('.notification').remove();
+        });
+      });
+
+      // Handle search form submission
+      const searchForm = document.getElementById('searchForm');
+      if (searchForm) {
+        searchForm.addEventListener('submit', (e) => {
+          const searchButton = document.getElementById('searchButton');
+          if (searchButton) {
+            searchButton.classList.add('is-loading');
+            searchButton.disabled = true;
+          }
+        });
+      }
+    });
+  </script>
+</body>
+
+</html>

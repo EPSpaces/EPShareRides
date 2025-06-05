@@ -11,6 +11,9 @@
   <script src="https://kit.fontawesome.com/16ae8e710d.js" crossorigin="anonymous"></script>
   <link rel="icon" href="favicon.png" type="image/x-icon">
   <link rel="stylesheet" href="./style.css">
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+  <script src="/co2Tracker.js"></script>
 </head>
 
 <body>
@@ -46,8 +49,14 @@
               <div class="navbar-end">
                 <div class="is-button is-link">
                   <div class="navbar-item">
-                    <span style="font-size: 1em; color: #30B700; float: right">
-                      <a class="fa-solid fa-leaf" href="/sustainabilityStatement" style="color: #30B700"></a>
+                    <span style="font-size: 1em; color: #30B700; float: right; display: flex; align-items: center; margin-right: 15px;">
+                      <a class="fa-solid fa-leaf" href="/sustainabilityStatement" style="color: #30B700; margin-right: 10px;"></a>
+
+                      <span>
+                        <span id="co2-savings" style="font-size: 0.9em; font-weight: bold;">0 kg CO₂ saved</span>
+                        <span id="co2-equivalents" class="co2-equivalents"></span>
+
+                      </span>
                     </span>
                     <div class="buttons" style="margin: 10px;margin-right: 0px;">
                       <a class="button is-link is-outlined " href="/logout">
@@ -157,6 +166,10 @@
       </div>
     </div>
     <div class='field'>
+      <label class='label'>Map Preview:</label>
+      <div id='map' style='height: 300px; width: 100%; border-radius: 4px; margin-bottom: 1rem;'></div>
+    </div>
+    <div class='field'>
       <div class='control'>
         <div class='button is-link' type='button' onclick='createevent();'>Submit</div>
       </div>
@@ -239,6 +252,21 @@
               <label>Arrival time</label>
               <div class="field" style="margin-bottom: 10px;">
                 <input class="input" id="arrivaltime" type="time" placeholder="Time to arrive">
+              </div>
+            </div>
+            <div>
+              <label>Carpool category</label>
+              <div class="field" style="margin-bottom: 10px;">
+                <div class="control">
+                  <div class="select">
+                    <select id="carpool-category">
+                      <option value="sports">Sports</option>
+                      <option value="academic">Academic</option>
+                      <option value="social">Social</option>
+                      <option value="other">Other</option>
+                    </select>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -526,8 +554,159 @@ function addressAutocomplete(containerElement, idName, callback, options) {
 
           placeholder: "Enter an address here"
 
-        });
-        }
+                    });
+
+                  }
+                </script>
+            </span>
+          </div>
+          <!--Start here  -->
+          <div id="eventsJS">
+          </div>
+        </div>
+      </div>
+
+      <!-- Hero footer: will stick at the bottom -->
+      <div class="hero-foot">
+        <nav class="tabs is-boxed is-fullwidth">
+          <div class="container">
+            <ul>
+              <li class="is-active"><a href="/" class="is-active1">Upcoming Events</a></li>
+              <li><a href="/mycarpools" class="white">My Carpools</a></li>
+              <li><a href="/findrides" class="white">Find Rides</a></li>
+            </ul>
+          </div>
+        </nav>
+      </div>
+    </section>
+  </main>
+  <script></script>
+  <!-- start here -->
+  <div class="modal " id="modal-js-example">
+    <div class="modal-background" style="background-color: rgba(10,10,10,.50)"></div>
+    <div class="modal-card">
+      <p class="panel-heading has-text-centered" style="padding: 15px; padding-left: 20px; display: table">
+        <span style=" display: table-cell;vertical-align: middle; text-align: center; position:absolute">
+          <i class="fa-solid fa-car-side" style='float:left; transform:translate(0px,5px)'></i>
+        </span>
+        Offer to Carpool
+        <button class="delete" aria-label="close" onclick="closeAllModals()" style="float: right"></button>
+      </p>
+      <section class="modal-card-body">
+        <div class="container">
+          <label>Carpool information </label>
+          <div class="field">
+            <a class="panel-block" id="carpoolinfo" style="border-radius: 5px; padding:0px;">
+              <input style="margin-right: 10px; " id="fname" class="input" type="fname" placeholder="Driver first name">
+              <input id="lname" class="input" type="lname" placeholder="Driver last name">
+            </a>
+          </div>
+          <div class="field">
+            <a class="panel-block" style="border-radius: 5px; padding:0px;">
+              <input style="margin-right: 10px;" id="email" class="input" type="email" placeholder="Driver email">
+              <input id="phone" class="input" type="tel" placeholder="Driver phone number">
+            </a>
+          </div>
+          <div class="field" style="margin-bottom: 10px;">
+            <input class="input" id="carmake" type="text" placeholder="Car make and model">
+          </div>
+          <div class="field" style="margin-bottom: 10px;">
+            <input class="input" id="seats" type="number" min="1" max="9" placeholder="Number of available car seats">
+          </div>
+          <div style="display: flex; gap: 10px;">
+            <div>
+              <label>Pickup Location </label>
+              <div class="field" style="margin-bottom: 10px;">
+                <div class="control">
+                  <div class="select">
+                    <form>
+                      <select id="route-type">
+                        <option value="route">Riders' Homes</option>
+                        <option value="point">Common meeting point</option>
+                        <option value="eps-campus">EPS Campus</option>
+                      </select>
+                    </form>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div>
+              <label>Arrival time</label>
+              <div class="field" style="margin-bottom: 10px;">
+                <input class="input" id="arrivaltime" type="time" placeholder="Time to arrive">
+              </div>
+            </div>
+          </div>
+          <div class="field">
+            <label id="address-label">Your home address</label>
+            <div class="autocomplete-container" id="">
+              <div class="control" id="autocomplete-container">
+                <div class="clear-button"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <footer class="modal-card-foot" style="background-color: white; border-width: 1px; padding: 10px; ">
+        <div class="buttons" style="margin-left: 0px;">
+          <button class="button is-link " style="background: linear-gradient(105deg, #3273DC, #275CBF);"
+            onclick="offer();window.location.href='/mycarpools'">Create carpool</button>
+          <button class="button" aria-label="close" onclick="closeAllModals()">Cancel</button>
+        </div>
+      </footer>
+    </div>
+  </div>
+  <!-- end here -->
+  <!-- start here -->
+  <div class="modal " id="modal-js-register">
+    <div class="modal-background" style="background-color: rgba(10,10,10,.50)"></div>
+    <div class="modal-card">
+      <p class="panel-heading has-text-centered" style="padding: 15px; display: table;padding-left: 20px">
+        <span style=" display: table-cell;vertical-align: middle; text-align: center;">
+          <i class="fa-solid fa-users" style='float:left; position: absolute; transform: translate(0px, -10px)'></i>
+        </span>
+        Register to a Carpool
+        <button class="delete" aria-label="close" onclick="closeAllModals()" style="float: right"></button>
+      </p>
+      <section class="modal-card-body">
+        <div class="container">
+          <label id="registerTitle"></label>
+
+          <div style="overflow: auto;">
+            <div id="registerJS">
+              <!-- <div class="notification" style="padding: 10px;   margin-bottom: 10px;">
+                           <div class="button  selectCarpool" style=" margin-left: 10px; margin-top: 4px; background-color: transparent; float: right" onclick=" if (this.classList[2] == 'is-focused') {unfocus()} else {unfocus(); this.classList.add('is-focused')}">Select</div>
+                                   <div style="float: right; margin-top: 3px;"  >2/6 signed up</div>
+                                                             Organizer: <a style="color: #3273dc" href="mailto:ajosan@eastsideprep.org">ajosan@eastsideprep.org</a>
+                                     <br>  Route type: Riders' Homes
+                           <br> 
+                                 </div>    -->
+            </div>
+          </div>
+        </div>
+        <div class="field">
+          <label>Your home address </label>
+          <div class="autocomplete-container " id="">
+            <div class='control' id="autocomplete-container2">
+              <!-- South Kirkland Park and Ride, Bellevue, WA 98004, United States of America -->
+            </div>
+          </div>
+        </div>
+      </section>
+      <footer class="modal-card-foot" style="background-color: white; border-width: 1px; padding: 10px; ">
+        <var></var>
+        <div class="buttons" style="margin-left: 0px;">
+          <button class="button is-link " style="background: linear-gradient(105deg, #3273DC, #275CBF);"
+            onclick="joinCarpool(); window.location.href='/mycarpools'">Join carpool</button>
+          <button class="button" aria-label="close" onclick="closeAllModals()">Cancel</button>
+        </div>
+      </footer>
+    </div>
+  </div>
+  <!-- end here -->
+  <script type="text/javascript">
+    //Don't worry about it
+    console.error("418 I'm a teapot");
 
     let value2;
     let data1;
@@ -1060,45 +1239,86 @@ function addressAutocomplete(containerElement, idName, callback, options) {
       let CarMake = document.getElementById("carmake").value;
       let Seats = document.getElementById("seats").value;
       let ArrivalTime = document.getElementById("arrivaltime").value;
+      let category = document.getElementById("carpool-category").value;
       let route = document.getElementById("route-type").value;
       let Carpoolers = []
 
-      offerACar(DriverFName, DriverLName, DriverEmail, DriverPhone, CarMake, Seats, route, newArray, Carpoolers, datarray[datarray.length - 1], ArrivalTime);
+      offerACar(DriverFName, DriverLName, DriverEmail, DriverPhone, CarMake, Seats, route, newArray, Carpoolers, datarray[datarray.length - 1], ArrivalTime, category);
     }
 
 
-    function offerACar(firstName, lastName, email, phone, carMake, seats, route, wlocation, carpoolers, nameOfEvent, arrivalTime) {
-      let userEmail = "<%= email %>"
-      const newcarpools = {
-        firstName,
-        lastName,
-        email,
-        phone,
-        carMake,
-        seats,
-        route,
-        wlocation,
-        carpoolers,
-        nameOfEvent,
-        userEmail,
-        arrivalTime
-      };
+    async function offerACar(firstName, lastName, email, phone, carMake, seats, route, wlocation, carpoolers, eventId, arrivalTime, category) {
+      try {
+      
+        // First, fetch the event to get its category and address
+        const eventResponse = await fetch(`/api/events/${eventId}`);
+        if (!eventResponse.ok) {
+          throw new Error('Failed to fetch event details');
+        }
+        const event = await eventResponse.json();
 
-      const jsonData = JSON.stringify(newcarpools);
-      const url = "/api/carpools";
+        // Calculate distance between the carpool start location and the event address
+        const startCoords = await getCoordinates(wlocation);
+        const eventCoords = await getCoordinates(event.address);
+        let distanceMiles = calculateDistance(
+          startCoords.lat,
+          startCoords.lng,
+          eventCoords.lat,
+          eventCoords.lng
+        );
+        // Ensure minimum distance of 1 mile and round to 1 decimal place
+        distanceMiles = Math.max(1, parseFloat(distanceMiles.toFixed(1)));
 
+        const numPassengers = 1; // Just the driver initially
 
-      fetch(url, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: jsonData,
-      })
-        .then((response) => {
-          // Open verification checker
-        })
-        .catch((error) => console.error("Error:", error));
+        let userEmail = "<%= email %>";
+        const newcarpools = {
+          firstName,
+          lastName,
+          email,
+          phone,
+          carMake,
+          seats,
+          route,
+          wlocation,
+          carpoolers,
+          // Store the event ID with the carpool so we can look up details later
+          nameOfEvent: eventId,
+          userEmail,
+          arrivalTime,
+          category: event.category || 'other',
+          distanceMiles,
+          numPassengers
+        };
+
+        const jsonData = JSON.stringify(newcarpools);
+        const url = "/api/carpools";
+
+        const response = await fetch(url, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: jsonData,
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to create carpool');
+        }
+
+        // Emit event for CO2 savings update and redirect on success
+        document.dispatchEvent(new CustomEvent('carpool-created', {
+          detail: {
+            distanceMiles: distanceMiles,
+            numPassengers: numPassengers
+          }
+        }));
+
+        window.location.href = '/mycarpools';
+      } catch (error) {
+        console.error("Error:", error);
+        alert('Failed to create carpool. Please try again.');
+      }
     }
 
 
@@ -1141,15 +1361,58 @@ function addressAutocomplete(containerElement, idName, callback, options) {
 
 
 
-    function joinCarpool() {
-      let newArray = document.getElementById("address-input2").value
+    // Function to get coordinates from an address (simplified version)
+    async function getCoordinates(address) {
+      // In a real app, you would use a geocoding service here
+      // For this simplified version, we'll return a default location
+      // You should replace this with actual geocoding logic if possible
+      return {
+        lat: 47.6205 + (Math.random() * 0.1 - 0.05), // Random location near Seattle
+        lng: -122.3493 + (Math.random() * 0.1 - 0.05)
+      };
+    }
+
+
+    // Haversine formula to calculate distance between two points
+    function calculateDistance(lat1, lon1, lat2, lon2) {
+      const R = 3958.8; // Radius of the Earth in miles
+      const dLat = (lat2 - lat1) * Math.PI / 180;
+      const dLon = (lon2 - lon1) * Math.PI / 180;
+      const a = 
+        Math.sin(dLat/2) * Math.sin(dLat/2) +
+        Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
+        Math.sin(dLon/2) * Math.sin(dLon/2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+      return R * c; // Distance in miles
+    }
+
+    async function joinCarpool() {
+      let newArray = document.getElementById("address-input2").value;
       var personName = "<%= firstName %> <%= lastName %>";
       var email = "<%= email %>";
       var carpoool;
+      
       if (selectedCarpool != null) {
         for (var i = 0; i < userData1.length; i++) {
-          carpoool = userData1[i]
+          carpoool = userData1[i];
           if (carpoool["_id"] == selectedCarpool) {
+            // Get coordinates for the user's address and carpool address
+            const userCoords = await getCoordinates(newArray);
+            const carpoolCoords = await getCoordinates(carpoool.wlocation || carpoool.address);
+            
+            // Calculate straight-line distance in miles
+            let distanceMiles = calculateDistance(
+              userCoords.lat, 
+              userCoords.lng, 
+              carpoolCoords.lat, 
+              carpoolCoords.lng
+            );
+            
+            // Ensure minimum distance of 1 mile and round to 1 decimal place
+            distanceMiles = Math.max(1, parseFloat(distanceMiles.toFixed(1)));
+            
+            const numPassengers = carpoool.carpoolers.length + 1; // Including the new passenger
+            
             carpoool["carpoolers"].push({
               "address": newArray,
               "carpool": selectedCarpool
@@ -1157,25 +1420,38 @@ function addressAutocomplete(containerElement, idName, callback, options) {
 
             const addNewMember = {
               address: newArray,
-              carpool: selectedCarpool
+              carpool: selectedCarpool,
+              distanceMiles: distanceMiles,
+              numPassengers: numPassengers
             }
 
             jsonData = JSON.stringify(addNewMember)
 
             url = "/api/joinCarpool"
 
-            fetch(url, {
-              method: 'POST',
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: jsonData,
-            })
-              .then((response) => {
-                if (response.redirected) {
-                  window.location.href = response.url;
-                }
-              })
+            try {
+              const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: jsonData,
+              });
+
+              if (response.redirected) {
+                // Emit event for CO2 savings update
+                document.dispatchEvent(new CustomEvent('carpool-joined', {
+                  detail: {
+                    distanceMiles: distanceMiles,
+                    numPassengers: numPassengers
+                  }
+                }));
+                
+                window.location.href = response.url;
+              }
+            } catch (error) {
+              console.error('Error joining carpool:', error);
+            }
           }
         }
       }
@@ -1192,15 +1468,15 @@ function addressAutocomplete(containerElement, idName, callback, options) {
     }
 
 
-    function createevent() {
-      firstName = "<%= firstName %> "
-      lastName = "<%= lastName %> "
-      eventName = document.getElementById("ename").value
-      wlocation = document.getElementById("elocation").value
-      dateb = document.getElementById("edate").value//hotdogs
+    async function createevent() {
+      firstName = "<%= firstName %> ";
+      lastName = "<%= lastName %> ";
+      eventName = document.getElementById("ename").value;
+      wlocation = document.getElementById("elocation").value;
+      dateb = document.getElementById("edate").value; //hotdogs
       var components = dateb.split(/[-T:]/);
 
-      address = document.getElementById("create_address").value
+      const address = document.getElementById("create_address").value;
 
       // Create a new Date object
       var dateTimeObject = new Date(components[0], components[1] - 1, components[2], components[3], components[4]);
@@ -1213,32 +1489,61 @@ function addressAutocomplete(containerElement, idName, callback, options) {
         minute: 'numeric',
         hour12: true
       });
-      category = document.getElementById("ecategory").value
+      category = document.getElementById("ecategory").value;
+      
+      // Get coordinates for the user's address and event location
+      const userCoords = await getCoordinates(address);
+      const eventCoords = await getCoordinates(wlocation);
+      
+      // Calculate straight-line distance in miles
+      let distanceMiles = calculateDistance(
+        userCoords.lat, 
+        userCoords.lng, 
+        eventCoords.lat, 
+        eventCoords.lng
+      );
+      
+      // Ensure minimum distance of 1 mile and round to 1 decimal place
+      distanceMiles = Math.max(1, parseFloat(distanceMiles.toFixed(1)));
+      
+      const numPassengers = 1; // Just the driver initially
+      
       const data = {
         eventName,
         wlocation,
         date,
         category,
-        addressToPut: address
+        addressToPut: address,
+        distanceMiles,
+        numPassengers
       };
 
       const jsonData = JSON.stringify(data);
-
       const url = "/api/events";
 
-
-      fetch(url, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: jsonData,
-      })
-        .then((response) => {
-          // Open verification checker
-          location.reload();
-        })
-        .catch((error) => console.error("Error:", error));
+      try {
+        const response = await fetch(url, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: jsonData,
+        });
+        
+        console.log(response);
+        
+        // Emit event for CO2 savings update
+        if (response.ok) {
+          document.dispatchEvent(new CustomEvent('carpool-created', {
+            detail: {
+              distanceMiles: distanceMiles,
+              numPassengers: numPassengers
+            }
+          }));
+        }
+      } catch (error) {
+        console.error("Error creating event:", error);
+      }
     }
 
 
@@ -1307,6 +1612,54 @@ function addressAutocomplete(containerElement, idName, callback, options) {
       document.getElementById('disclaimer-modal').classList.remove('is-active');
     }
   </script>
+  
+  <!-- CO2 Tracking Scripts -->
+  <script src="/js/co2Utils.js"></script>
+  <script>
+    // Listen for carpool creation/join events and update CO2 savings
+    document.addEventListener('carpool-created', async (event) => {
+      try {
+        const { distanceMiles, numPassengers } = event.detail;
+        const result = await updateCO2SavingsForCarpool(distanceMiles, numPassengers);
+        
+        if (result.success) {
+          console.log(`CO2 savings updated: ${formatCO2Savings(result.co2Savings)}`);
+          
+          // Show a success message to the user
+          const notification = document.createElement('div');
+          notification.className = 'notification is-success is-light';
+          notification.style.position = 'fixed';
+          notification.style.bottom = '20px';
+          notification.style.right = '20px';
+          notification.style.zIndex = '1000';
+          notification.innerHTML = `
+            <button class="delete" onclick="this.parentElement.remove()"></button>
+            <strong>🌱 Great job!</strong>
+            <p>You've saved approximately <strong>${formatCO2Savings(result.co2Savings)}</strong> by carpooling!</p>
+            <p>Your total CO₂ savings: <strong>${formatCO2Savings(parseFloat(document.getElementById('co2-savings').textContent) + result.co2Savings)}</strong></p>
+          `;
+          document.body.appendChild(notification);
+          
+          // Auto-remove notification after 5 seconds
+          setTimeout(() => {
+            notification.remove();
+          }, 10000);
+        } else {
+          console.error('Failed to update CO2 savings:', result.error);
+        }
+      } catch (error) {
+        console.error('Error handling carpool creation:', error);
+      }
+    });
+    
+    // Also listen for carpool-joined events (same as created for now)
+    document.addEventListener('carpool-joined', (event) => {
+      document.dispatchEvent(new CustomEvent('carpool-created', { detail: event.detail }));
+    });
+  </script>
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+  <script src="/script.js"></script>
 </body>
 
 </html>
