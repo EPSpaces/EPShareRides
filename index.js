@@ -1,3 +1,7 @@
+if (process.env.MODE != 'PROD') {
+  require('dotenv').config(); // Load environment variables from .env file in non-production mode
+}
+
 // Import libraries
 const fs = require("fs");
 const express = require("express");
@@ -10,30 +14,6 @@ const cron = require('node-cron');
 const nodemailer = require('nodemailer');
 const { findNearbyStudents, loadStudentData } = require('./utils/studentUtils');
 
-// Load environment variables from env.local or .env file
-const envPath = fs.existsSync('./env.local') ? './env.local' : './.env';
-console.log(`Loading environment variables from: ${envPath}`);
-
-// Log the content of the env file
-if (fs.existsSync(envPath)) {
-  console.log('Environment file content:');
-  console.log(fs.readFileSync(envPath, 'utf-8'));
-} else {
-  console.log('Environment file not found at:', envPath);
-}
-
-// Load environment variables
-require('dotenv').config({ path: envPath });
-
-// Log all environment variables (be careful with sensitive data in production)
-console.log('Loaded environment variables:');
-console.log({
-  NODE_ENV: process.env.NODE_ENV,
-  MODE: process.env.MODE,
-  PORT: process.env.PORT,
-  MONGO_URI: process.env.MONGO_URI ? 'MONGO_URI is set' : 'MONGO_URI is NOT set',
-  MONGO_URI_LENGTH: process.env.MONGO_URI ? process.env.MONGO_URI.length : 0
-});
 
 // Import Schemas from MongoDB
 const User = require("./schemas/User.model.js");
@@ -44,7 +24,7 @@ const UserSettings = require("./schemas/UserSettings.model.js");
 // Initialize Firebase app
 const firebaseadmin = require('firebase-admin');
 var serviceAccount = require("./service_account.json");
-process.env.GOOGLE_APPLICATION_CREDENTIALS = "./service_account.json";
+process.env["GOOGLE_APPLICATION_CREDENTIALS"] = "./service_account.json";
 
 firebaseadmin.initializeApp({
   credential: firebaseadmin.credential.cert(serviceAccount)
@@ -316,8 +296,8 @@ const transporter = nodemailer.createTransport({
   port: 465,
   secure: true,
   auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS
+    user: process.env["SMTP_USER"],
+    pass: process.env["SMTP_PASS"]
   }
 });
 
@@ -338,7 +318,7 @@ cron.schedule('*/5 * * * *', async () => {
     const emails = [carpool.email, ...carpool.carpoolers.map(c => c.email)];
     // Compose email
     const mailOptions = {
-      from: process.env.SMTP_USER,
+      from: process.env["SMTP_USER"],
       to: emails.join(','),
       subject: 'Carpool Reminder: ' + (carpool.nameOfEvent || ''),
       text: `Reminder: Your carpool for event ${carpool.nameOfEvent || ''} is scheduled to arrive at ${carpool.arrivalTime}.
@@ -360,20 +340,13 @@ If you have questions, contact your driver at ${carpool.email} or ${carpool.phon
 const port = process.env["PORT"] || 8080;
 
 // Use the MONGO_URI from environment variables
-const mongoUri = process.env.MONGO_URI;
+const mongoUri = process.env["MONGO_URI"];
 if (!mongoUri) {
   console.error('ERROR: MONGO_URI is not defined in environment variables');
   process.exit(1);
 }
 
 console.log('Attempting to connect to MongoDB with the provided URI');
-console.log('Current environment variables:', {
-  NODE_ENV: process.env.NODE_ENV,
-  MODE: process.env.MODE,
-  PORT: process.env.PORT,
-  MONGO_URI: process.env.MONGO_URI ? 'SET' : 'NOT SET'
-});
-
 mongoose
   .connect(mongoUri, {
     useNewUrlParser: true,
@@ -385,8 +358,8 @@ mongoose
     console.log("Successfully connected to MongoDB");
     console.log("MongoDB connection state:", mongoose.connection.readyState);
 
-    app.listen(process.env.PORT, () => {
-      console.log(`Server started on port ${process.env.PORT}`);
+    app.listen(process.env["PORT"], () => {
+      console.log(`Server started on port ${process.env["PORT"]}`);
     });
   })
   .catch((err) => {
