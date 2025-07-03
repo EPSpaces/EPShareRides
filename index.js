@@ -3,18 +3,17 @@ if (process.env.MODE != 'PROD') {
 }
 
 // Import libraries
+const fs = require("fs");
 const express = require("express");
 const ejs = require("ejs");
 const axios = require("axios").default;
-const fs = require("fs");
 const jwt = require("jsonwebtoken");
 const cookieParser = require("cookie-parser");
 const mongoose = require("mongoose");
-<<<<<<< HEAD
-=======
 const cron = require('node-cron');
 const nodemailer = require('nodemailer');
->>>>>>> internot/main
+const { findNearbyStudents, loadStudentData } = require('./utils/studentUtils');
+
 
 // Import Schemas from MongoDB
 const User = require("./schemas/User.model.js");
@@ -25,7 +24,7 @@ const UserSettings = require("./schemas/UserSettings.model.js");
 // Initialize Firebase app
 const firebaseadmin = require('firebase-admin');
 var serviceAccount = require("./service_account.json");
-process.env.GOOGLE_APPLICATION_CREDENTIALS = "./service_account.json";
+process.env["GOOGLE_APPLICATION_CREDENTIALS"] = "./service_account.json";
 
 firebaseadmin.initializeApp({
   credential: firebaseadmin.credential.cert(serviceAccount)
@@ -52,9 +51,6 @@ app.use(express.static(__dirname + "/public")); // Serve static files
 app.use(cookieParser()); // Parse cookies
 app.use(express.json({ limit: "100mb" })); // Set JSON body limit to 100mb
 app.use(express.urlencoded({ extended: true, limit: "100mb" })); // Parse URL-encoded bodies with limit
-<<<<<<< HEAD
-app.use('/api/', apiRoutes); //TODO: Put apiRoutes under /api
-=======
 
 // Pass transporter to apiRoutes
 app.use('/api/', (req, res, next) => {
@@ -62,7 +58,6 @@ app.use('/api/', (req, res, next) => {
   next();
 }, apiRoutes);
 
->>>>>>> internot/main
 app.use('/', authRoutes);
 
 // Home route - Render home page with user information
@@ -167,6 +162,82 @@ app.get("/updateSettings", homeLimiter, authenticateToken, async (req, res) => {
   res.render("updateSettings", { email, firstName, lastName }); // Render update settings page
 });
 
+// Find Rides route - Display available rides
+app.get("/findrides", homeLimiter, authenticateToken, async (req, res) => {
+  const email = req.email;
+  let firstName;
+  let lastName;
+
+  let userInData;
+
+  try {
+    userInData = await User.findOne({ email });
+    if (!userInData) {
+      res.clearCookie("idToken");
+      res.redirect("/signin?err=Error with system finding User, please try again");
+      return;
+    }
+  } catch (err) {
+    console.error("Error finding user: " + err);
+    res.clearCookie("idToken");
+    res.redirect("/signin?err=Internal server error, please sign in again");
+    return;
+  }
+
+  firstName = userInData["firstName"];
+  lastName = userInData["lastName"];
+
+  const searchQuery = req.query.search || '';
+  const searchRadius = parseFloat(req.query.radius) || 5;
+  
+  let results = null;
+  
+  // Only perform search if there's a search query
+  if (searchQuery) {
+    try {
+      // Ensure student data is loaded first
+      await loadStudentData();
+      
+      // Find nearby students using the studentUtils function
+      const searchResults = await findNearbyStudents(searchQuery, searchRadius);
+      
+      if (searchResults && searchResults.nearbyStudents && searchResults.nearbyStudents.length > 0) {
+        // Format the results to match what the template expects
+        const formattedStudents = searchResults.nearbyStudents.map(student => ({
+          name: student.name,
+          grade: student.grade,
+          address: student.address,
+          parents: student.parents,
+          contact: student.contact,
+          distance: student.distance
+        }));
+        
+        results = {
+          student: {
+            name: searchResults.student.name,
+            address: searchResults.student.address
+          },
+          nearbyStudents: formattedStudents
+        };
+      } else {
+        results = { error: 'No students found within the specified radius' };
+      }
+    } catch (err) {
+      console.error('Error searching for students:', err);
+      results = { error: err.message || 'An error occurred while searching' };
+    }
+  }
+  
+  res.render("findrides", { 
+    email, 
+    firstName, 
+    lastName, 
+    searchQuery, 
+    searchRadius,
+    results
+  });
+});
+
 // Friends route - Display list of all users
 app.get("/friends", homeLimiter, authenticateToken, async (req, res) => {
   let people = [];
@@ -218,8 +289,6 @@ app.use((req, res) => {
   res.status(404).render("404"); // Render 404 page
 });
 
-<<<<<<< HEAD
-=======
 // Configure nodemailer (replace with your SMTP credentials)
 const transporter = nodemailer.createTransport({
   service: "Gmail",
@@ -227,8 +296,8 @@ const transporter = nodemailer.createTransport({
   port: 465,
   secure: true,
   auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS
+    user: process.env["SMTP_USER"],
+    pass: process.env["SMTP_PASS"]
   }
 });
 
@@ -249,7 +318,7 @@ cron.schedule('*/5 * * * *', async () => {
     const emails = [carpool.email, ...carpool.carpoolers.map(c => c.email)];
     // Compose email
     const mailOptions = {
-      from: process.env.SMTP_USER,
+      from: process.env["SMTP_USER"],
       to: emails.join(','),
       subject: 'Carpool Reminder: ' + (carpool.nameOfEvent || ''),
       text: `Reminder: Your carpool for event ${carpool.nameOfEvent || ''} is scheduled to arrive at ${carpool.arrivalTime}.
@@ -270,29 +339,30 @@ If you have questions, contact your driver at ${carpool.email} or ${carpool.phon
 
 const port = process.env["PORT"] || 8080;
 
-console.log(process.env["MONGO_URI"]);
+// Use the MONGO_URI from environment variables
+const mongoUri = process.env["MONGO_URI"];
+if (!mongoUri) {
+  console.error('ERROR: MONGO_URI is not defined in environment variables');
+  process.exit(1);
+}
 
->>>>>>> internot/main
-// Connect to the database and start the server
+console.log('Attempting to connect to MongoDB with the provided URI');
 mongoose
-  .connect(process.env["MONGO_URI"]) // Connect to MongoDB
+  .connect(mongoUri, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    serverSelectionTimeoutMS: 5000,
+    socketTimeoutMS: 45000,
+  })
   .then(() => {
-    console.log("Connected to db");
+    console.log("Successfully connected to MongoDB");
+    console.log("MongoDB connection state:", mongoose.connection.readyState);
 
-<<<<<<< HEAD
     app.listen(process.env["PORT"], () => {
-      console.log("Server started on port " + process.env["PORT"]); // Start server
-=======
-    app.listen(port, () => {
-      console.log("Server started on port " + port); // Start server
->>>>>>> internot/main
+      console.log(`Server started on port ${process.env["PORT"]}`);
     });
   })
   .catch((err) => {
     console.error("Error connecting to db:", err);
     return;
-<<<<<<< HEAD
   });
-=======
-  });
->>>>>>> internot/main
