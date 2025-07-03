@@ -1,8 +1,4 @@
 *.env
-<<<<<<< HEAD
-/public/config.js
-=======
->>>>>>> internot/main
 /node_modules
 service_account.json
 .cursorignore

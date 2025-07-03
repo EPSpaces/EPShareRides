@@ -11,6 +11,8 @@ const RATE_LIMITER_REQUESTS = 100;
 
 const User = require("../schemas/User.model.js");
 const Event = require("../schemas/Event.model.js");
+const UserSettings = require("../schemas/UserSettings.model.js");
+const { calculateCO2Savings, calculateCO2SavingsPerPassenger } = require("../utils/co2Calculator");
 // ObjectId is a class that is used to convert a string into a MongoDB ObjectId
 const ObjectId = require("mongodb").ObjectId;
 
@@ -75,6 +77,110 @@ router.patch("/updateSettings", homeLimiter, authenticateToken, async (req, res)
   res.redirect("/updateSettings?suc=Settings updated successfully");
 });
 
+// Route to get user interests
+router.get("/user/interests", homeLimiter, authenticateToken, async (req, res) => {
+  try {
+    // Find user settings or create if they don't exist
+    let userSettings = await UserSettings.findOne({ userEmail: req.email });
+    
+    if (!userSettings) {
+      // If no settings exist, create with default interests (empty array)
+      userSettings = new UserSettings({
+        userEmail: req.email,
+        interests: []
+      });
+      await userSettings.save();
+    }
+    
+    // Return the user's interests (or empty array if not set)
+    res.json({ 
+      success: true, 
+      interests: userSettings.interests || [] 
+    });
+    
+  } catch (error) {
+    console.error('Error fetching user interests:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: 'Failed to fetch user interests' 
+    });
+  }
+});
+
+// Route to update user interests
+router.post("/user/interests", homeLimiter, authenticateToken, async (req, res) => {
+  try {
+    const { interests } = req.body;
+    
+    if (!Array.isArray(interests)) {
+      return res.status(400).json({ error: "Interests must be an array" });
+    }
+
+    // Validate interests
+    const validInterests = ['sports', 'academic', 'social', 'other'];
+    const invalidInterests = interests.filter(item => !validInterests.includes(item));
+    
+    if (invalidInterests.length > 0) {
+      return res.status(400).json({ error: `Invalid interest(s): ${invalidInterests.join(', ')}` });
+    }
+
+    // Update user settings with new interests
+    const updatedSettings = await UserSettings.findOneAndUpdate(
+      { userEmail: req.email },
+      { interests },
+      { new: true, upsert: true }
+    );
+
+    res.json({ success: true, interests: updatedSettings.interests });
+  } catch (error) {
+    console.error("Error updating interests:", error);
+    res.status(500).json({ error: "Failed to update interests" });
+  }
+});
+
+// Route to get recommended carpools based on user interests
+router.get("/recommended-carpools", homeLimiter, authenticateToken, async (req, res) => {
+  try {
+    // Get user's interests
+    const settings = await UserSettings.findOne({ userEmail: req.email });
+    
+    if (!settings || !settings.interests || settings.interests.length === 0) {
+      return res.json([]);
+    }
+
+    // Map user interests to the possible carpool categories. Some older
+    // carpools used slightly different category labels (e.g. "academic teams"),
+    // so include those variants as well.
+    const interestMap = {
+      sports: ['sports'],
+      academic: ['academic', 'academic teams'],
+      social: ['social', 'socials'],
+      other: ['other']
+    };
+    
+    // Expand interests into the actual categories stored on carpools and
+    // remove duplicates.
+    const matchCategories = settings.interests
+      .flatMap(i => interestMap[i] || [])
+      .filter((v, i, arr) => arr.indexOf(v) === i);
+
+    // Create case-insensitive regexes so categories like "Academic Teams"
+    // also match.
+    const matchRegexes = matchCategories.map(cat => new RegExp(`^${cat}$`, 'i'));
+
+    // Find carpools that match user's interests and they haven't joined yet
+    const recommendedCarpools = await Carpool.find({
+      category: { $in: matchRegexes },
+      userEmail: { $ne: req.email }, // Not the user's own carpools
+      carpoolers: { $not: { $elemMatch: { email: req.email } } } // Not already joined
+    }).limit(5);
+    res.json(recommendedCarpools);
+  } catch (error) {
+    console.error("Error getting recommended carpools:", error);
+    res.status(500).json({ error: "Failed to get recommended carpools" });
+  }
+});
+
 // Route to get offer to carpool data
 // Why do we have a req here?
 router.get("/offerToCarpool", homeLimiter, authenticateToken, (req, res) => {
@@ -87,75 +193,19 @@ router.get("/offerToCarpool", homeLimiter, authenticateToken, (req, res) => {
 // Route to join a carpool
 router.post("/joinCarpool", homeLimiter, authenticateToken, async (req, res) => {
   const { carpool: carpoolId, address } = req.body;
-<<<<<<< HEAD
-  const { email } = req;
-
-  // Validate required fields
-=======
   const { email, transporter } = req; // Added transporter
 
->>>>>>> internot/main
   if (!carpoolId || !address) {
     return res.status(400).send("Invalid request");
   }
 
   try {
-<<<<<<< HEAD
-    // Get user data
     const user = await User.findOne({ email });
     if (!user) {
-      // Clear the id token
-=======
-    const user = await User.findOne({ email });
-    if (!user) {
->>>>>>> internot/main
       res.clearCookie("idToken");
       return res.status(401).send("User not found");
     }
 
-<<<<<<< HEAD
-    // Find and update carpool in one operation
-    const updatedCarpool = await Carpool.findOneAndUpdate(
-      {
-        _id: carpoolId,
-        "carpoolers.email": { $ne: email }, // Check user not already in carpool
-        $expr: { $lt: [{ $size: "$carpoolers" }, "$seats"] } // Check carpool not full
-      },
-      {
-        // Add user to carpool
-        $push: {
-          carpoolers: {
-            email,
-            firstName: user.firstName,
-            lastName: user.lastName,
-            address
-          }
-        }
-      },
-      { new: true }
-    );
-
-    // Check if carpool was not updated
-    if (!updatedCarpool) {
-      const carpool = await Carpool.findById(carpoolId);
-      // Check if carpool exists
-      if (!carpool) {
-        // Mission Failed Successfully
-        return res.status(404).send("Carpool not found");
-      }
-      if (carpool.carpoolers.length >= carpool.seats) {
-        // Carpool is full :(
-        return res.status(400).send("Carpool is full");
-      }
-      // Mission failed, we'll get 'em next time
-      return res.status(409).send("You are already in this carpool");
-    }
-
-    // Return updated carpool
-    return res.status(200).json(updatedCarpool);
-
-    // Catch any errors
-=======
     const carpool = await Carpool.findById(carpoolId);
     if (!carpool) return res.status(404).send("Carpool not found");
     if (carpool.carpoolers.some(c => c.email === email)) {
@@ -190,30 +240,12 @@ router.post("/joinCarpool", homeLimiter, authenticateToken, async (req, res) => 
     }
 
     return res.status(200).json({ message: "Request sent for approval" });
->>>>>>> internot/main
   } catch (error) {
     console.error("Error joining carpool:", error);
     return res.status(500).send("Internal Server Error");
   }
 });
 
-<<<<<<< HEAD
-// Route to get all events
-router.get("/events", homeLimiter, authenticateToken, async (req, res) => {
-  // Get all the events from the DB
-  let events;
-  try {
-    // Get all the events from the DB and wait for the response
-    events = await Event.find({});
-  } catch (err) {
-    // Log the error
-    console.error("Error getting events: " + err);
-    // Send a 500 status code and an error message
-    res.status(500).send("Error getting events");
-    return;
-  };
-  // Send the events as a JSON response
-=======
 // Approve or deny a pending carpool request (owner only)
 router.post("/carpools/:id/approve", homeLimiter, authenticateToken, async (req, res) => {
   try {
@@ -239,7 +271,40 @@ router.post("/carpools/:id/approve", homeLimiter, authenticateToken, async (req,
       if (carpool.carpoolers.length >= carpool.seats) {
         return res.status(400).send("Carpool is full");
       }
+      
+      // Add the user to the carpool
       carpool.carpoolers.push(request);
+      
+      // Calculate CO2 savings for this new passenger
+      const distanceMiles = carpool.distanceMiles || 10; // Default to 10 miles if not set
+      const totalPassengers = carpool.carpoolers.length + 1; // +1 for the driver
+      
+      // Calculate CO2 savings per passenger for this carpool
+      const co2SavingsPerPassenger = calculateCO2SavingsPerPassenger(distanceMiles, totalPassengers);
+      
+      // Update the carpool's total CO2 savings
+      const totalCarpoolSavings = calculateCO2Savings(distanceMiles, totalPassengers);
+      carpool.co2Savings = totalCarpoolSavings;
+      
+      // Update the carpool owner's total CO2 savings
+      await User.findOneAndUpdate(
+        { email: carpool.userEmail },
+        { $inc: { co2Saved: co2SavingsPerPassenger } },
+        { new: true, upsert: false }
+      );
+      
+      // Update the requester's CO2 savings
+      await User.findOneAndUpdate(
+        { email: requesterEmail },
+        { $inc: { co2Saved: co2SavingsPerPassenger } },
+        { new: true, upsert: false }
+      );
+      
+      // Add CO2 savings to the carpooler's record
+      const requesterIndex = carpool.carpoolers.findIndex(c => c.email === requesterEmail);
+      if (requesterIndex !== -1) {
+        carpool.carpoolers[requesterIndex].co2Savings = co2SavingsPerPassenger;
+      }
     }
     
     carpool.pendingRequests.splice(idx, 1);
@@ -250,7 +315,9 @@ router.post("/carpools/:id/approve", homeLimiter, authenticateToken, async (req,
       from: process.env.SMTP_USER,
       to: requesterEmail,
       subject: `Carpool Request Update for ${event ? event.eventName : 'Unknown Event'}`,
-      text: `Your request to join the carpool for the event: ${event ? event.eventName : 'Unknown Event'} (Driver: ${carpool.firstName} ${carpool.lastName}) has been ${approve ? 'approved' : 'denied'}.`
+      text: `Your request to join the carpool for the event: ${event ? event.eventName : 'Unknown Event'} (Driver: ${carpool.firstName} ${carpool.lastName}) has been ${approve ? 'approved' : 'denied'}.
+      
+${approve ? `🌱 By joining this carpool, you've helped save approximately ${(carpool.distanceMiles * 0.4).toFixed(2)} kg of CO2 emissions!` : ''}`
     };
     try {
       await transporter.sendMail(mailOptionsToRequester);
@@ -277,8 +344,24 @@ router.get("/events", homeLimiter, authenticateToken, async (req, res) => {
     res.status(500).send("Error getting events");
     return;
   }
->>>>>>> internot/main
   res.json(events);
+});
+
+// Route to get a specific event by ID
+router.get("/events/:id", homeLimiter, authenticateToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const event = await Event.findById(id);
+
+    if (!event) {
+      return res.status(404).send("Event not found");
+    }
+
+    res.json(event);
+  } catch (err) {
+    console.error("Error retrieving event: " + err);
+    res.status(500).send("Error retrieving event");
+  }
 });
 
 // Route to create a new event
@@ -343,26 +426,23 @@ router.post("/events", homeLimiter, authenticateToken, async (req, res) => {
 });
 
 // Route to get all carpools
-<<<<<<< HEAD
-// Why do we have a req here?
-router.get("/carpools", homeLimiter, authenticateToken, async (req, res) => {
-  // Get all the carpools from the DB
-  try {
-    // Get all the carpools from the DB and wait for the response
-    const carpools = await Carpool.find({});
-    // Send the carpools as a JSON response
-    res.json(carpools);
-    // If there is an error, send a 500 status code and an error message
-=======
 router.get("/carpools", homeLimiter, authenticateToken, async (req, res) => {
   try {
     // Only return carpools with arrivalTime after now
-    const now = new Date();
-    const carpools = await Carpool.find({
-      arrivalTime: { $gt: now.toISOString() }
+    const carpools = await Carpool.find();
+    // Format arrivalTime to 12-hour AM/PM if present
+    const formattedCarpools = carpools.map(carpool => {
+      let formatted = carpool.toObject();
+      if (formatted.arrivalTime && typeof formatted.arrivalTime === "string" && formatted.arrivalTime.match(/^\d{2}:\d{2}$/)) {
+        // Convert "HH:mm" to 12-hour format
+        const [hour, minute] = formatted.arrivalTime.split(":");
+        const date = new Date();
+        date.setHours(Number(hour), Number(minute));
+        formatted.arrivalTime = date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true });
+      }
+      return formatted;
     });
-    res.json(carpools);
->>>>>>> internot/main
+    res.json(formattedCarpools);
   } catch (err) {
     console.error("Error retrieving carpools: " + err);
     res.status(500).send("Error retrieving carpools");
@@ -371,39 +451,16 @@ router.get("/carpools", homeLimiter, authenticateToken, async (req, res) => {
 
 // Route to get user's carpools
 router.get("/userCarpools", homeLimiter, authenticateToken, async (req, res) => {
-<<<<<<< HEAD
-  // Let carpools be an empty array to store the carpools
-  let carpools = [];
-  // Try to get the carpools from the DB
-  try {
-    // Get all the carpools created by the user
-    const carpoolsCreated = await Carpool.find({ email: req.email }).exec();
-    // Get all the carpools joined by the user
-    const carpoolsJoined = await Carpool.find({
-      "carpoolers.email": req.email,
-    }).exec();
-    // Combine the carpools created and joined by the user
-    carpools = [...carpoolsCreated, ...carpoolsJoined];
-    // Something went wrong that should not have gone wrong
-=======
   let carpools = [];
   try {
-    const now = new Date();
-    // Only return user's carpools with arrivalTime after now
-    // FIX: Use userEmail field for carpools created by the user
-    const carpoolsCreated = await Carpool.find({ userEmail: req.userEmail, arrivalTime: { $gt: now.toISOString() } }).exec();
-    const carpoolsJoined = await Carpool.find({ "carpoolers.userEmail": req.userEmail, arrivalTime: { $gt: now.toISOString() } }).exec();
+    const carpoolsCreated = await Carpool.find({ userEmail: req.userEmail }).exec();
+    const carpoolsJoined = await Carpool.find({ "carpoolers.userEmail": req.userEmail }).exec();
     carpools = [...carpoolsCreated, ...carpoolsJoined];
->>>>>>> internot/main
   } catch (err) {
     console.error("Error retrieving carpools: " + err);
     res.status(500).send("Error retrieving carpools");
     return;
   }
-<<<<<<< HEAD
-  // Send the carpools as a JSON response
-=======
->>>>>>> internot/main
   res.json(carpools);
 });
 
@@ -451,6 +508,12 @@ router.get("/mapRoute/:id", homeLimiter, authenticateToken, async (req, res) => 
     res.json({
       final,
       stops: [carpool.wlocation],
+    });
+  } else if (carpool.route == "eps-campus") {
+    // EPS campus as the only stop
+    res.json({
+      final: "10613 NE 38th Place, Kirkland, WA 98033",
+      stops: ["10613 NE 38th Place, Kirkland, WA 98033"],
     });
   } else {
     // If the carpool route is a route, send the route as the stops
@@ -614,21 +677,14 @@ router.delete(
 router.patch(
   "/carpools/deleteCarpooler",
   homeLimiter,
-<<<<<<< HEAD
-
-=======
->>>>>>> internot/main
   authenticateToken,
   async (req, res) => {
     // Get the carpool ID from the request
     try {
       const { _id, _id2 } = req.body;
-<<<<<<< HEAD
-=======
       
       console.log("Removing carpooler with ID:", _id, "from carpool with ID:", _id2);
       
->>>>>>> internot/main
       // Update the carpool to remove the carpooler
       const carpools = await Carpool.updateOne(
         // Find the carpool by ID
@@ -636,8 +692,6 @@ router.patch(
         // Remove the carpooler from the carpool
         { $pull: { carpoolers: { _id: new ObjectId(_id) } } },
       );
-<<<<<<< HEAD
-=======
       
       // Check if the update was successful
       if (carpools.modifiedCount === 0) {
@@ -645,7 +699,6 @@ router.patch(
         return res.status(404).send("Failed to remove carpooler");
       }
       
->>>>>>> internot/main
       // Send the updated carpool as a JSON response
       res.json(carpools);
     } catch (err) {
@@ -708,30 +761,84 @@ router.post("/carpools", homeLimiter, authenticateToken, async (req, res) => {
     seats, 
     route, 
     wlocation, 
-    carpoolers, 
+    carpoolers = [], 
     nameOfEvent,
     userEmail,
-    arrivalTime 
+    arrivalTime,
+    category = 'other',
+    distanceMiles = 10 // Default distance, should be calculated based on actual route in a real app
   } = req.body;
 
   try {
+    const parsedSeats = parseInt(seats, 10);
+    if (isNaN(parsedSeats) || parsedSeats < 1) {
+      console.error(`Invalid 'seats' value received for carpool creation: original='${seats}', parsed='${parsedSeats}'`);
+      return res.status(400).json({
+        message: "Invalid number of seats. Seats must be a number greater than 0.",
+        error: `Invalid 'seats' value: '${seats}'. Must be a positive integer.`
+      });
+    }
+
+    const validatedDistanceMiles = parseFloat(distanceMiles); // distanceMiles is from destructuring, defaults to 10
+    if (isNaN(validatedDistanceMiles) || validatedDistanceMiles < 0) {
+      console.error(`Invalid 'distanceMiles' value received for carpool creation: original='${distanceMiles}', parsed='${validatedDistanceMiles}'`);
+      return res.status(400).json({
+        message: "Invalid distance. Distance must be a non-negative number.",
+        error: `Invalid 'distanceMiles' value: '${distanceMiles}'. Must be a non-negative number.`
+      });
+    }
+
+    // Create and save the new carpool
     const newCarpool = new Carpool({
       firstName,
       lastName,
       email,
       phone,
       carMake,
-      seats,
+      seats: parsedSeats, // Use validated parsedSeats
       route,
       wlocation,
-      carpoolers,
+      carpoolers: [],
+      pendingRequests: [],
       nameOfEvent,
       userEmail,
-      arrivalTime
+      arrivalTime,
+      category,
+      distanceMiles: validatedDistanceMiles, // Use validated distanceMiles
+      co2Savings: calculateCO2Savings(validatedDistanceMiles, 1) // Initial CO2 savings with just the driver
     });
 
     await newCarpool.save();
-    res.status(200).json(newCarpool);
+    
+    // Calculate CO2 savings for the carpool (1 driver + carpoolers.length passengers)
+    const numPassengers = 1 + carpoolers.length; // Driver + passengers
+    
+    // Calculate total CO2 savings for the carpool
+    const co2Savings = calculateCO2Savings(distanceMiles, numPassengers);
+    
+    // Calculate CO2 savings per passenger
+    const co2SavingsPerPassenger = calculateCO2SavingsPerPassenger(distanceMiles, numPassengers);
+    
+    // Update the carpool with CO2 savings data
+    newCarpool.co2Savings = co2Savings;
+    newCarpool.distanceMiles = distanceMiles;
+    
+    // Save the updated carpool
+    await newCarpool.save();
+    
+    // Update the driver's total CO2 savings
+    await User.findOneAndUpdate(
+      { email: userEmail },
+      { $inc: { co2Saved: co2SavingsPerPassenger } },
+      { new: true, upsert: false }
+    );
+    
+    // Prepare response with CO2 savings data
+    const response = newCarpool.toObject();
+    response.co2Savings = co2Savings;
+    response.co2SavingsPerPassenger = co2SavingsPerPassenger;
+    
+    res.status(200).json(response);
   } catch (err) {
     console.error("Error creating carpool:", err);
     res.status(500).send("Error creating carpool");
@@ -768,19 +875,11 @@ router.get("/carpools/:id/contact-info", homeLimiter, authenticateToken, async (
     }
 
     // Get all emails and phone numbers
-<<<<<<< HEAD
-    const emails = [carpool.email]; // Driver's email
-    const phones = carpool.phone ? [carpool.phone] : []; // Driver's phone
-
-    // Add carpoolers' contact info
-    for (const carpooler of carpool.carpoolers) {
-=======
     const emails = [carpool.userEmail]; // Driver's email
     const phones = carpool.phone ? [carpool.phone] : []; // Driver's phone
 
     // Add carpoolers' contact info
-    for (const carpooler of carpoolers) {
->>>>>>> internot/main
+    for (const carpooler of carpool.carpoolers) { // changed: used carpool.carpoolers instead of undefined carpoolers
       const user = await User.findOne({ email: carpooler.email });
       if (user) {
         emails.push(user.email);
@@ -816,5 +915,212 @@ router.get("/users", homeLimiter, authenticateToken, async (req, res) => {
   res.json(users);
 });
 
+// Route to get contact information for a carpool group
+router.get("/carpools/:id/contact-info", homeLimiter, authenticateToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const carpool = await Carpool.findById(id);
+    
+    if (!carpool) {
+      return res.status(404).send("Carpool not found");
+    }
+
+    // Get all emails and phone numbers
+    const emails = [carpool.userEmail]; // Driver's email
+    const phones = carpool.phone ? [carpool.phone] : []; // Driver's phone
+
+    // Add carpoolers' contact info
+    for (const carpooler of carpool.carpoolers) {
+      const user = await User.findOne({ email: carpooler.email });
+      if (user) {
+        emails.push(user.email);
+        if (user.cell && user.cell !== "none") {
+          phones.push(user.cell);
+        }
+      }
+    }
+
+    res.json({ emails, phones });
+  } catch (err) {
+    console.error("Error getting contact info:", err);
+    res.status(500).send("Error getting contact information");
+  }
+});
+
+/**
+ * @route GET /api/user/co2-total
+ * @description Get the current user's total CO2 savings from all carpools
+ * @access Private (requires authentication)
+ * @returns {Object} Object containing the user's total CO2 savings in kg
+ */
+router.get("/user/co2-total", homeLimiter, authenticateToken, async (req, res) => {
+  try {
+    const user = await User.findOne({ email: req.email });
+    if (!user) {
+      return res.status(404).json({ 
+        success: false, 
+        error: 'User not found' 
+      });
+    }
+    
+    // Get all carpools where the user is a passenger or driver
+    const userCarpools = await Carpool.find({
+      $or: [
+        { 'carpoolers.email': user.email },
+        { driverEmail: user.email }
+      ],
+      date: { $lte: new Date() } // Only count completed carpools
+    });
+    
+    // Calculate total CO2 savings
+    let totalCO2Savings = 0;
+    userCarpools.forEach(carpool => {
+      const userCarpooler = carpool.carpoolers.find(c => c.email === user.email);
+      if (userCarpooler?.co2Savings) {
+        totalCO2Savings += userCarpooler.co2Savings;
+      }
+    });
+    
+    // Update user's total CO2 savings
+    user.totalCO2Savings = totalCO2Savings;
+    await user.save();
+    
+    res.json({ 
+      success: true,
+      totalCO2Savings: parseFloat(totalCO2Savings.toFixed(2))
+    });
+  } catch (error) {
+    console.error("Error fetching user's CO2 savings:", error);
+    res.status(500).json({ 
+      success: false,
+      error: "Failed to fetch CO2 savings",
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+});
+
+/**
+ * @route GET /api/user/co2-savings
+ * @description Get the current user's total CO2 savings in kilograms
+ * @access Private (requires authentication)
+ * @returns {Object} Object containing the user's CO2 savings in kg
+ */
+router.get("/user/co2-savings", homeLimiter, authenticateToken, async (req, res) => {
+  try {
+    // Find the user by email from the authenticated token
+    const user = await User.findOne({ email: req.email });
+    
+    if (!user) {
+      console.error(`User not found with email: ${req.email}`);
+      return res.status(404).json({ 
+        success: false,
+        error: 'User not found' 
+      });
+    }
+    
+    // Return the user's CO2 savings, defaulting to 0 if not set
+    res.json({ 
+      success: true,
+      co2Saved: user.co2Saved || 0 
+    });
+    
+  } catch (error) {
+    console.error('Error fetching CO2 savings:', error);
+    res.status(500).json({ 
+      success: false,
+      error: 'Failed to fetch CO2 savings',
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+});
+
+/**
+ * @route POST /api/update-co2-savings
+ * @description Update a user's CO2 savings when they create or join a carpool
+ * @access Private (requires authentication)
+ * @param {number} distanceMiles - Distance of the trip in miles
+ * @param {number} numPassengers - Number of people in the carpool (including driver)
+ * @returns {Object} Object indicating success and the amount of CO2 saved in kg
+ */
+router.post("/update-co2-savings", homeLimiter, authenticateToken, async (req, res) => {
+  try {
+    const { distanceMiles, numPassengers } = req.body;
+    
+    // Input validation
+    if (distanceMiles === undefined || numPassengers === undefined) {
+      return res.status(400).json({ 
+        success: false,
+        error: 'Missing required fields: distanceMiles and numPassengers are required' 
+      });
+    }
+    
+    const distance = parseFloat(distanceMiles);
+    const passengers = parseInt(numPassengers, 10);
+    
+    if (isNaN(distance) || distance <= 0) {
+      return res.status(400).json({ 
+        success: false,
+        error: 'Invalid distance: must be a positive number' 
+      });
+    }
+    
+    if (isNaN(passengers) || passengers < 1) {
+      return res.status(400).json({ 
+        success: false,
+        error: 'Invalid number of passengers: must be at least 1' 
+      });
+    }
+    
+    // Calculate CO2 savings
+    const co2Savings = calculateCO2Savings(distance, passengers);
+    
+    // Update user's CO2 savings in the database
+    const updatedUser = await User.findOneAndUpdate(
+      { email: req.email },
+      { $inc: { co2Saved: co2Savings } },
+      { new: true, upsert: false }
+    );
+    
+    if (!updatedUser) {
+      console.error(`Failed to update CO2 savings for user: ${req.email}`);
+      return res.status(404).json({
+        success: false,
+        error: 'User not found or could not be updated'
+      });
+    }
+    
+    // Return success response with the amount of CO2 saved
+    res.json({ 
+      success: true, 
+      co2Savings: parseFloat(co2Savings.toFixed(2)),
+      totalCo2Saved: updatedUser.co2Saved
+    });
+    
+  } catch (error) {
+    console.error('Error updating CO2 savings:', error);
+    res.status(500).json({ 
+      success: false,
+      error: 'Failed to update CO2 savings',
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+});
+
+// Route to get the most recent version from MongoDB
+router.get("/version", homeLimiter, async (req, res) => {
+  try {
+    // Find the most recent version by createdAt descending
+    const latestVersion = await Version.findOne({}, {}, { sort: { createdAt: -1 } });
+    if (!latestVersion) {
+      return res.status(404).json({ error: "No version found" });
+    }
+    res.json(latestVersion);
+  } catch (err) {
+    console.error("Error retrieving version: " + err);
+    res.status(500).send("Error retrieving version");
+  }
+});
+
 // Route to get a specific user
+
 module.exports = router;
